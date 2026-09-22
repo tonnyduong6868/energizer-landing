@@ -1,4 +1,5 @@
 import { cta, links, pricing, promo, promoSaving } from '@/lib/site'
+import { Countdown } from './Countdown'
 
 /**
  * Dải giảm giá trên cùng.
@@ -41,6 +42,11 @@ export function PromoBar() {
           {pricing.symbol}{nextAmount}
         </span>
 
+        {/* Đồng hồ thế chỗ "See pricing →": cùng một góc phải, và nó là
+            thông tin, còn mũi tên chỉ nhắc lại rằng cả dải là một cái
+            link. Khi không đếm (tắt cờ, hoặc reduced-motion) thì mũi tên
+            quay lại — CSS lo, xem .promo-go. */}
+        <Countdown className="cd-bar" />
         <span className="promo-go" aria-hidden="true">
           See pricing →
         </span>
@@ -66,6 +72,10 @@ export function PromoPrice() {
         <span className="promo-badge">&minus;{promoSaving.percent}%</span>
         Launch price, ends {untilLabel}
       </p>
+
+      {/* Ở đây đồng hồ được phép to hơn trên dải: người đọc tới thẻ giá là
+          đang cân con số, không phải đang lướt qua. */}
+      <Countdown className="cd-lg" />
 
       <ul className="promo-rows">
         <li>

@@ -27,7 +27,8 @@ export function SiteFooter() {
 
         {hasUnconfirmedPromo && (
           <div className="devwarn" role="alert">
-            ⚠ Banner giảm giá đang chạy mà chưa ai xác nhận. Đặt
+            ⚠ Banner giảm giá {promo.countdown && 'kèm đồng hồ đếm ngược '}đang
+            chạy mà chưa ai xác nhận. Đặt
             {' '}<code>promo.launch.confirmed</code> = true khi đã CHỐT là ngày{' '}
             {promo.launch.untilLabel} giá lên thật {promo.launch.nextAmount}$, và
             {' '}<code>promo.crypto.confirmed</code> = true khi checkout của Energizer

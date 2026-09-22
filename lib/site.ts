@@ -13,9 +13,12 @@
  * 2. Mảng nào chưa có dữ liệu thật thì để RỖNG. Component tự ẩn khối đó. Trang
  *    vẫn chạy đúng khi chưa điền gì — đây là cách duy nhất để không bao giờ
  *    vô tình ship social proof bịa.
- * 3. Không đếm ngược, không "còn 3 suất", không toast "ai đó vừa mua". Hai
- *    funnel zynalgo.net hiện tại đang làm cả ba thứ đó và nó là rủi ro pháp lý
- *    (FTC Act §5, EU UCPD Annex I) chứ không phải kỹ thuật bán hàng.
+ * 3. Không "còn 3 suất", không toast "ai đó vừa mua". Hai funnel zynalgo.net
+ *    hiện tại đang làm cả hai thứ đó và nó là rủi ro pháp lý (FTC Act §5,
+ *    EU UCPD Annex I) chứ không phải kỹ thuật bán hàng.
+ *    Đồng hồ đếm ngược thì CÓ, nhưng chỉ ở đúng một dạng — ba ràng buộc bắt
+ *    buộc ghi trong khối GIẢM GIÁ bên dưới. Cái bị phạt là đếm ngược giả
+ *    (reset theo khách, về 0 mà giá không đổi), không phải đếm ngược.
  */
 
 export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
@@ -60,8 +63,14 @@ export const links = {
   telegramFree: 'https://t.me/REPLACE_ME_free_channel',
   /** Nhóm VIP — chỉ người đã mua. Link này gửi trong email sau thanh toán. */
   telegramVip: 'https://t.me/REPLACE_ME_vip_group',
-  /** Trang thanh toán. Trỏ vào Stripe/GHL checkout của Energizer. */
-  checkout: 'https://zynalgo.com/REPLACE_ME_energizer_checkout',
+  /**
+   * Trang thanh toán — checkout của Whop (xem `docs/whop-setup.md`).
+   *
+   * Dạng thật: `https://whop.com/<slug>/` hoặc link plan trực tiếp. Plan PHẢI
+   * bật custom checkout field `tradingview_username` (required), nếu không mỗi
+   * đơn lại phải email hỏi lại username — đó là chỗ rơi khách nhiều nhất.
+   */
+  checkout: 'https://whop.com/REPLACE_ME_energizer/',
   /** Hỏi trước khi mua. */
   support: 'mailto:support@zynalgo.com',
 } as const
@@ -110,11 +119,28 @@ export function cta(href: string, place: CtaPlace): string {
 /* ══════════════════════════════════════════════════════════════════════
    GIÁ
    ══════════════════════════════════════════════════════════════════════ */
+
+/** Một chỗ duy nhất định thời hạn licence. Mọi câu chữ bên dưới đọc từ đây. */
+const TERM_YEARS = 3
+
 export const pricing = {
   amount: 97,
   currency: 'USD',
   symbol: '$',
-  planName: 'Lifetime licence',
+  /**
+   * Licence CÓ thời hạn, và thời hạn phải ghi ra. Đừng bỏ con số đi.
+   *
+   * Whop Seller Terms (hiệu lực 28/07/2026) viết thẳng: "All Products must have
+   * specific access periods, durations, and delivery mechanisms disclosed to the
+   * Buyer at the time of purchase. You may not offer or list 'lifetime,'
+   * 'perpetual,' or indefinite-access Products."
+   *
+   * Nên đây không phải chuyện tránh một từ — offer vô thời hạn tự nó bị cấm.
+   * Bán thứ bị cấm nằm ở nhóm vi phạm non-correctable: khoá tài khoản, giữ tiền,
+   * kháng cáo hiếm khi được chấp nhận.
+   */
+  planName: `${TERM_YEARS}-year licence`,
+  termYears: TERM_YEARS,
 
   /**
    * KHÔNG có giá neo (`was $197`).
@@ -128,10 +154,10 @@ export const pricing = {
 
   includes: [
     'Smart Money Energizer v1.1 — invite-only script on TradingView',
-    'Every future v1.x update, automatically, at no extra cost',
+    `Every v1.x update released during the ${TERM_YEARS} years, at no extra cost`,
     'Use it on your own TradingView account, on any chart, any symbol',
     'JSON webhook alerts — pipe signals into Telegram, Discord or your own bot',
-    'Access to the VIP Telegram group for as long as the licence lives',
+    `Access to the VIP Telegram group for the full ${TERM_YEARS} years`,
   ],
 
   excludes: [
@@ -169,8 +195,26 @@ export const pricing = {
 
    VẪN KHÔNG CÓ, và đừng thêm vào:
    · `pricing.anchor` gạch ngang — Energizer chưa bán ngày nào ở mức khác.
-   · Đồng hồ đếm ngược. Ngày hết hạn là THẬT nhưng đếm từng giây là kỹ
-     thuật gây áp lực, không phải thông tin. Ghi ngày là đủ.
+
+   ĐỒNG HỒ ĐẾM NGƯỢC — có, nhưng chỉ đúng một kiểu
+
+   Cái mà cơ quan quản lý phạt không phải "đếm ngược", mà là đếm ngược
+   GIẢ: đồng hồ reset theo từng khách, đồng hồ evergreen chạy theo lần
+   truy cập đầu, đồng hồ về 0 rồi giá vẫn y nguyên. Đếm tới một mốc có
+   thật, giống nhau với mọi người, và về 0 thì trang tự đổi — đó là thông
+   tin, không phải thủ thuật.
+
+   Ba ràng buộc dưới đây là điều kiện để giữ nó, không phải gợi ý:
+
+   1. Mốc là MỘT hằng số UTC nén sẵn vào bundle (`deadlineUtc`). Không
+      localStorage, không cookie, không tính từ lần ghé đầu. Hai người mở
+      trang cùng lúc ở hai châu lục thấy cùng một con số.
+   2. Về 0 là trang tự gỡ toàn bộ phần giảm giá xuống — không đứng ở
+      00:00:00, không quay vòng. Trang lành lại thành trang $97 bình
+      thường kể cả khi không ai kịp build lại.
+   3. Mốc đó phải là sự thật. Chừng nào `launch.confirmed` còn `false`,
+      đồng hồ này đang đếm tới một ngày chưa ai chốt — và đếm ngược làm
+      lời hứa đó to hơn hẳn so với một dòng chữ.
    ══════════════════════════════════════════════════════════════════════ */
 export const promo = {
   enabled: true,
@@ -181,6 +225,14 @@ export const promo = {
     /** Ngày giá tăng. ISO để máy đọc, `label` để người đọc. */
     until: '2026-10-15',
     untilLabel: '15 Oct 2026',
+    /**
+     * Mốc đồng hồ đếm ngược, UTC tuyệt đối. Cố ý KHÔNG suy ra từ `until`:
+     * hết ngày 15/10 theo múi giờ nào là một quyết định kinh doanh, để nó
+     * ngầm định thì mỗi người đọc code hiểu một kiểu. UTC vì sản phẩm bán
+     * toàn cầu — chọn múi giờ Việt Nam thì khách Mỹ mất thêm nửa ngày mà
+     * không biết vì sao.
+     */
+    deadlineUtc: '2026-10-15T23:59:59Z',
     /**
      * Tonny bật `true` khi đã CHỐT là sẽ tăng giá thật vào đúng ngày trên.
      * Còn `false` thì banner vẫn hiện nhưng footer in cảnh báo đỏ — cùng cơ
@@ -201,7 +253,19 @@ export const promo = {
 
   /** Mã giảm giá riêng do support cấp, cộng dồn với crypto. Không in mã ra trang. */
   stackableCode: true,
+
+  /** Tắt riêng đồng hồ mà vẫn giữ banner chữ. Đọc ba ràng buộc ở đầu khối. */
+  countdown: true,
 } as const
+
+/**
+ * Mốc đếm ngược quy ra epoch ms, tính lúc BUILD.
+ *
+ * `Date.parse` một chuỗi hằng là thuần tuý, không phải `Date.now()` — nó
+ * cho cùng một số ở mọi lần build, nên không vi phạm luật "không dùng giờ
+ * hệ thống lúc render" mà ChartPanel đang theo.
+ */
+export const promoDeadlineMs = Date.parse(promo.launch.deadlineUtc)
 
 /** Giá sau khi hết đợt ra mắt trừ đi giá hiện tại, làm tròn % theo giá SAU. */
 export const promoSaving = {
@@ -487,7 +551,7 @@ export const proof = {
 export const faq = [
   {
     q: 'Is this a subscription?',
-    a: `No. ${pricing.symbol}${pricing.amount} once, and the licence does not expire. We do not store your card for later and there is no renewal to cancel. The VIP Telegram group is part of the licence, not a separate monthly fee.`,
+    a: `No. ${pricing.symbol}${pricing.amount} paid once, and the licence runs ${pricing.termYears} years from the day it is activated. Nothing renews, no card is kept on file, and there is nothing to cancel. The VIP Telegram group runs with the licence — it is not a separate monthly fee.`,
   },
   {
     q: 'Do the signals repaint?',
@@ -495,7 +559,7 @@ export const faq = [
   },
   {
     q: 'What do I need to run it?',
-    a: 'TradingView. The script is invite-only, so send your TradingView username after purchase and it appears in your Invite-only scripts list. Webhook alerts need at least a paid TradingView tier — that is their limit, not ours.',
+    a: 'TradingView. The script is invite-only, so checkout asks for your TradingView username and it appears in your Invite-only scripts list once access is granted. Webhook alerts need at least a paid TradingView tier — that is their limit, not ours.',
   },
   {
     q: 'Which markets and timeframes?',

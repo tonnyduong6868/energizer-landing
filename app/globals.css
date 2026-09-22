@@ -391,6 +391,72 @@ section { padding-block: var(--pad); position: relative; }
    cái link rồi, mũi tên chỉ nhắc lại điều đó bằng 92px chiều ngang. */
 @media (max-width: 459px) { .promo-go { display: none; } }
 
+/* ── Đồng hồ đếm ngược ────────────────────────────────────────────────
+   Chỉ hiện sau khi script đặt data-cd="live". Không chạy JS, hoặc bật
+   reduced-motion, thì nó không bao giờ hiện và dòng chữ ghi ngày ở cạnh
+   gánh hết phần nghĩa. Mặc định là ẨN, không phải hiện-rồi-giấu: hiện
+   trước thì có nửa giây "-- d -- h -- m" nhấp nháy.
+   ───────────────────────────────────────────────────────────────────── */
+.cd { display: none; }
+.cd[data-cd='live'] { display: inline-flex; align-items: baseline; gap: 5px; }
+/* Còn đếm thì mũi tên nhường chỗ — hai thứ cùng nằm sát mép phải của một
+   dải cao 38px thì chật, và đồng hồ nói được nhiều hơn. */
+.promo-in:has(.cd[data-cd='live']) .promo-go { display: none; }
+
+.cd-u {
+  display: inline-flex; align-items: baseline; gap: 1px;
+  font-family: var(--f-mono);
+}
+/* tabular-nums + min-width: khoá bề ngang lại. Thiếu nó thì mỗi lần phút
+   đổi từ 1 sang 2 chữ số cả dải nhích ngang một pixel, mỗi phút một lần. */
+.cd-u b {
+  font-variant-numeric: tabular-nums;
+  min-width: 2ch; text-align: right;
+  font-weight: 700; letter-spacing: -0.02em;
+  color: var(--chg);
+}
+.cd-u i {
+  font-style: normal; font-size: 0.82em;
+  color: var(--ink-3);
+}
+
+/* Trên dải header — ngang hàng chữ, không nổi hơn. */
+.cd-bar { margin-left: auto; font-size: 12px; white-space: nowrap; }
+.cd-bar b { color: var(--chg-hi); }
+
+/* Trong thẻ giá — hàng riêng, số to, có nền để tách khỏi bảng bên dưới. */
+.cd-lg[data-cd='live'] {
+  display: flex; gap: var(--s4);
+  margin-top: var(--s4); padding: 9px var(--s3);
+  border: 1px solid var(--chg-line);
+  border-radius: var(--r-sm);
+  background: var(--chg-dim);
+}
+.cd-lg .cd-u { flex: 1; justify-content: center; }
+.cd-lg b { font-size: 21px; }
+.cd-lg i { font-size: 12px; }
+
+/* Hết hạn: script đặt data-promo="ended" lên <html> và mọi thứ liên quan
+   tới giảm giá biến mất cùng lúc. Không có trạng thái "00:00:00", không
+   có dòng "đã kết thúc" — trang đơn giản trở lại là trang $97 như trước
+   khi có khuyến mãi. Đây là nhánh quan trọng nhất của cả tính năng: nó là
+   thứ khiến lời hứa tăng giá không bao giờ sống lâu hơn ngày đã hứa. */
+[data-promo='ended'] .promo,
+[data-promo='ended'] .hero-promo,
+[data-promo='ended'] .promo-card,
+[data-promo='ended'] .sticky-next { display: none; }
+
+/* Dải biến mất thì header tụt lại còn 62px, nên ba khoảng chừa cho chiều
+   cao của nó phải tụt theo. Bỏ qua chỗ này thì sau ngày hết hạn mọi cái
+   neo dừng sớm 38px và bỏ lại một dải trống trên đầu mỗi khối.
+   `[data-promo='ended']` chính là thẻ <html>, nên nó đè trực tiếp lên khai
+   báo gốc mà không cần !important. */
+[data-promo='ended'] { scroll-padding-top: 80px; }
+@media (min-width: 900px) {
+  [data-promo='ended'] .conf-side { top: 96px; }
+  [data-promo='ended'] .price-buy { top: 86px; }
+}
+
 /* ─────────────────────────────────────────────────────────────────────
    Hero — một cột căn giữa
 
@@ -864,7 +930,7 @@ section { padding-block: var(--pad); position: relative; }
 .price-amt .cur { font-size: 28px; color: var(--ink-2); }
 .price-amt .num { font-size: clamp(50px, 6vw, 66px); }
 /* Tách khỏi con số bằng margin chứ không dựa vào khoảng trắng — ở 66px
-   mono, "Lifetime licence" đặt inline sẽ đè lên chân số. */
+   mono, "One-time licence" đặt inline sẽ đè lên chân số. */
 .price-amt .per {
   margin-left: 10px;
   font-family: var(--f-sans); font-size: 13px; font-weight: 400;

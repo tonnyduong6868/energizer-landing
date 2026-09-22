@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { fontClassNames } from './fonts'
 import { asset, site, pricing } from '@/lib/site'
+import { CountdownScript } from '@/components/CountdownScript'
 import './globals.css'
 
 /**
@@ -62,6 +63,10 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
           Skip to content
         </a>
         {children}
+
+        {/* Cuối <body>: markup đã có sẵn khi script chạy nên không cần
+            DOMContentLoaded, và không chặn paint. */}
+        <CountdownScript />
       </body>
     </html>
   )
