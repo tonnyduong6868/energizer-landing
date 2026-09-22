@@ -12,12 +12,15 @@ Trang tự in một banner đỏ ở footer khi mấy chỗ này chưa xong. **�
 
 | Sửa ở | Đang là | Cần |
 |---|---|---|
-| `lib/site.ts` → `links.telegramFree` | `REPLACE_ME_free_channel` | link channel Telegram công khai |
-| `lib/site.ts` → `links.telegramVip` | `REPLACE_ME_vip_group` | link group VIP |
-| `lib/site.ts` → `links.checkout` | `REPLACE_ME_energizer_checkout` | trang thanh toán Stripe/GHL |
+| `lib/site.ts` → `links.telegramVip` | `REPLACE_ME_vip_group` | link group VIP — **group mới, rỗng**, Whop là admin |
 | `lib/site.ts` → `proof.shots` | `[]` | ảnh chart thật, bỏ vào `public/assets/shots/`, khai kèm `w`/`h` |
 | `lib/site.ts` → `proof.quotes` | `[]` | testimonial thật, tối đa 6 |
 | `lib/site.ts` → `community.memberCount` | `0` | số member thật + `asOf` là ngày đọc số |
+| `lib/site.ts` → `analytics.provider` | `'none'` | chọn `plausible`/`umami`/`cloudflare` — chưa chọn là bán mù |
+
+Đã xong (22/09/2026): `links.checkout` trỏ Whop thật, `links.telegramFree` trỏ channel công khai `Energizer Signals` (`t.me/Energizer_SignalsBot`).
+
+**Username kết thúc bằng "Bot" nhưng đó là channel, không phải bot.** Kiểm bằng `t.me/s/<username>` — chỉ channel công khai mới render trang đó. Hệ quả: `TELEGRAM_IS_BOT` trong `lib/site.ts` phải giữ `false`, vì `?start=` chỉ có tác dụng với bot thật. Đổi username sang tên không có chữ "Bot" thì sửa `links.telegramFree` cùng lúc — link cũ chết ngay.
 
 Mảng nào để rỗng thì component tự ẩn khối đó. Trang vẫn chạy đúng khi chưa điền gì — đó là cách để không bao giờ lỡ ship social proof bịa.
 

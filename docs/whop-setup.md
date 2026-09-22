@@ -168,7 +168,46 @@ Hai điều **không** được làm trong lúc review:
 - Đừng nhắc tới MT5 Expert Advisor như thứ bán kèm. Đó là sản phẩm riêng, và nó
   *có* thực thi lệnh — trộn vào mô tả là tự đẩy mình sang nhóm khác.
 
-### 3. Nối Telegram VIP
+### 3. Hai tầng Telegram
+
+**Tầng free — channel + discussion group.** Chốt 22/09/2026. Telegram **không
+chuyển group thành channel được** (cũng không có chiều ngược lại); thứ duy nhất
+nó tự chuyển là group thường → supergroup. Nên cấu trúc là:
+
+```
+[Channel công khai: Energizer]   ← landing trỏ vào đây
+  tín hiệu mẫu · chart breakdown · release notes · chỉ admin đăng
+        │ Discussion group
+        ▼
+[Only trade Nasdaq — 133 người]  ← giữ nguyên, mỗi bài mở 1 luồng chat
+```
+
+Được cả ba: giữ 133 người sẵn có, khách lạ vào thấy nội dung sạch chứ không
+rơi giữa một cuộc chat đang dở, và chữ "channel" đang nằm ở 13 chỗ trong
+`components/` thành đúng nghĩa — khỏi sửa copy.
+
+Channel đã tạo và đã Public 22/09/2026: **Energizer Signals**, `-1003474460136`,
+`https://t.me/Energizer_SignalsBot`. Link vĩnh viễn, không revoke được, search
+ra được — đã thay cho invite link `t.me/+…` ban đầu.
+
+**Username kết thúc bằng "Bot" nhưng đây là channel, không phải bot.** Kiểm
+bằng `t.me/s/<username>`: chỉ channel công khai mới render được trang đó (trang
+bot thì không). Hệ quả cho code: `TELEGRAM_IS_BOT` trong `lib/site.ts` phải giữ
+`false` — `?start=` chỉ có tác dụng với bot thật.
+
+Tên này gây hiểu nhầm: khách thấy `@…Bot` sẽ tưởng là bot để nhắn tin. Đổi
+username không mất gì, tên cũ được thả ra. Dò lại 22/09/2026, còn trống:
+`energizersignals` · `smartmoneyenergizer` · `smenergizer` · `energizerscore` ·
+`theenergizer` · `energizerhq`.
+
+Cách dò: fetch `https://t.me/<name>` rồi tìm class `tgme_page_title`. Có class
+đó là đã có người lấy. Kiểm lại phương pháp bằng `durov` và `telegram` trước
+khi tin kết quả "trống" — trang rỗng và trang lỗi nhìn giống nhau.
+
+Lưu ý tên nhóm `Only trade Nasdaq` lệch với lời hứa "any chart, any symbol" của
+trang. Channel mới nên đặt tên theo sản phẩm, không theo một thị trường.
+
+**Tầng VIP.**
 
 Dùng Telegram integration của Whop trỏ vào nhóm VIP — Whop tự mời khi đơn active
 và tự kick khi refund. Không tự phát link mời thủ công: link phát tay không thu
@@ -196,7 +235,8 @@ analytics, nên đó là cách duy nhất biết nút nào ra đơn.
 `tonny-f2cd` là store slug auto sinh. Đổi nó ở Settings là link trên trang chết —
 sửa cả hai cùng lúc.
 
-Còn `links.telegramFree`, `links.telegramVip` vẫn đang `REPLACE_ME`.
+`links.telegramFree` đã trỏ channel công khai `https://t.me/Energizer_SignalsBot`.
+Còn `links.telegramVip` vẫn đang `REPLACE_ME`.
 
 Banner đỏ ở footer tự tắt khi hết `REPLACE_ME`. Đừng gỡ nó bằng tay.
 
@@ -214,8 +254,10 @@ tiền sớm và gọn còn hơn để khách đi khiếu nại ngân hàng.
 
 ## Còn treo
 
-- `links.telegramFree`, `links.telegramVip` vẫn là `REPLACE_ME` — phải có nhóm
-  Telegram thật trước, rồi mới nối được integration ở mục 3.
+- `links.telegramVip` vẫn là `REPLACE_ME` — phải có nhóm VIP thật (group mới,
+  rỗng, Whop là admin) trước, rồi mới nối được integration ở mục 3.
+- Đổi username channel cho khỏi bị tưởng là bot — xem danh sách còn trống ở mục 3.
+  Đổi xong nhớ sửa `links.telegramFree` cùng lúc, link cũ chết ngay.
 - Chưa đặt post-checkout message **"Access is granted within 12 hours."**
 - Chưa quyết có bật Tax and remittance (+2%) hay không. Dashboard đang nhắc
   *"Add your VAT registrations"* cho UK/EU — phụ thuộc tệp khách thật.

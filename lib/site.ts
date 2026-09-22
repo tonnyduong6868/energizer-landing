@@ -59,8 +59,17 @@ export const site = {
    in cảnh báo đỏ ngay trên trang khi còn chữ "REPLACE", nên không quên lặng lẽ.
    ══════════════════════════════════════════════════════════════════════ */
 export const links = {
-  /** Channel công khai — CTA chính của cả trang. */
-  telegramFree: 'https://t.me/REPLACE_ME_free_channel',
+  /**
+   * CTA chính của cả trang — channel công khai `Energizer Signals`
+   * (`-1003474460136`, Public từ 22/09/2026). Link vĩnh viễn, không revoke
+   * được, lại search ra được trên Telegram — nên đã bỏ invite link `t.me/+…`.
+   *
+   * Username **kết thúc bằng "Bot" nhưng đây KHÔNG phải bot**, mà là channel.
+   * Đã kiểm bằng `t.me/s/Energizer_SignalsBot`: chỉ channel công khai mới
+   * render được trang đó. Vì vậy `TELEGRAM_IS_BOT` bên dưới phải giữ `false`
+   * — đừng thấy chữ "Bot" mà bật lên, `?start=` với channel là vô nghĩa.
+   */
+  telegramFree: 'https://t.me/Energizer_SignalsBot',
   /** Nhóm VIP — chỉ người đã mua. Link này gửi trong email sau thanh toán. */
   telegramVip: 'https://t.me/REPLACE_ME_vip_group',
   /**
@@ -568,6 +577,11 @@ export const community = {
   tiers: [
     {
       key: 'free',
+      // "Public" là chữ đúng từ 22/09/2026 — channel đã Public, đọc được
+      // toàn bộ bài ở `t.me/s/Energizer_SignalsBot` mà không cần join. Đó
+      // mới là thứ đỡ được câu "phải tin trang bán hàng": khách kiểm trước,
+      // vào sau. Nếu có ngày channel quay lại Private thì đổi chữ này cùng
+      // lúc với `links.telegramFree`, đừng để lệch.
       name: 'Public channel',
       price: 'Free',
       sub: 'No purchase. No email. Just join.',
