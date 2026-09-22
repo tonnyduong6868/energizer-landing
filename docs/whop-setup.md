@@ -75,26 +75,71 @@ Whop và đối tác tài chính có quyền giữ **tới 100%** số dư khi t
 có lịch sử giao dịch, hoặc tỉ lệ dispute/refund cao. Đừng lên kế hoạch tiêu số
 tiền của tháng đầu.
 
+## Tài khoản và ID thật
+
+| Thứ | Giá trị |
+|---|---|
+| Business | `Tonny` — `biz_Lw9wcksNcymj8n` |
+| Store slug | `tonny-f2cd` (auto sinh, xấu — đổi được ở Settings) |
+| Product | `Smart Money Energizer` — `prod_VHwQkeR9slUqI` |
+| Product slug | `smart-money-energizer` |
+
 ## Việc phải làm trước khi mở bán
 
-### 1. Tạo product + plan
+### 1. Tạo product + plan — ĐÃ XONG 22/09/2026
 
-- Product: `Smart Money Energizer`
-- Plan: one-time, $97 USD
-- **Access period: 3 years** — Whop bắt phải khai, và con số này phải khớp
-  `TERM_YEARS` trong `lib/site.ts`. Lệch nhau là mô tả sai, Whop gỡ listing.
-- **Bật custom checkout field, required:**
-  - key: `tradingview_username`
-  - label: `Your TradingView username`
-  - Ghi hint: `Exactly as it appears on your TradingView profile — not your email.`
+- Plan: **one-time, $97 USD**
+- **Auto-expire access: 1095 ngày (3 năm)** — Whop chỉ có preset tới "After one
+  year", phải chọn *Custom days*. Con số này phải khớp `TERM_YEARS` trong
+  `lib/site.ts`. Lệch nhau là mô tả sai, Whop gỡ listing.
+- **Ask questions before checkout: bật, bắt buộc (ô `Optional` để trống)**
+  - Title: `Your TradingView username`
+  - Placeholder: `Exactly as on your TradingView profile — not your email`
+- Purchase button text: `Get access`
 
-Thiếu field này thì mỗi đơn phải email hỏi lại username. Đó là chỗ rơi khách
-nhiều nhất trong cả luồng.
+Thiếu field username thì mỗi đơn phải email hỏi lại. Đó là chỗ rơi khách nhiều
+nhất trong cả luồng.
 
-### 2. Nội dung nộp cho Whop review
+#### Ba mặc định của Whop đã TẮT — đừng vô tình bật lại
+
+Whop bật sẵn ba thứ khi tạo product, cả ba đều ngược với cách trang landing được
+dựng:
+
+- **Show discount 20%** (Product settings → Growth tools). Nó tự vẽ giá gạch
+  `$121.25` cạnh `$97` — một mức giá chưa từng bán. Trang landing để
+  `pricing.anchor: null` đúng vì lý do này (FTC Act §5, EU UCPD Annex I về giá
+  tham chiếu bịa).
+- **Show member count**. Đang 0 người; hiện ra chỉ hại.
+- **Affiliate rate 30%**. Mặc định này ăn $29.10/đơn. Cộng ~6% phí Whop thì $97
+  chỉ còn ~$61. Bật lại chỉ khi thực sự muốn chạy affiliate, và tự chọn mức.
+
+### 2. Nội dung nộp cho Whop review — ĐÃ XONG 22/09/2026
 
 Whop review ở các mốc: tạo tài khoản, list lên marketplace, đơn đầu, payout đầu.
 Mô tả phải khớp với những gì trang landing nói — họ có đọc.
+
+#### Bẫy: ô description tối đa 1500 ký tự, và UI nuốt lỗi
+
+Server trả `422 unprocessable_entity` — *"Shortened description is too long
+(maximum is 1500 characters)"* — nhưng dashboard **không hiện toast gì cả**. Bấm
+Save trông y như thành công, nội dung không đổi. Bản đầu dài 1592 ký tự nên mất
+ba lượt mới tìm ra. Đếm ký tự trước khi dán.
+
+Hai mẹo kiểm chứng, vì đọc `textarea.value` sau reload luôn ra 0 (editor chưa
+hydrate — đừng kết luận save hỏng từ đó):
+
+- Sự thật duy nhất là trang public `https://whop.com/tonny-f2cd/smart-money-energizer/`,
+  fetch rồi tìm chuỗi.
+- Gõ vào textarea bằng `mcp__comet__fill` **không vào state React**. Dùng native
+  setter + dispatch `input`/`change` (`AGENTS.md` mục 4). Nhanh hơn `type_text`
+  rất nhiều — 1700 ký tự gõ phím quá 120 giây.
+
+Khi UI không chịu bắn mutation nữa thì phát lại thẳng
+`POST /api/graphql/coreCreateOrUpdateAccessPass` bằng `fetch` trong tab đang đăng
+nhập. Đây là mutation **duy nhất** lưu cả accessPass lẫn plans. Header bắt buộc:
+`x-whop-id: biz_…`, `x-whop-force-new-permission-system: true`,
+`x-whop-app-name: web`, `x-whop-api-proxy-key: test`. Bắt payload thật từ tab
+DevTools một lần rồi chỉ đổi field cần đổi — gửi thiếu field là xoá field đó.
 
 > Smart Money Energizer is a chart analysis indicator for TradingView. It is an
 > invite-only Pine Script that draws structure, liquidity and session levels on
@@ -123,13 +168,13 @@ Hai điều **không** được làm trong lúc review:
 - Đừng nhắc tới MT5 Expert Advisor như thứ bán kèm. Đó là sản phẩm riêng, và nó
   *có* thực thi lệnh — trộn vào mô tả là tự đẩy mình sang nhóm khác.
 
-### 4. Nối Telegram VIP
+### 3. Nối Telegram VIP
 
 Dùng Telegram integration của Whop trỏ vào nhóm VIP — Whop tự mời khi đơn active
 và tự kick khi refund. Không tự phát link mời thủ công: link phát tay không thu
 hồi được, refund xong khách vẫn ở trong nhóm.
 
-### 5. Cấp quyền TradingView
+### 4. Cấp quyền TradingView
 
 Không có API chính thức cho invite-only access, chỉ có UI *Manage access*. Ở
 volume hiện tại thì làm tay.
@@ -140,16 +185,18 @@ volume hiện tại thì làm tay.
 - Muốn tự động về sau: dùng driver CDP sẵn có trong `D:\ZynAlgo\.deploy\`
   (xem `AGENTS.md` mục 4). Là vùng xám ToS của TradingView, cân nhắc trước khi bật.
 
-### 6. Thay link vào trang
+### 5. Thay link vào trang
 
-Sửa `lib/site.ts`:
+`links.checkout` trong `lib/site.ts` đã trỏ vào
+`https://whop.com/tonny-f2cd/smart-money-energizer/` (22/09/2026). Đã kiểm: Whop
+**giữ nguyên query string**, không redirect, không cắt — nên `utm_medium=<vị trí
+nút>` do `cta()` gắn vào đọc được ở phía Whop. Trang là export tĩnh, không có
+analytics, nên đó là cách duy nhất biết nút nào ra đơn.
 
-- `links.checkout` — URL plan thật của Whop
-- `links.telegramFree`, `links.telegramVip` — vẫn đang `REPLACE_ME`
+`tonny-f2cd` là store slug auto sinh. Đổi nó ở Settings là link trên trang chết —
+sửa cả hai cùng lúc.
 
-`cta()` gắn `utm_medium=<vị trí nút>` vào URL. Kiểm Whop có giữ query string
-không — trang là export tĩnh, không có analytics, nên UTM đọc ở phía Whop hiện là
-cách duy nhất biết nút nào ra đơn.
+Còn `links.telegramFree`, `links.telegramVip` vẫn đang `REPLACE_ME`.
 
 Banner đỏ ở footer tự tắt khi hết `REPLACE_ME`. Đừng gỡ nó bằng tay.
 
@@ -167,6 +214,10 @@ tiền sớm và gọn còn hơn để khách đi khiếu nại ngân hàng.
 
 ## Còn treo
 
-- `links.checkout`, `links.telegramFree`, `links.telegramVip` vẫn là `REPLACE_ME`.
-- Phải bấm **Accept and continue** trên modal terms mới vào được dashboard Whop.
-- Chưa quyết có bật Tax and remittance (+2%) hay không — phụ thuộc tệp khách thật.
+- `links.telegramFree`, `links.telegramVip` vẫn là `REPLACE_ME` — phải có nhóm
+  Telegram thật trước, rồi mới nối được integration ở mục 3.
+- Chưa đặt post-checkout message **"Access is granted within 12 hours."**
+- Chưa quyết có bật Tax and remittance (+2%) hay không. Dashboard đang nhắc
+  *"Add your VAT registrations"* cho UK/EU — phụ thuộc tệp khách thật.
+- Store slug `tonny-f2cd` auto sinh, đổi được ở Settings. Đổi thì sửa luôn
+  `links.checkout`.
