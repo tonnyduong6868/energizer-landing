@@ -395,6 +395,16 @@ section { padding-block: var(--pad); position: relative; }
   color: var(--ink-2);
 }
 .hero-lede strong { color: var(--ink); font-weight: 600; }
+/* Dòng chọn lọc đối tượng. Cỡ chữ nhỏ hơn lede một bậc và màu mờ hơn — nó
+   không tranh chỗ với lời chào, nó chỉ trả lời "có phải nói với tôi không". */
+.hero-for {
+  margin: var(--s5) auto 0;
+  max-width: 68ch;
+  font-family: var(--f-mono);
+  font-size: 12.5px; line-height: 1.7;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+}
 .hero-cta {
   display: flex; flex-wrap: wrap; gap: var(--s3);
   justify-content: center; margin-top: var(--s6);
@@ -803,6 +813,18 @@ section { padding-block: var(--pad); position: relative; }
 .price-guarantee { font-size: 14px; color: var(--ink-2); }
 .price-guarantee b { color: var(--ink); }
 
+/* Hai phản đối nặng nhất, lặp lại ngay dưới thẻ giá. Trình bày như hỏi-đáp
+   mở sẵn, KHÔNG dùng <details>: ở đúng chỗ này mà bắt bấm thêm một cái mới
+   đọc được câu trả lời thì thà đừng lặp lại. */
+.price-obj { display: grid; gap: var(--s4); }
+.price-obj dt {
+  font-family: var(--f-mono);
+  font-size: 11.5px; letter-spacing: 0.04em;
+  color: var(--chg);
+  margin-bottom: 6px;
+}
+.price-obj dd { margin: 0; font-size: 14px; line-height: 1.65; color: var(--ink-2); }
+
 /* ─────────────────────────────────────────────────────────────────────
    09 · FAQ — hai cột
 
@@ -839,6 +861,28 @@ section { padding-block: var(--pad); position: relative; }
 /* ─────────────────────────────────────────────────────────────────────
    CTA cuối
    ───────────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────────────
+   Dải CTA giữa trang (cuối khối Density)
+
+   Cố ý KHÔNG dựng thành một section riêng có nền khác: nó là phần kết của
+   khối 04, không phải một khối mới. Viền trên là thứ duy nhất tách nó ra.
+   ───────────────────────────────────────────────────────────────────── */
+.cta-strip {
+  margin-top: var(--s7);
+  padding-top: var(--s6);
+  border-top: 1px solid var(--line);
+  display: grid; gap: var(--s5);
+  justify-items: start;
+}
+.cta-strip p { max-width: 46ch; font-size: 15.5px; color: var(--ink-2); margin: 0; }
+.cta-strip-row { display: flex; flex-wrap: wrap; gap: var(--s3); }
+@media (min-width: 900px) {
+  .cta-strip {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center; gap: var(--s6);
+  }
+}
+
 .endcta {
   text-align: center;
   background: var(--bg-2);
@@ -962,12 +1006,14 @@ section { padding-block: var(--pad); position: relative; }
 .hero .eyebrow,
 .hero h1,
 .hero-lede,
+.hero-for,
 .hero-cta,
 .hero-sub { animation: rise var(--t-in) var(--ease) backwards; }
 .hero h1     { animation-delay: 0.06s; }
 .hero-lede   { animation-delay: 0.13s; }
-.hero-cta    { animation-delay: 0.20s; }
-.hero-sub    { animation-delay: 0.27s; }
+.hero-for    { animation-delay: 0.19s; }
+.hero-cta    { animation-delay: 0.26s; }
+.hero-sub    { animation-delay: 0.33s; }
 
 /* Vầng sáng thở rất chậm. 9s/chu kỳ và biên độ nhỏ — đủ để nền không chết
    cứng, không đủ để mắt bám theo trong lúc đọc. */
@@ -1041,6 +1087,9 @@ section { padding-block: var(--pad); position: relative; }
   .pain-col, .pillar, .preset, .tier, .honest, .quote, .style-chip,
   .changelog, .price-card, .faq details, .conf-wrap, .member-line,
   .endcta h2, .endcta p, .endcta-row, .shot, .honest-grid + *,
+  /* `.price-obj` KHÔNG có ở đây: nó nằm trong `.price-card` vốn đã tự hiện
+     ra rồi. Lồng hai lần reveal thì con nhúc nhích trong lúc cha đang bay. */
+  .cta-strip,
   section > .wrap > .shot-empty {
     animation: rise var(--t-in) var(--ease) backwards;
     animation-timeline: view();
@@ -1118,6 +1167,48 @@ section { padding-block: var(--pad); position: relative; }
 
 @media (max-width: 880px) {
   .sticky { animation: rise 0.5s var(--ease) backwards 0.5s; }
+}
+
+/* ── Trên màn hẹp, chart vẽ theo CUỘN chứ không theo đồng hồ ───────────────
+   Hiệu ứng đắt nhất của trang đang bị phí đúng trên thiết bị đông người
+   dùng nhất: ở 485px, hero cao hơn cả màn hình nên ô chart nằm sâu dưới
+   fold — chuỗi vẽ 2,4s chạy xong từ lâu trước khi ngón tay kịp cuộn tới,
+   khách chỉ thấy một hình tĩnh.
+
+   Trên desktop thì ngược lại: ô chart đã lộ một phần ngay khi tải, nên
+   chuyển sang timeline cuộn ở đó lại làm nó hiện ra gần như tức thì. Vì vậy
+   chỉ đổi dưới 880px, giữ nguyên bản chạy theo thời gian ở trên.
+
+   Timeline đặt tên trên `.bento-wide`, không để từng lớp tự `view()`: lớp
+   `.ch-grid` chỉ là mấy đường kẻ, bbox của nó không phải bbox của cả chart.
+   `animation-delay` bị bỏ qua hoàn toàn trên timeline cuộn nên phải trả về
+   0 và dàn bậc thang bằng `animation-range`. */
+@media (max-width: 880px) {
+  @supports (animation-timeline: view()) {
+    .bento-wide { view-timeline: --chartv block; }
+
+    .panel-svg .ch-grid,
+    .panel-svg .cdl,
+    .panel-svg .ch-kz,
+    .panel-svg .ch-sweep,
+    .panel-svg .ch-fvg,
+    .panel-svg .ch-lvl {
+      animation-timeline: --chartv;
+      animation-delay: 0s;
+    }
+
+    .panel-svg .ch-grid  { animation-range: cover  2% cover 15%; }
+    /* 46 cây nến rải trên 25% chiều dài timeline — vẫn là làn sóng trái sang
+       phải, chỉ khác là bây giờ ngón tay của khách điều khiển tốc độ. */
+    .panel-svg .cdl {
+      animation-range: cover calc(6% + var(--i) * 0.55%)
+                       cover calc(17% + var(--i) * 0.55%);
+    }
+    .panel-svg .ch-kz    { animation-range: cover 14% cover 27%; }
+    .panel-svg .ch-sweep { animation-range: cover 33% cover 46%; }
+    .panel-svg .ch-fvg   { animation-range: cover 38% cover 49%; }
+    .panel-svg .ch-lvl   { animation-range: cover 43% cover 58%; }
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────────────

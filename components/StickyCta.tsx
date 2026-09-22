@@ -1,4 +1,4 @@
-import { links, pricing } from '@/lib/site'
+import { cta, links, pricing } from '@/lib/site'
 import { Telegram } from './Icon'
 
 /**
@@ -17,7 +17,7 @@ export function StickyCta() {
     <div className="sticky">
       <a
         className="btn btn-ghost"
-        href={links.telegramFree}
+        href={cta(links.telegramFree, 'sticky')}
         target="_blank"
         rel="noopener noreferrer"
       >

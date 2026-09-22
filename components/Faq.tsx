@@ -1,4 +1,4 @@
-import { faq } from '@/lib/site'
+import { faq, priceBlockers } from '@/lib/site'
 import { SectionHead } from './SectionHead'
 
 /**
@@ -12,8 +12,16 @@ import { SectionHead } from './SectionHead'
  * này được phép nói câu đó vì phía sau thật sự không có OTO $79/mo nào. Đây
  * chính là chỗ Trendline và Scalper tự mâu thuẫn: cả hai đều hứa "no
  * recurring fees, ever" rồi đẩy VIP $79/tháng ngay sau thanh toán.
+ *
+ * Hai câu trong `priceBlockers` đã in nguyên văn ngay dưới thẻ giá ở khối
+ * 08, cách đây chừng 200px. Ở đây chúng bị đẩy xuống cuối — vẫn có mặt (vì
+ * JSON-LD FAQPage đọc cả mảng và người tìm Google có thể vào thẳng đây),
+ * chỉ không phải là thứ đập vào mắt ngay sau khi vừa đọc xong y hệt.
  */
 export function Faq() {
+  const isBlocker = (q: string) => (priceBlockers as readonly string[]).includes(q)
+  const ordered = [...faq.filter((f) => !isBlocker(f.q)), ...faq.filter((f) => isBlocker(f.q))]
+
   return (
     <section className="sec-alt" id="faq">
       <div className="wrap">
@@ -25,7 +33,7 @@ export function Faq() {
         />
 
         <div className="faq">
-          {faq.map((f, i) => (
+          {ordered.map((f, i) => (
             <details key={f.q} open={i === 0}>
               <summary>{f.q}</summary>
               <div className="a">{f.a}</div>

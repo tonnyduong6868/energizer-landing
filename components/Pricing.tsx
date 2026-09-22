@@ -1,4 +1,4 @@
-import { links, pricing } from '@/lib/site'
+import { cta, faq, links, priceBlockers, pricing } from '@/lib/site'
 import { SectionHead } from './SectionHead'
 import { Check, Dash } from './Icon'
 
@@ -22,8 +22,19 @@ import { Check, Dash } from './Icon'
  *
  * Và một thứ cố ý CÓ: danh sách "không bao gồm". Nói trước cái mình không
  * làm được thì khách không mua nhầm kỳ vọng, và refund giảm.
+ *
+ * Hai câu FAQ nặng nhất được LẶP LẠI ngay dưới thẻ giá. Chúng vẫn nằm
+ * nguyên ở khối 09 phía dưới, nhưng bắt người đang cầm sẵn quyết định phải
+ * cuộn thêm một khối nữa mới biết "có phải trả hằng tháng không" là chỗ rơi
+ * không cần thiết. Chữ lấy thẳng từ mảng `faq` nên không bao giờ lệch nhau —
+ * sửa một chỗ, hai chỗ cùng đổi.
  */
+
 export function Pricing() {
+  const blockers = priceBlockers.map((q) => faq.find((f) => f.q === q)).filter(
+    (f): f is (typeof faq)[number] => Boolean(f),
+  )
+
   return (
     <section id="pricing">
       <div className="wrap">
@@ -76,6 +87,17 @@ export function Pricing() {
                 </li>
               ))}
             </ul>
+
+            <div className="price-div" />
+
+            <dl className="price-obj">
+              {blockers.map((f) => (
+                <div key={f.q}>
+                  <dt>{f.q}</dt>
+                  <dd>{f.a}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
 
           <div className="price-buy">
@@ -93,7 +115,7 @@ export function Pricing() {
 
             <a
               className="btn btn-primary btn-lg btn-block"
-              href={links.checkout}
+              href={cta(links.checkout, 'pricing')}
               style={{ marginTop: 'var(--s5)' }}
             >
               Get the licence &mdash; {pricing.symbol}
@@ -112,7 +134,7 @@ export function Pricing() {
             <p style={{ marginTop: 'var(--s4)', fontSize: 13.5, color: 'var(--ink-2)' }}>
               Not ready? The{' '}
               <a
-                href={links.telegramFree}
+                href={cta(links.telegramFree, 'pricing')}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{

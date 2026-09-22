@@ -1,4 +1,4 @@
-import { links, pricing } from '@/lib/site'
+import { cta, links, pricing } from '@/lib/site'
 import { Telegram } from './Icon'
 
 /**
@@ -23,14 +23,14 @@ export function EndCta() {
         <div className="endcta-row">
           <a
             className="btn btn-primary btn-lg"
-            href={links.telegramFree}
+            href={cta(links.telegramFree, 'endcta')}
             target="_blank"
             rel="noopener noreferrer"
           >
             <Telegram size={18} />
             Join the free channel
           </a>
-          <a className="btn btn-ghost btn-lg" href={links.checkout}>
+          <a className="btn btn-ghost btn-lg" href={cta(links.checkout, 'endcta')}>
             Get the licence · {pricing.symbol}
             {pricing.amount}
           </a>

@@ -1,4 +1,4 @@
-import { links, pricing, proof, site, specs } from '@/lib/site'
+import { cta, links, pricing, proof, site, specs } from '@/lib/site'
 import { ChartPanel } from './ChartPanel'
 import { Telegram } from './Icon'
 
@@ -46,10 +46,14 @@ export function Hero() {
             adjust that one number instead of starting a second argument.
           </p>
 
+          {/* Dòng chọn lọc đứng TRƯỚC nút, không phải sau. Đọc xong mới bấm
+              thì nó còn tác dụng; đặt dưới nút thì người bấm đã bấm rồi. */}
+          <p className="hero-for">{site.audience}</p>
+
           <div className="hero-cta">
             <a
               className="btn btn-primary btn-lg"
-              href={links.telegramFree}
+              href={cta(links.telegramFree, 'hero')}
               target="_blank"
               rel="noopener noreferrer"
             >

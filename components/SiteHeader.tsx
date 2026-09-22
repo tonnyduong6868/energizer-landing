@@ -1,4 +1,4 @@
-import { links, nav, site } from '@/lib/site'
+import { cta, links, nav, site } from '@/lib/site'
 import { Telegram } from './Icon'
 
 /**
@@ -31,7 +31,7 @@ export function SiteHeader() {
         <div className="hdr-cta">
           <a
             className="btn btn-ghost"
-            href={links.telegramFree}
+            href={cta(links.telegramFree, 'header')}
             target="_blank"
             rel="noopener noreferrer"
           >

@@ -1,5 +1,6 @@
-import { density, styles, proof } from '@/lib/site'
+import { cta, density, links, pricing, styles, proof } from '@/lib/site'
 import { SectionHead } from './SectionHead'
+import { Telegram } from './Icon'
 
 /**
  * Chart Density — điểm bán hàng thật nhất của sản phẩm.
@@ -92,6 +93,32 @@ export function Density() {
               </p>
             </div>
           )}
+        </div>
+
+        {/* Nút giữa trang, đặt ở ĐÂY chứ không phải chỗ khác.
+            Đây là điểm người đọc vừa hiểu ra thứ phân biệt sản phẩm này với
+            mọi công cụ SMC khác — giữa hero và bảng giá có gần 4.000px, để
+            trống cả quãng đó là bắt người đã bị thuyết phục phải đi tìm nút. */}
+        <div className="cta-strip">
+          <p>
+            Chart Density is one dropdown. Watching it move on a live chart says
+            more than this paragraph does.
+          </p>
+          <div className="cta-strip-row">
+            <a
+              className="btn btn-primary"
+              href={cta(links.telegramFree, 'density')}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Telegram size={17} />
+              Watch it work — free channel
+            </a>
+            <a className="btn btn-ghost" href="#pricing">
+              Get the licence · {pricing.symbol}
+              {pricing.amount}
+            </a>
+          </div>
         </div>
       </div>
     </section>

@@ -34,6 +34,18 @@ export const site = {
     'one number — so context and trigger stop being two separate arguments.',
   url: 'https://tonnyduong6868.github.io/energizer-landing/',
   locale: 'en_US',
+
+  /**
+   * Dòng chọn lọc đối tượng, đứng ngay trên CTA của hero.
+   *
+   * Làm hai việc cùng lúc: người hợp thấy trang viết cho đúng mình, người
+   * không hợp rời đi trước khi tốn thêm thời gian của cả hai bên. Vế "not a
+   * signal service, not a bot" là vế đuổi bớt — và nó đúng: script vẽ lên
+   * chart và bắn webhook, nó không quản lệnh hộ ai.
+   */
+  audience:
+    'For ICT / Smart Money traders who chart on TradingView — scalping, ' +
+    'intraday or swing. Not a signal service, not a bot.',
 } as const
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -58,6 +70,42 @@ export const links = {
 export const hasPlaceholderLinks = Object.values(links).some((v) =>
   v.includes('REPLACE_ME'),
 )
+
+/** Mọi chỗ đặt nút trên trang. Thêm nút mới thì thêm tên vào đây. */
+export type CtaPlace =
+  | 'header'
+  | 'hero'
+  | 'density'
+  | 'telegram'
+  | 'pricing'
+  | 'faq'
+  | 'endcta'
+  | 'sticky'
+
+/**
+ * Bật lên khi `telegramFree` trỏ vào MỘT BOT chứ không phải một channel.
+ *
+ * `t.me/<channel>` nuốt sạch query string — gắn UTM vào chỉ làm URL bẩn mà
+ * không ai đọc được gì. `t.me/<bot>?start=hero` thì Telegram giao nguyên
+ * chuỗi `hero` cho bot ở lệnh /start đầu tiên, nên anh biết nút nào mang
+ * người tới, và quan trọng hơn: anh có user ID để nhắn lại. Channel thì
+ * không — người vào rồi im lặng là mất trắng, không có cách nào chạm lại.
+ */
+const TELEGRAM_IS_BOT = false
+
+/**
+ * Gắn nguồn vào link ra ngoài.
+ *
+ * Trang là export tĩnh, không có analytics chạy trong trình duyệt, nên đây
+ * là cách duy nhất hiện tại để biết nút nào có người bấm: đọc UTM ở phía
+ * checkout. Không đo thì mọi chỉnh sửa sau này đều là đoán.
+ */
+export function cta(href: string, place: CtaPlace): string {
+  if (href.startsWith('mailto:') || href.startsWith('#')) return href
+  if (href.includes('t.me/')) return TELEGRAM_IS_BOT ? `${href}?start=${place}` : href
+  const sep = href.includes('?') ? '&' : '?'
+  return `${href}${sep}utm_source=landing&utm_medium=${place}&utm_campaign=energizer-${site.version}`
+}
 
 /* ══════════════════════════════════════════════════════════════════════
    GIÁ
@@ -405,6 +453,19 @@ export const faq = [
     q: 'What if it is not for me?',
     a: pricing.guarantee.text,
   },
+] as const
+
+/**
+ * Hai câu chặn tay trên nút mua, được LẶP LẠI ngay dưới thẻ giá.
+ *
+ * Khớp theo `q` nên đổi chữ ở mảng `faq` là khối dưới thẻ giá biến mất —
+ * cố ý, thà mất còn hơn hiện hai câu trả lời khác nhau cho cùng một câu hỏi.
+ * Khối 09 tự đẩy hai câu này xuống cuối danh sách: hai bản giống hệt nhau
+ * cách nhau 200px thì cái thứ hai chỉ làm người đọc tưởng mình cuộn nhầm.
+ */
+export const priceBlockers = [
+  'Is this a subscription?',
+  'What do I need to run it?',
 ] as const
 
 /** Thứ tự khớp đúng thứ tự khối trên trang. */

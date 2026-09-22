@@ -1,4 +1,4 @@
-import { community, links } from '@/lib/site'
+import { community, cta, links } from '@/lib/site'
 import { SectionHead } from './SectionHead'
 import { Check, Dash, Telegram as TgIcon } from './Icon'
 
@@ -64,7 +64,7 @@ export function TelegramTiers() {
                 {t.key === 'free' ? (
                   <a
                     className="btn btn-primary btn-block"
-                    href={t.href}
+                    href={cta(t.href, 'telegram')}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
