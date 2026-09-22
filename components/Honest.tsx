@@ -19,15 +19,20 @@ export function Honest() {
   return (
     <section id="honest">
       <div className="wrap">
-        <SectionHead no="06" tag="Straight answers" meta="the part nobody puts on a sales page" />
-
-        <h2 className="h2">No countdown. No fake buyer popups. Here is why.</h2>
-        <p className="lede" style={{ marginTop: 'var(--s5)' }}>
-          A timer that resets at midnight and a toast announcing a stranger in Madrid
-          are not persuasion techniques, they are claims &mdash; and they are false ones.
-          You are a trader. You notice. So instead, four things that are true and
-          checkable.
-        </p>
+        <SectionHead
+          no="06"
+          tag="Straight answers"
+          meta="the part nobody puts on a sales page"
+          title="No countdown. No fake buyer popups. Here is why."
+          lede={
+            <>
+              A timer that resets at midnight and a toast announcing a stranger in
+              Madrid are not persuasion techniques, they are claims &mdash; and they
+              are false ones. You are a trader. You notice. So instead, four things
+              that are true and checkable.
+            </>
+          }
+        />
 
         <article className="changelog">
           <h3>{changelog.title}</h3>

@@ -17,8 +17,12 @@ export function Faq() {
   return (
     <section className="sec-alt" id="faq">
       <div className="wrap">
-        <SectionHead no="09" tag="FAQ" meta={`${faq.length} questions`} />
-        <h2 className="h2">Questions worth asking before you pay.</h2>
+        <SectionHead
+          no="09"
+          tag="FAQ"
+          meta={`${faq.length} questions`}
+          title="Questions worth asking before you pay."
+        />
 
         <div className="faq">
           {faq.map((f, i) => (

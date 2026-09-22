@@ -23,14 +23,19 @@ export function TelegramTiers() {
   return (
     <section className="sec-alt" id="telegram">
       <div className="wrap">
-        <SectionHead no="05" tag="Telegram" meta="two doors · one is free" />
-
-        <h2 className="h2">Watch it work for a week before you spend anything.</h2>
-        <p className="lede" style={{ marginTop: 'var(--s5)' }}>
-          You should not have to trust a sales page. The public channel posts sample
-          signals as they fire, with the reasoning behind the score &mdash; including
-          the ones that did not work. Join, watch, decide later.
-        </p>
+        <SectionHead
+          no="05"
+          tag="Telegram"
+          meta="two doors · one is free"
+          title="Watch it work for a week before you spend anything."
+          lede={
+            <>
+              You should not have to trust a sales page. The public channel posts
+              sample signals as they fire, with the reasoning behind the score &mdash;
+              including the ones that did not work. Join, watch, decide later.
+            </>
+          }
+        />
 
         <div className="tiers">
           {community.tiers.map((t) => {
@@ -83,7 +88,7 @@ export function TelegramTiers() {
           </p>
         )}
 
-        <p className="lede" style={{ marginTop: 'var(--s6)', fontSize: 14.5 }}>
+        <p className="lede" style={{ marginTop: 'var(--s5)', fontSize: 14 }}>
           The VIP group is part of the licence. It is not a monthly add-on, and there
           is no tier above it to be sold later. Link arrives by email when your licence
           goes active &mdash; or reply to{' '}

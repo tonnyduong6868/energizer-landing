@@ -18,18 +18,19 @@ export function Density() {
   return (
     <section id="density">
       <div className="wrap">
-        <SectionHead no="04" tag="Density" meta="235 inputs · two that matter first" />
-
-        <h2 className="h2">
-          Every SMC tool dies the same way:
-          <br />
-          you turn it all on and cannot see price.
-        </h2>
-        <p className="lede" style={{ marginTop: 'var(--s5)' }}>
-          So the amount of ink the script is allowed to spend is one input, at the top
-          of the list. Every drawing block reads it. There is no combination of
-          settings that ends with fifteen price tags stacked over the candles.
-        </p>
+        <SectionHead
+          no="04"
+          tag="Density"
+          meta="235 inputs · two that matter first"
+          title={
+            <>
+              Every SMC tool dies the same way:
+              <br />
+              you turn it all on and cannot see price.
+            </>
+          }
+          lede="So the amount of ink the script is allowed to spend is one input, at the top of the list. Every drawing block reads it. There is no combination of settings that ends with fifteen price tags stacked over the candles."
+        />
 
         <ul className="preset-grid">
           {density.map((d) => (
@@ -37,23 +38,26 @@ export function Density() {
               className={`preset${'isDefault' in d && d.isDefault ? ' is-default' : ''}`}
               key={d.name}
             >
+              {/* Tag đứng TRƯỚC tên, và luôn render kể cả khi rỗng: ô nào
+                  cũng chừa đúng một dòng ở trên nên bốn cái tên thẳng hàng. */}
+              <span className="preset-tag">
+                {'isDefault' in d && d.isDefault ? 'Ships as default' : ' '}
+              </span>
               <div className="preset-n">{d.name}</div>
               <p className="preset-d">{d.body}</p>
-              {'isDefault' in d && d.isDefault && (
-                <span className="preset-tag">Ships as default</span>
-              )}
             </li>
           ))}
         </ul>
 
-        <h3 className="h3" style={{ marginTop: 'var(--s8)' }}>
-          The other input that does most of the work
-        </h3>
-        <p className="lede" style={{ marginTop: 'var(--s3)' }}>
-          Trading Style switches the entire EMA stack, which is what every trend
-          trigger reads. You are not rebuilding the script to go from scalping to
-          swing &mdash; you are changing one dropdown.
-        </p>
+        {/* Cùng nhịp hai cột như SectionHead: tiêu đề trái, giải thích phải. */}
+        <div className="sh-row" style={{ marginTop: 'var(--s7)' }}>
+          <h3 className="h3">The other input that does most of the work</h3>
+          <p className="lede">
+            Trading Style switches the entire EMA stack, which is what every trend
+            trigger reads. You are not rebuilding the script to go from scalping to
+            swing &mdash; you are changing one dropdown.
+          </p>
+        </div>
 
         <ul className="style-row">
           {styles.map((s) => (
@@ -64,13 +68,13 @@ export function Density() {
           ))}
         </ul>
 
-        <p className="lede" style={{ marginTop: 'var(--s6)', fontSize: 15 }}>
+        <p className="lede" style={{ marginTop: 'var(--s5)', fontSize: 14.5 }}>
           The remaining inputs are already set to something sensible, and every single
           one carries a tooltip that says what it does and what it breaks. You are
           never guessing what a switch is for.
         </p>
 
-        <div style={{ marginTop: 'var(--s7)' }}>
+        <div style={{ marginTop: 'var(--s5)' }}>
           {shot ? (
             <figure className="shot">
               <img src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} />

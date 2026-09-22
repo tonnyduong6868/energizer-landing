@@ -20,8 +20,12 @@ export function Quotes() {
   return (
     <section className="sec-alt">
       <div className="wrap">
-        <SectionHead no="07" tag="Users" meta={`${proof.quotes.length} verified`} />
-        <h2 className="h2">What people who paid for it say.</h2>
+        <SectionHead
+          no="07"
+          tag="Users"
+          meta={`${proof.quotes.length} verified`}
+          title="What people who paid for it say."
+        />
 
         <div className="quotes">
           {proof.quotes.slice(0, MAX).map((q) => (

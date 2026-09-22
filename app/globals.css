@@ -1,62 +1,88 @@
 /* ══════════════════════════════════════════════════════════════════════
-   SMART MONEY ENERGIZER — landing
+   SMART MONEY ENERGIZER — landing. Hướng "Bento".
 
-   Phong cách: HUD tối, giống chính cái dashboard mà sản phẩm vẽ ra chart.
-   Nền gần đen, viền mảnh, số liệu bằng chữ mono, không đổ bóng màu mè.
+   ─── VÌ SAO BẢN TRƯỚC HỎNG, ĐỂ BẢN NÀY ĐỪNG HỎNG LẠI ───
 
-   BẢNG MÀU — vì sao chọn thế này:
+   1. ĐEN BỆT. Bản HUD cũ: nền #05070D, panel #0C111C, viền
+      rgba(255,255,255,.07). Ba tầng đó cách nhau quá gần để mắt tách ra
+      được, nên cả trang dí thành một mảng đen và mọi khối trôi lơ lửng
+      không ranh giới. Ở đây khoảng cách được nới hẳn:
 
-   Trendline đã lấy tím, Scalper đã lấy neon green. Nếu Energizer cũng xanh
-   lá thì ba sản phẩm cùng một Stripe account trông như một cái, và khách
-   thấy cả ba sẽ không phân biệt được.
+          nền #07070A → ô #141419 → ô nổi #1B1B22 → viền #2E2E38
 
-   Nên: accent thương hiệu là AMBER (--chg, "charge" — đúng chữ mà dashboard
-   của indicator dùng cho điểm sạc khi đang trống lệnh). Xanh lá và hồng
-   KHÔNG dùng làm màu thương hiệu, chúng giữ đúng vai ngữ nghĩa bull/bear y
-   như trong indicator. Nhờ vậy ảnh chụp chart thật dán lên trang sẽ trông
-   như sinh ra từ trang, không phải dán vào.
+      Viền #2E2E38 trên nền #07070A nhìn thấy được kể cả trên màn laptop rẻ
+      chỉnh gamma sai. Đó là điều kiện để "bento" có nghĩa — lưới ô chỉ đọc
+      được khi thấy được cạnh ô.
+
+   2. KHỐI NÀO CŨNG GIỐNG KHỐI NÀO. 11 khối cũ dùng đúng một công thức:
+      pill → H2 → lede → lưới card. Giờ mỗi khối một bố cục: lưới ô lệch
+      kích thước, hai cột đối nhau, vòng tròn + danh sách, chip, accordion
+      hai cột. Cái giữ cho trang vẫn là một thể thống nhất là VẬT LIỆU
+      (`.tile` — nền/viền/bo góc), không phải bố cục.
+
+   3. DÀI LÊ THÊ. 13.007px. Nguyên nhân: --pad clamp(56…96px) × 11 khối,
+      cộng font 16px/1.6 và card nào cũng padding 32px. Giờ --pad còn
+      clamp(48…72px), thân chữ 15.5px, card 18–20px.
+
+   4. TRỐNG TRƠN. Hero cũ có một ô gạch đứt cao 320px làm nửa màn hình đầu.
+      Giờ có <ChartPanel> — SVG vẽ ở build time. Nó là hình MINH HOẠ panel,
+      có ghi đúng như vậy dưới ảnh, và KHÔNG thay ảnh chụp thật: proof.shots
+      vẫn rỗng, banner đỏ ở footer vẫn còn.
+
+   ─── MÀU ───
+   Accent giữ AMBER. Trendline đã lấy tím, Scalper đã lấy neon green — ba
+   sản phẩm cùng một pháp nhân mà trùng màu thì khách không biết đang ở
+   trang nào. Xanh lá và hồng KHÔNG làm màu thương hiệu; chúng giữ đúng vai
+   bull/bear như trong indicator, nhờ vậy ảnh chart thật dán lên trang sẽ
+   trông như sinh ra từ trang chứ không phải dán vào.
    ══════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Canvas */
-  --bg:        #05070D;
-  --bg-2:      #080C15;
-  --bg-3:      #0B1019;
-  --panel:     #0C111C;
-  --panel-2:   #10182A;
-  --well:      #04060B;
+  /* ── tầng nền ─────────────────────────────────────────────────────── */
+  --bg:       #07070A;
+  --bg-2:     #0B0B10;
+  --tile:     #141419;
+  --tile-2:   #1B1B22;
+  --tile-3:   #22222B;
+  --well:     #050507;
 
-  /* Lines */
-  --line:      rgba(255, 255, 255, 0.07);
-  --line-2:    rgba(255, 255, 255, 0.13);
-  --line-3:    rgba(255, 255, 255, 0.22);
+  /* Giữ tên cũ vì vài component còn gọi tới. */
+  --panel:    var(--tile);
+  --panel-2:  var(--tile-2);
 
-  /* Ink — mọi cặp dưới đây đều đạt tối thiểu 4.5:1 trên --bg.
-     --ink-3 chỉ dùng cho chữ ≥16px hoặc nhãn không mang thông tin sống còn. */
-  --ink:       #F2F5FA;
-  --ink-2:     #A8B3C4;
-  --ink-3:     #77839a;
+  /* ── đường kẻ — đặc, không phải alpha ─────────────────────────────── */
+  --line:     #2E2E38;
+  --line-2:   #3C3C48;
+  --line-3:   #4A4A58;
 
-  /* Accent thương hiệu — charge */
-  --chg:       #FFB020;
-  --chg-hi:    #FFC658;
-  --chg-lo:    #C77F00;
-  --chg-dim:   rgba(255, 176, 32, 0.12);
-  --chg-line:  rgba(255, 176, 32, 0.34);
-  --on-chg:    #140C00;
+  /* ── chữ ──────────────────────────────────────────────────────────── */
+  --ink:      #F7F7FA;
+  --ink-2:    #A7A9B4;
+  --ink-3:    #71737F;
 
-  /* Ngữ nghĩa thị trường — khớp indicator, không dùng làm màu thương hiệu */
-  --bull:      #34D399;
-  --bull-dim:  rgba(52, 211, 153, 0.12);
-  --bear:      #FB7185;
-  --bear-dim:  rgba(251, 113, 133, 0.12);
-  --warn:      #FBBF24;
+  /* ── accent ───────────────────────────────────────────────────────── */
+  --chg:      #FFB020;
+  --chg-hi:   #FFC658;
+  --chg-lo:   #C77F00;
+  --chg-dim:  rgba(255, 176, 32, 0.13);
+  --chg-line: rgba(255, 176, 32, 0.34);
+  --on-chg:   #0A0A0C;
 
-  /* Fonts */
+  /* ── ngữ nghĩa thị trường ─────────────────────────────────────────── */
+  --bull:     #3DDC84;
+  --bull-dim: rgba(61, 220, 132, 0.12);
+  --bear:     #FF6B7A;
+  --bear-dim: rgba(255, 107, 122, 0.12);
+  --warn:     #FBBF24;
+
+  /* ── màu cho SVG chart, ChartPanel đọc qua currentColor/var ───────── */
+  --c-grid:   rgba(255, 255, 255, 0.07);
+
+  /* ── chữ ──────────────────────────────────────────────────────────── */
   --f-sans: var(--font-sans), system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --f-mono: var(--font-mono), ui-monospace, 'Cascadia Mono', monospace;
 
-  /* Nhịp — density 5/10 (Standard) theo dial của ui-ux-pro-max */
+  /* ── nhịp ─────────────────────────────────────────────────────────── */
   --s1: 4px;
   --s2: 8px;
   --s3: 12px;
@@ -65,11 +91,12 @@
   --s6: 32px;
   --s7: 48px;
   --s8: 64px;
-  --pad: clamp(56px, 6.5vw, 96px);
+  --pad: clamp(48px, 5vw, 72px);
+  --gap: 14px;
 
-  --r-sm: 6px;
-  --r:    10px;
-  --r-lg: 16px;
+  --r-sm: 8px;
+  --r:    14px;
+  --r-lg: 20px;
   --r-full: 999px;
 
   --wrap: 1180px;
@@ -80,9 +107,10 @@
 html {
   scroll-behavior: smooth;
   color-scheme: dark;
-  /* Sticky header cao ~58px — không có dòng này thì bấm nav xong tiêu đề
-     khối bị header che mất. */
-  scroll-padding-top: 76px;
+  /* Header dính cao 62px — không có dòng này thì bấm nav xong tiêu đề khối
+     bị header che mất. */
+  scroll-padding-top: 80px;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -90,8 +118,8 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--f-sans);
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 15.5px;
+  line-height: 1.62;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -101,22 +129,20 @@ img { height: auto; }
 
 h1, h2, h3, h4 {
   margin: 0;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
   font-weight: 600;
 }
 
 p { margin: 0; }
 ul { margin: 0; padding: 0; list-style: none; }
-
 a { color: inherit; text-decoration: none; }
 
 /* ─────────────────────────────────────────────────────────────────────
    FOCUS — khối quan trọng nhất của file này.
 
    Cả hai trang zynalgo.net dùng `outline:none` 9 lần và không có một rule
-   `:focus-visible` nào. Người dùng bàn phím mất hoàn toàn dấu vị trí. DB
-   của ui-ux-pro-max xếp "Focus States" mức High.
+   `:focus-visible` nào; người dùng bàn phím mất hoàn toàn dấu vị trí.
 
    Một rule toàn cục, đặt sớm, dùng outline chứ không dùng box-shadow —
    outline không bị cắt bởi overflow:hidden của khối cha, box-shadow thì bị.
@@ -126,8 +152,6 @@ a { color: inherit; text-decoration: none; }
   outline-offset: 3px;
   border-radius: var(--r-sm);
 }
-
-/* Chỉ bỏ vòng focus khi chuột bấm, và chỉ ở trình duyệt hiểu :focus-visible. */
 :where(a, button, summary):focus:not(:focus-visible) { outline: none; }
 
 .skip {
@@ -151,77 +175,124 @@ a { color: inherit; text-decoration: none; }
   width: 100%;
   max-width: var(--wrap);
   margin-inline: auto;
-  padding-inline: clamp(20px, 5vw, 40px);
+  padding-inline: clamp(20px, 4vw, 32px);
 }
 
 section { padding-block: var(--pad); position: relative; }
+
+/* Khối đổi tông. Bản cũ chênh 3 đơn vị sáng nên không ai thấy — giờ
+   #0B0B10 trên #07070A, cộng kẻ trên/dưới đặc nên ranh giới rõ. */
 .sec-alt { background: var(--bg-2); border-block: 1px solid var(--line); }
 
 /* ─────────────────────────────────────────────────────────────────────
-   Đầu khối đánh số — mượn ý từ traiga-landing-next.
-   Trang dài 11 khối; không có mốc thì cuộn tới giữa là mất phương hướng.
+   Đầu khối đánh số
+
+   Bỏ pill viền tròn + kẻ ngang chạy hết chiều rộng của bản cũ. Một dòng
+   mono amber nhỏ đứng sát trên H2: ít mực hơn, và không tự biến mình
+   thành thứ to thứ nhì trong khối.
    ───────────────────────────────────────────────────────────────────── */
-.sh { display: flex; align-items: center; gap: var(--s4); margin-bottom: var(--s6); }
+.sh {
+  display: flex; align-items: baseline; flex-wrap: wrap;
+  gap: var(--s3); margin-bottom: var(--s4);
+}
 .sh-pill {
-  display: inline-flex; align-items: center; gap: var(--s2);
-  padding: 5px 12px 5px 8px;
-  border: 1px solid var(--line-2);
-  border-radius: var(--r-full);
-  background: var(--panel);
+  display: inline-flex; align-items: baseline; gap: var(--s2);
   font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  font-size: 10.5px;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
   white-space: nowrap;
+  color: var(--chg);
 }
-.sh-no  { color: var(--chg); font-weight: 700; }
-.sh-tag { color: var(--ink-2); }
-.sh-rule { flex: 1; height: 1px; background: var(--line); }
+.sh-no  { opacity: 0.6; }
+.sh-tag { font-weight: 700; }
+/* Kẻ ngang bỏ hẳn — giữ node trong DOM để không phải sửa SectionHead. */
+.sh-rule { display: none; }
 .sh-meta {
-  font-family: var(--f-mono); font-size: 11px; color: var(--ink-3);
-  letter-spacing: 0.06em; white-space: nowrap;
+  font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-3);
+  letter-spacing: 0.08em; white-space: nowrap;
 }
 @media (max-width: 560px) { .sh-meta { display: none; } }
+
+/* Tiêu đề khối: H2 trái, lede phải.
+   Xếp dọc thì H2 ăn 24ch, lede ăn 66ch — nửa phải của MỌI khối bỏ trống, đúng
+   cái "trống trơn" bị chê. Hai cột lấp chỗ đó và cắt ~80px mỗi khối. */
+/* Không có margin dưới: mọi lưới nội dung đứng sau đã tự mang `margin-top:
+   var(--s6)`. Thêm nữa là khoảng trắng nhân đôi. */
+.sh-block { margin-bottom: 0; }
+.sh-row { display: grid; gap: var(--s4); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) {
+  .sh-row {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: var(--s6);
+    align-items: end;
+  }
+  /* Trong hàng hai cột, hai cái max-width kia thành thừa và gây lệch. */
+  .sh-row .h2, .sh-row .lede { max-width: none; }
+  .sh-row .lede { padding-bottom: 5px; }
+  /* Khối không có lede thì đừng chia đôi — cột phải rỗng còn tệ hơn. */
+  .sh-row.is-solo { grid-template-columns: minmax(0, 1fr); }
+  .sh-row.is-solo .h2 { max-width: 30ch; }
+}
 
 /* ─────────────────────────────────────────────────────────────────────
    Chữ dùng lại
    ───────────────────────────────────────────────────────────────────── */
-.h2 { font-size: clamp(28px, 4vw, 42px); }
-.h3 { font-size: clamp(20px, 2.4vw, 25px); }
-.lede { font-size: clamp(16px, 1.6vw, 18px); color: var(--ink-2); max-width: 62ch; }
+.h2   { font-size: clamp(27px, 3.1vw, 40px); max-width: 24ch; }
+.h3   { font-size: clamp(19px, 1.9vw, 23px); }
+.lede { font-size: 16px; color: var(--ink-2); max-width: 66ch; }
 .mono { font-family: var(--f-mono); }
-.dim { color: var(--ink-2); }
+.dim  { color: var(--ink-2); }
+
+/* ─────────────────────────────────────────────────────────────────────
+   Vật liệu bento — một class dùng lại ở mọi khối.
+
+   Đây là thứ giữ cho trang nhất quán khi mỗi khối một bố cục khác nhau:
+   bố cục đổi, vật liệu thì không.
+   ───────────────────────────────────────────────────────────────────── */
+.tile {
+  background: var(--tile);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 20px;
+}
+/* Ô được nhấn. Gradient chéo chứ không phải nền phẳng amber — nền phẳng ở
+   13% alpha trên nền tối trông như lỗi render, gradient thì có chiều. */
+.tile-acc {
+  background: linear-gradient(158deg, var(--chg-dim), var(--tile) 62%);
+  border-color: var(--chg-line);
+}
 
 /* ─────────────────────────────────────────────────────────────────────
    Nút
    ───────────────────────────────────────────────────────────────────── */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
-  /* min-height 48px: ngón tay cần ≥44px, và đây là nút mua. */
-  min-height: 48px;
-  padding: 0 var(--s6);
+  min-height: 44px;
+  padding: 0 var(--s5);
   border: 1px solid transparent;
-  border-radius: var(--r);
+  border-radius: var(--r-sm);
   font-family: var(--f-sans);
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 600;
+  letter-spacing: -0.01em;
   cursor: pointer;
-  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
 }
 .btn-primary { background: var(--chg); color: var(--on-chg); }
 .btn-primary:hover { background: var(--chg-hi); }
 
-.btn-ghost { background: transparent; color: var(--ink); border-color: var(--line-2); }
-.btn-ghost:hover { border-color: var(--line-3); background: var(--panel); }
+.btn-ghost { background: var(--tile-2); color: var(--ink); border-color: var(--line-2); }
+.btn-ghost:hover { background: var(--tile-3); border-color: var(--line-3); }
 
-.btn-lg { min-height: 54px; font-size: 16px; padding-inline: var(--s7); }
+.btn-lg    { min-height: 50px; font-size: 15.5px; padding-inline: var(--s6); }
 .btn-block { width: 100%; }
 
 .btn-note {
   display: block;
   margin-top: var(--s3);
   font-family: var(--f-mono);
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--ink-3);
   letter-spacing: 0.03em;
 }
@@ -231,367 +302,609 @@ section { padding-block: var(--pad); position: relative; }
    ───────────────────────────────────────────────────────────────────── */
 .hdr {
   position: sticky; top: 0; z-index: 50;
-  background: rgba(5, 7, 13, 0.82);
+  background: rgba(7, 7, 10, 0.84);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--line);
 }
-.hdr-in { display: flex; align-items: center; gap: var(--s5); height: 58px; }
-.hdr-brand { display: flex; align-items: baseline; gap: var(--s2); font-weight: 700; letter-spacing: -0.02em; }
-.hdr-ver { font-family: var(--f-mono); font-size: 11px; color: var(--chg); }
-.hdr-nav { display: flex; gap: var(--s5); margin-left: auto; font-size: 14px; }
-/* Chiều cao tự nhiên của dòng 14px chỉ ra 22px — thiếu 2px so với ngưỡng
-   24×24 của WCAG 2.2 AA (2.5.8). Đúng là khoảng cách 24px giữa các link đã đủ
-   để viện dẫn ngoại lệ "spacing", nhưng đi vay ngoại lệ cho một thứ sửa bằng
-   một dòng thì không đáng. Cùng cách đã làm cho link ở footer. */
-.hdr-nav a { display: inline-flex; align-items: center; min-height: 24px; color: var(--ink-2); transition: color 0.15s ease; }
+.hdr-in { display: flex; align-items: center; gap: var(--s6); height: 62px; }
+.hdr-brand {
+  display: flex; align-items: baseline; gap: var(--s2);
+  font-weight: 600; letter-spacing: -0.025em; white-space: nowrap;
+}
+.hdr-ver {
+  font-family: var(--f-mono); font-size: 10px; color: var(--chg);
+  background: var(--chg-dim); border-radius: 5px; padding: 2px 6px;
+}
+.hdr-nav { display: flex; gap: 22px; margin-left: auto; font-size: 13.5px; }
+/* Chiều cao tự nhiên của dòng 13.5px chỉ ra 21px — thiếu so với ngưỡng
+   24×24 của WCAG 2.2 AA (2.5.8). Khoảng cách 22px giữa các link đủ để viện
+   dẫn ngoại lệ "spacing", nhưng đi vay ngoại lệ cho thứ sửa được bằng một
+   dòng thì không đáng. Cùng cách đã làm cho link ở footer. */
+.hdr-nav a {
+  display: inline-flex; align-items: center; min-height: 24px;
+  color: var(--ink-2); transition: color 0.15s ease;
+}
 .hdr-nav a:hover { color: var(--ink); }
 .hdr-cta { display: flex; gap: var(--s2); }
-.hdr .btn { min-height: 38px; padding-inline: var(--s4); font-size: 13.5px; }
+.hdr .btn { min-height: 36px; padding-inline: var(--s4); font-size: 13.5px; }
 @media (max-width: 1080px) {
   .hdr-nav { display: none; }
   .hdr-cta { margin-left: auto; }
-  /* 38px là chiều cao của nút header trên desktop, nơi con trỏ chuột chính
-     xác tới từng pixel. Từ đây xuống là ngón tay, và đây vẫn là nút mua —
-     áp đúng ngưỡng 44px mà .btn đã đặt ra ở trên thay vì tự miễn cho mình. */
+  /* 36px hợp lý khi có con trỏ chuột chính xác tới từng pixel. Từ đây
+     xuống là ngón tay, và đây vẫn là nút mua — áp đúng 44px. */
   .hdr .btn { min-height: 44px; }
 }
-@media (max-width: 420px) { .hdr-cta .btn-ghost { display: none; } }
+/* Từ 880px xuống, thanh CTA dính ở đáy màn đã hiện thường trực với đúng hai
+   nút này. Giữ thêm một bộ nữa trên header là chiếm mất nửa chiều ngang để
+   nói lại y nguyên một câu. */
+@media (max-width: 880px) { .hdr-cta { display: none; } }
 
 /* ─────────────────────────────────────────────────────────────────────
-   Hero
+   Hero — một cột căn giữa
+
+   Bản cũ chia 1.05fr/1fr với ô placeholder gạch đứt to đùng bên phải, tức
+   nửa màn hình đầu tiên là một cái hộp rỗng. Giờ chữ căn giữa, và hình
+   thật (ChartPanel) nằm ngay dưới ở dạng ô bento chiếm trọn chiều rộng.
    ───────────────────────────────────────────────────────────────────── */
-.hero { padding-block: clamp(48px, 7vw, 88px) var(--pad); overflow: hidden; }
-.hero-grid { display: grid; gap: clamp(32px, 5vw, 56px); grid-template-columns: minmax(0, 1fr); }
-@media (min-width: 1024px) { .hero-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: center; } }
+.hero {
+  padding-block: clamp(52px, 6.5vw, 88px) var(--s6);
+  text-align: center;
+  overflow: hidden;
+  position: relative;
+}
+/* Vầng sáng sau tiêu đề. Đây là thứ duy nhất phá được cảm giác "đen bệt"
+   mà không phải thêm nội dung — nó cho nền một chiều sâu. */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: -50% 12% 50%;
+  background: radial-gradient(58% 58% at 50% 44%, rgba(255, 176, 32, 0.16), transparent 70%);
+  filter: blur(28px);
+  pointer-events: none;
+}
+.hero > * { position: relative; }
+.hero-grid { display: block; }
 
 .eyebrow {
   display: inline-flex; align-items: center; gap: var(--s2);
-  padding: 5px 12px;
-  border: 1px solid var(--chg-line);
-  background: var(--chg-dim);
+  padding: 5px 14px;
+  border: 1px solid var(--line-2);
+  background: var(--tile);
   border-radius: var(--r-full);
-  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--chg-hi);
+  font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--ink-2);
 }
 .hero h1 {
   margin-top: var(--s5);
-  font-size: clamp(36px, 6vw, 62px);
-  letter-spacing: -0.035em;
+  font-size: clamp(38px, 5.6vw, 68px);
+  line-height: 1.03;
+  letter-spacing: -0.042em;
 }
-.hero h1 em { font-style: normal; color: var(--chg); }
-.hero-lede { margin-top: var(--s5); font-size: clamp(16px, 1.8vw, 19px); color: var(--ink-2); max-width: 54ch; }
-.hero-cta { display: flex; flex-wrap: wrap; gap: var(--s3); margin-top: var(--s7); }
-/* Xếp dọc ở MỌI khổ, không phải chỉ màn hẹp.
-   Cột chữ của hero rộng nhất cũng chỉ ~730px (1440px, grid 1.05fr), còn ba
-   mệnh đề này cần ~840px mới nằm vừa một hàng — nên hàng ngang thực tế chỉ
-   tồn tại trong dải 760–980px, đúng lúc hero còn một cột. Mọi khổ khác đều
-   xuống dòng. Xếp dọc sẵn thì kết quả giống nhau ở mọi bề ngang. */
+/* Gradient chữ chỉ ở đúng một chỗ trên toàn trang. Dùng lần thứ hai là nó
+   hết là điểm nhấn. */
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(100deg, var(--chg), #FFD98A);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero-lede {
+  margin: var(--s5) auto 0;
+  max-width: 58ch;
+  font-size: clamp(16px, 1.6vw, 17.5px);
+  color: var(--ink-2);
+}
+.hero-lede strong { color: var(--ink); font-weight: 600; }
+.hero-cta {
+  display: flex; flex-wrap: wrap; gap: var(--s3);
+  justify-content: center; margin-top: var(--s6);
+}
+/* Ba mệnh đề này cần ~640px mới nằm vừa một hàng. Dưới ngưỡng đó phải
+   xuống dòng — và không có dấu `·` ngăn giữa, vì dấu ngăn là flex item
+   riêng nên nó bị bỏ lại lủng lẳng ở cuối dòng mỗi lần wrap. */
 .hero-sub {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: var(--s2) var(--s6);
   margin-top: var(--s5);
-  font-family: var(--f-mono); font-size: 12.5px; color: var(--ink-3);
-  display: flex; flex-direction: column; gap: var(--s2);
+  font-family: var(--f-mono); font-size: 11.5px; color: var(--ink-3);
 }
 .hero-sub b { color: var(--ink-2); font-weight: 500; }
 
-/* Bảng spec — số liệu kiểm chứng được, không phải "8,900+ traders" */
-.specs {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px; margin-top: var(--s7);
-  background: var(--line); border: 1px solid var(--line); border-radius: var(--r);
-  overflow: hidden;
+/* ─────────────────────────────────────────────────────────────────────
+   Lưới bento dưới hero: một ô chart trọn chiều rộng + bốn ô số
+   ───────────────────────────────────────────────────────────────────── */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap);
+  padding-bottom: var(--s6);
 }
-@media (min-width: 720px) { .specs { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-.spec { background: var(--bg); padding: var(--s4) var(--s5); }
-.spec-v { font-family: var(--f-mono); font-size: 22px; font-weight: 700; color: var(--ink); }
-.spec-l { font-size: 12.5px; color: var(--ink-3); margin-top: 2px; line-height: 1.35; }
+@media (min-width: 900px) { .bento { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.bento-wide { grid-column: 1 / -1; padding: 0; overflow: hidden; }
+
+/* Thanh tiêu đề của ô chart — giả lập thanh trạng thái của panel trên
+   TradingView, để ô SVG bên dưới đọc ra là "màn hình", không phải "hình vẽ
+   minh hoạ trôi nổi". */
+.panel-bar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--tile-2);
+  font-family: var(--f-mono); font-size: 10.5px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3);
+}
+.panel-live  { color: var(--bull); }
+.panel-score { margin-left: auto; color: var(--chg); }
+.panel-svg   { width: 100%; height: auto; padding: 10px 8px 4px; }
+.panel-cap {
+  border-top: 1px solid var(--line);
+  padding: 10px 16px;
+  font-family: var(--f-mono); font-size: 10px;
+  letter-spacing: 0.05em; color: var(--ink-3);
+}
+
+/* Cố ý KHÔNG dùng `display:contents` để đẩy 4 <li> thẳng vào lưới cha: một
+   số screen reader vẫn bỏ luôn vai trò list khi gặp nó. Thà lồng thêm một
+   lưới con — kết quả nhìn giống hệt. */
+.specs {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap);
+}
+@media (min-width: 900px) { .specs { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.bento .shot-empty { grid-column: 1 / -1; }
+.spec {
+  background: var(--tile);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 18px 20px;
+}
+/* Ô cuối (số confluence) là ô được nhấn — nó là con số bán hàng. */
+.spec:last-child {
+  background: linear-gradient(158deg, var(--chg-dim), var(--tile) 62%);
+  border-color: var(--chg-line);
+}
+.spec:last-child .spec-v { color: var(--chg); }
+.spec-v {
+  font-family: var(--f-mono);
+  font-size: clamp(26px, 2.9vw, 38px);
+  font-weight: 700; letter-spacing: -0.045em; line-height: 1;
+}
+.spec-l { margin-top: 7px; font-size: 12.5px; color: var(--ink-3); line-height: 1.4; }
 
 /* ─────────────────────────────────────────────────────────────────────
-   Ô ảnh chart — vừa là chỗ đổ ảnh thật, vừa là placeholder khi chưa có
+   Ảnh chụp thật, và ô chờ ảnh
    ───────────────────────────────────────────────────────────────────── */
 .shot {
-  border: 1px solid var(--line-2);
-  border-radius: var(--r-lg);
-  background: var(--well);
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--tile);
   overflow: hidden;
 }
 .shot img { width: 100%; }
 .shot-cap {
-  padding: var(--s3) var(--s4);
+  padding: 11px 16px;
   border-top: 1px solid var(--line);
-  font-family: var(--f-mono); font-size: 12px; color: var(--ink-3);
+  font-family: var(--f-mono); font-size: 11.5px; color: var(--ink-3);
 }
+/* Bản cũ để ba ô gạch đứt CAO 320px (aspect 16/10) ở ba vị trí đẹp nhất
+   trang — đó chính là "trống trơn". Giờ là một dải mỏng, chữ nhỏ, màu mờ:
+   đủ để người dựng trang biết còn nợ gì, không đủ để khách coi là nội dung. */
 .shot-empty {
-  display: grid; place-items: center; text-align: center;
-  aspect-ratio: 16 / 10;
-  padding: var(--s6);
-  border: 1px dashed var(--line-3);
-  border-radius: var(--r-lg);
-  background:
-    repeating-linear-gradient(45deg, transparent, transparent 11px, rgba(255,255,255,0.016) 11px, rgba(255,255,255,0.016) 22px),
-    var(--well);
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.015);
+  padding: 12px 16px;
   color: var(--ink-3);
-  font-family: var(--f-mono); font-size: 12.5px; line-height: 1.7;
+  font-family: var(--f-mono); font-size: 11px; line-height: 1.7;
 }
-.shot-empty b { display: block; color: var(--ink-2); font-size: 13px; margin-bottom: var(--s2); }
+.shot-empty b { display: block; color: var(--ink-2); font-size: 11.5px; font-weight: 500; }
 
 /* ─────────────────────────────────────────────────────────────────────
-   Vấn đề → giải pháp
+   01 · Vấn đề → cách làm. Hai cột đối nhau.
    ───────────────────────────────────────────────────────────────────── */
-.pain-grid { display: grid; gap: var(--s5); grid-template-columns: minmax(0, 1fr); margin-top: var(--s7); }
+.pain-grid { display: grid; gap: var(--gap); grid-template-columns: minmax(0, 1fr); margin-top: var(--s6); }
 @media (min-width: 860px) { .pain-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .pain-col {
-  border: 1px solid var(--line); border-radius: var(--r-lg);
-  padding: var(--s6); background: var(--panel);
-}
-.pain-col.is-bad { border-color: rgba(251, 113, 133, 0.24); }
-.pain-col.is-good { border-color: var(--chg-line); }
-.pain-head {
-  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.12em;
-  text-transform: uppercase; margin-bottom: var(--s5);
-}
-.is-bad .pain-head { color: var(--bear); }
-.is-good .pain-head { color: var(--chg); }
-.pain-li { display: flex; gap: var(--s3); padding-block: var(--s3); border-top: 1px solid var(--line); }
-.pain-li:first-of-type { border-top: 0; padding-top: 0; }
-.pain-li span { font-size: 15px; color: var(--ink-2); }
-.pain-ic { flex: none; margin-top: 3px; }
-
-/* ─────────────────────────────────────────────────────────────────────
-   Bốn trụ
-   ───────────────────────────────────────────────────────────────────── */
-.pillars { display: grid; gap: 1px; margin-top: var(--s7); background: var(--line); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
-@media (min-width: 760px) { .pillars { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 1100px) { .pillars { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-.pillar { background: var(--bg); padding: var(--s6) var(--s5); }
-.pillar-n { font-family: var(--f-mono); font-size: 11px; color: var(--chg); letter-spacing: 0.1em; }
-.pillar h3 { margin-top: var(--s3); font-size: 17px; }
-.pillar p { margin-top: var(--s3); font-size: 14.5px; color: var(--ink-2); line-height: 1.6; }
-
-/* ─────────────────────────────────────────────────────────────────────
-   Confluence — bảy yếu tố, hiện đúng trọng số
-
-   Thanh bar dài theo điểm số. Đây không phải trang trí: nó cho thấy
-   Liquidity Sweep (+12) nặng gấp đôi Open-Price Sweep (+6), tức là engine
-   có quan điểm chứ không cộng đều.
-   ───────────────────────────────────────────────────────────────────── */
-.conf-list { display: grid; gap: var(--s3); margin-top: var(--s7); }
-.conf {
-  display: grid; gap: var(--s2) var(--s4);
-  grid-template-columns: auto 1fr;
-  align-items: baseline;
-  padding: var(--s5);
   border: 1px solid var(--line);
   border-radius: var(--r);
-  background: var(--panel);
+  padding: 20px 22px 24px;
 }
-.conf-b {
-  font-family: var(--f-mono); font-size: 17px; font-weight: 700;
-  color: var(--chg); min-width: 46px;
+.pain-col.is-bad  { background: var(--bg-2); }
+.pain-col.is-good {
+  background: linear-gradient(158deg, var(--chg-dim), var(--tile) 55%);
+  border-color: var(--chg-line);
 }
-.conf-n { font-weight: 600; font-size: 16px; }
-.conf-p { grid-column: 1 / -1; font-size: 14.5px; color: var(--ink-2); }
-.conf-bar { grid-column: 1 / -1; height: 3px; border-radius: 2px; background: var(--line-2); overflow: hidden; }
-.conf-bar i { display: block; height: 100%; background: var(--chg); border-radius: 2px; }
-
-.conf-cap {
-  margin-top: var(--s5); padding: var(--s5);
-  border: 1px solid var(--chg-line); background: var(--chg-dim);
-  border-radius: var(--r);
-  font-size: 15px; color: var(--ink);
+.pain-head {
+  font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding-bottom: var(--s4);
+  border-bottom: 1px solid var(--line);
 }
-.conf-cap b { font-family: var(--f-mono); color: var(--chg-hi); }
+.is-bad  .pain-head { color: var(--ink-3); }
+.is-good .pain-head { color: var(--chg); }
+.pain-li {
+  display: flex; gap: var(--s3);
+  padding-block: var(--s3);
+  border-bottom: 1px solid var(--line);
+  font-size: 14.5px;
+}
+.pain-li:last-of-type { border-bottom: 0; padding-bottom: 0; }
+.pain-li span { color: var(--ink-2); }
+/* Đặt SAU `.pain-li span` — nếu không thì màu ink-2 ở trên đè lên và cái
+   dấu tích của cột phải xám y hệt chấm tròn của cột trái. */
+.pain-ic { flex: none; margin-top: 3px; }
+.is-good .pain-ic { color: var(--chg); }
 
 /* ─────────────────────────────────────────────────────────────────────
-   Density + Style preset
+   02 · Bốn trụ — lưới lệch
+
+   Bản cũ là bốn card bằng nhau; mắt không có điểm bắt đầu nên đọc thành
+   một khối xám. Ô đầu chiếm hai cột và được nhấn.
    ───────────────────────────────────────────────────────────────────── */
-.preset-grid { display: grid; gap: var(--s4); margin-top: var(--s7); grid-template-columns: minmax(0, 1fr); }
-@media (min-width: 680px) { .preset-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 1020px) { .preset-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-.preset {
-  padding: var(--s5); border: 1px solid var(--line);
-  border-radius: var(--r); background: var(--panel);
+.pillars { display: grid; gap: var(--gap); grid-template-columns: minmax(0, 1fr); margin-top: var(--s6); }
+@media (min-width: 760px) {
+  .pillars { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pillar:first-child { grid-column: span 2; }
 }
-.preset.is-default { border-color: var(--chg-line); background: var(--chg-dim); }
-.preset-n { font-family: var(--f-mono); font-size: 15px; font-weight: 700; }
-.preset-d { margin-top: var(--s2); font-size: 14px; color: var(--ink-2); }
-.preset-tag {
-  display: inline-block; margin-top: var(--s3);
-  font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--chg);
+@media (min-width: 1100px) {
+  .pillars { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  /* 2+1 rồi 1+2: bốn ô lấp kín sáu cột. Để cả bốn cùng rộng 1 cột thì hàng
+     dưới hụt mất một ô và góc phải trống hoác — đúng cái đang vá. */
+  .pillar:first-child { grid-column: span 2; }
+  .pillar:last-child  { grid-column: span 2; }
+}
+.pillar {
+  background: var(--tile);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 20px;
+}
+.pillar:first-child {
+  background: linear-gradient(158deg, var(--chg-dim), var(--tile) 58%);
+  border-color: var(--chg-line);
+}
+.pillar-n { font-family: var(--f-mono); font-size: 10.5px; color: var(--chg); letter-spacing: 0.12em; }
+.pillar h3 { margin-top: var(--s3); font-size: 17px; letter-spacing: -0.018em; }
+.pillar p  { margin-top: var(--s2); font-size: 13.8px; color: var(--ink-2); }
+
+/* ─────────────────────────────────────────────────────────────────────
+   03 · Confluence — vòng + danh sách trong MỘT ô
+
+   Bản cũ là 7 card xếp dọc, cao gần 1.400px. Vòng tròn nói cái cap +30,
+   danh sách nói trọng số — hai thông tin khác nhau nên hai hình thức khác
+   nhau, và chúng đứng cạnh nhau chứ không nối đuôi.
+   ───────────────────────────────────────────────────────────────────── */
+.conf-wrap {
+  display: grid; gap: var(--s7); align-items: center;
+  margin-top: var(--s6);
+  background: var(--tile);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: clamp(20px, 2.6vw, 28px);
+}
+@media (min-width: 900px) {
+  .conf-wrap { grid-template-columns: 296px minmax(0, 1fr); align-items: start; }
+  /* Dính lại thì lúc đọc tới factor thứ bảy vẫn còn thấy cái trần +30 mà bảy
+     con số kia đang cộng vào. Đó là cả luận điểm của khối này. */
+  .conf-side { position: sticky; top: 96px; }
 }
 
-.style-row { display: flex; flex-wrap: wrap; gap: var(--s3); margin-top: var(--s5); }
+.conf-side { display: grid; gap: var(--s5); }
+.conf-dial { position: relative; width: 100%; max-width: 230px; aspect-ratio: 1; margin-inline: auto; }
+/* Ba cung: 12 (Sweep) / 10 (Killzone) / phần còn lại tới cap 30.
+   Con số ở --conf-a / --conf-b do Confluence.tsx tính từ lib/site.ts —
+   không hardcode ở đây, nếu trọng số đổi thì vòng phải đổi theo. */
+.conf-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(
+    var(--chg)  0 var(--conf-a, 40%),
+    #FFD98A     var(--conf-a, 40%) var(--conf-b, 73%),
+    var(--tile-3) var(--conf-b, 73%) 100%
+  );
+  -webkit-mask: radial-gradient(circle, transparent 57%, #000 58%);
+          mask: radial-gradient(circle, transparent 57%, #000 58%);
+}
+.conf-dial-c { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.conf-dial-c b {
+  display: block; font-family: var(--f-mono); font-size: 42px;
+  font-weight: 700; letter-spacing: -0.045em; line-height: 1;
+}
+.conf-dial-c span {
+  display: block; margin-top: 6px;
+  font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+
+.conf-list { display: grid; }
+.conf {
+  display: grid; grid-template-columns: 52px minmax(0, 1fr);
+  gap: 3px var(--s4); align-items: baseline;
+  padding-block: var(--s3);
+  border-bottom: 1px solid var(--line);
+}
+.conf:last-child { border-bottom: 0; padding-bottom: 0; }
+.conf-b { font-family: var(--f-mono); font-size: 15px; font-weight: 700; color: var(--chg); }
+.conf-n { font-size: 15px; font-weight: 500; }
+.conf-p { grid-column: 2; font-size: 13.3px; color: var(--ink-2); }
+.conf-bar {
+  grid-column: 2; display: block; height: 4px; margin-top: 5px;
+  border-radius: var(--r-full); background: var(--tile-3); overflow: hidden;
+}
+.conf-bar i { display: block; height: 100%; background: var(--chg); border-radius: var(--r-full); }
+
+.conf-cap { font-size: 13.8px; line-height: 1.65; color: var(--ink-2); max-width: 74ch; }
+.conf-cap b { font-family: var(--f-mono); color: var(--chg); }
+
+/* ─────────────────────────────────────────────────────────────────────
+   04 · Density + Style preset
+   ───────────────────────────────────────────────────────────────────── */
+.preset-grid { display: grid; gap: var(--gap); grid-template-columns: minmax(0, 1fr); margin-top: var(--s6); }
+@media (min-width: 680px)  { .preset-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1020px) { .preset-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.preset {
+  background: var(--tile);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 18px 20px 20px;
+}
+.preset.is-default {
+  background: linear-gradient(158deg, var(--chg-dim), var(--tile) 58%);
+  border-color: var(--chg-line);
+}
+/* min-height giữ chỗ cho ô KHÔNG có tag, nếu không bốn ô lệch nhau 13px và
+   dòng tên preset không thẳng hàng. */
+.preset-tag {
+  display: block; min-height: 13px;
+  font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--chg);
+}
+.preset-n { margin-top: 4px; font-size: 17px; font-weight: 600; letter-spacing: -0.018em; }
+.preset-d { margin-top: var(--s2); font-size: 13.5px; color: var(--ink-2); }
+
+.style-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: var(--s5); }
 .style-chip {
-  display: inline-flex; align-items: baseline; gap: var(--s3);
-  padding: var(--s3) var(--s5);
+  display: inline-flex; align-items: baseline; gap: 10px;
+  padding: 7px 16px;
   border: 1px solid var(--line-2); border-radius: var(--r-full);
-  background: var(--panel);
+  background: var(--tile-2);
   /* Chip không bao giờ được xuống dòng giữa tên và dãy EMA — vỡ nghĩa. */
   white-space: nowrap;
 }
-.style-chip b { font-size: 14.5px; }
-.style-chip span { font-family: var(--f-mono); font-size: 13px; color: var(--chg); }
+.style-chip b    { font-size: 14px; font-weight: 600; }
+.style-chip span { font-family: var(--f-mono); font-size: 12.5px; color: var(--chg); }
 
 /* ─────────────────────────────────────────────────────────────────────
-   Telegram — bảng so sánh hai tầng
+   05 · Telegram — hai tầng
    ───────────────────────────────────────────────────────────────────── */
-.tiers { display: grid; gap: var(--s5); margin-top: var(--s7); grid-template-columns: minmax(0, 1fr); }
-@media (min-width: 880px) { .tiers { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
+.tiers { display: grid; gap: var(--gap); grid-template-columns: minmax(0, 1fr); margin-top: var(--s6); }
+@media (min-width: 880px) { .tiers { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; } }
 .tier {
-  border: 1px solid var(--line-2); border-radius: var(--r-lg);
-  background: var(--panel); padding: var(--s6);
   display: flex; flex-direction: column; height: 100%;
+  background: var(--tile);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 24px;
 }
-.tier.is-primary { border-color: var(--chg-line); background: var(--panel-2); }
-.tier-n { font-size: 19px; font-weight: 600; }
-.tier-p { margin-top: var(--s2); font-family: var(--f-mono); font-size: 14px; color: var(--chg); }
-.tier-s { margin-top: var(--s2); font-size: 14px; color: var(--ink-3); }
-.tier-rows { margin-top: var(--s6); display: grid; gap: 0; flex: 1; }
+.tier.is-primary {
+  background: linear-gradient(158deg, var(--chg-dim), var(--tile) 55%);
+  border-color: var(--chg-line);
+}
+.tier-n { font-size: 19px; font-weight: 600; letter-spacing: -0.022em; }
+.tier-p { margin-top: var(--s2); font-family: var(--f-mono); font-size: 13.5px; color: var(--chg); }
+.tier-s { margin-top: var(--s2); font-size: 13.5px; color: var(--ink-3); }
+.tier-rows { margin-top: var(--s5); flex: 1; }
 .tier-row {
-  display: flex; gap: var(--s3); align-items: flex-start;
-  padding-block: var(--s3); border-top: 1px solid var(--line);
-  font-size: 14.5px;
+  display: flex; gap: 10px; align-items: flex-start;
+  padding-block: 9px; border-top: 1px solid var(--line);
+  font-size: 13.8px;
 }
 .tier-row:first-child { border-top: 0; }
 .tier-row.is-off { color: var(--ink-3); }
-.tier .btn { margin-top: var(--s6); }
+.tier .btn { margin-top: var(--s5); }
 
-.member-line {
-  margin-top: var(--s5);
-  font-family: var(--f-mono); font-size: 12.5px; color: var(--ink-3);
-}
+.member-line { margin-top: var(--s5); font-family: var(--f-mono); font-size: 12px; color: var(--ink-3); }
 
 /* ─────────────────────────────────────────────────────────────────────
-   Minh bạch
+   06 · Minh bạch
+
+   Changelog là ô lớn nhất trang sau hero — cố ý. Nó là bằng chứng mạnh
+   nhất mình có, và là thứ duy nhất đối thủ không chép được.
    ───────────────────────────────────────────────────────────────────── */
 .changelog {
-  margin-top: var(--s7); padding: clamp(24px, 4vw, 40px);
-  border: 1px solid var(--line-2); border-left: 3px solid var(--chg);
-  border-radius: var(--r-lg); background: var(--panel);
+  margin-top: var(--s6);
+  padding: clamp(22px, 3vw, 34px);
+  background: linear-gradient(158deg, var(--chg-dim), var(--tile) 52%);
+  border: 1px solid var(--chg-line);
+  border-radius: var(--r-lg);
 }
-.changelog h3 { font-size: clamp(21px, 2.6vw, 27px); }
-.changelog p { margin-top: var(--s4); font-size: 15.5px; color: var(--ink-2); max-width: 74ch; }
+.changelog h3 { font-size: clamp(21px, 2.4vw, 28px); max-width: 26ch; }
+.changelog p  { margin-top: var(--s4); font-size: 15px; color: var(--ink-2); max-width: 76ch; }
 .changelog .note {
-  margin-top: var(--s5); padding-top: var(--s5); border-top: 1px solid var(--line);
-  color: var(--ink); font-weight: 500;
+  margin-top: var(--s5); padding-top: var(--s4);
+  border-top: 1px solid var(--chg-line);
+  color: var(--chg); font-weight: 500;
 }
 
-.honest-grid { display: grid; gap: var(--s4); margin-top: var(--s5); grid-template-columns: minmax(0, 1fr); }
+.honest-grid { display: grid; gap: var(--gap); grid-template-columns: minmax(0, 1fr); margin-top: var(--gap); }
 @media (min-width: 820px) { .honest-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.honest { padding: var(--s6); border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); }
-.honest h4 { font-size: 16px; }
-.honest p { margin-top: var(--s3); font-size: 14.5px; color: var(--ink-2); }
-
-/* ─────────────────────────────────────────────────────────────────────
-   Testimonial — tối đa 6, đọc được. Không làm tường 46 ảnh mờ.
-   ───────────────────────────────────────────────────────────────────── */
-.quotes { display: grid; gap: var(--s4); margin-top: var(--s7); grid-template-columns: minmax(0, 1fr); }
-@media (min-width: 760px) { .quotes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 1080px) { .quotes { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.quote { padding: var(--s6); border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); }
-.quote p { font-size: 15px; }
-.quote footer { margin-top: var(--s4); font-family: var(--f-mono); font-size: 12px; color: var(--ink-3); }
-
-/* ─────────────────────────────────────────────────────────────────────
-   Giá — một thẻ, một tầng, không tier gây phân vân
-   ───────────────────────────────────────────────────────────────────── */
-.price-card {
-  max-width: 560px; margin: var(--s7) auto 0;
-  border: 1px solid var(--chg-line); border-radius: var(--r-lg);
-  background: var(--panel-2); padding: clamp(28px, 4vw, 44px);
+.honest {
+  background: var(--tile); border: 1px solid var(--line);
+  border-radius: var(--r); padding: 20px;
 }
-.price-amt { display: flex; align-items: baseline; gap: var(--s2); }
-.price-amt .cur { font-family: var(--f-mono); font-size: 26px; color: var(--ink-2); }
-.price-amt .num { font-family: var(--f-mono); font-size: clamp(52px, 8vw, 72px); font-weight: 700; line-height: 1; }
-.price-amt .per { font-size: 15px; color: var(--ink-2); margin-left: var(--s2); }
-.price-sub { margin-top: var(--s3); font-size: 15px; color: var(--chg-hi); font-weight: 500; }
+.honest h4 { font-size: 15.5px; letter-spacing: -0.015em; }
+.honest p  { margin-top: var(--s2); font-size: 13.8px; color: var(--ink-2); }
 
-.price-list { margin-top: var(--s6); display: grid; gap: var(--s3); }
-.price-li { display: flex; gap: var(--s3); font-size: 14.5px; align-items: flex-start; }
+/* ─────────────────────────────────────────────────────────────────────
+   07 · Testimonial — tối đa 6, đọc được. Không làm tường 46 ảnh mờ.
+   Cả khối tự ẩn khi proof.quotes rỗng (xử lý trong Quotes.tsx).
+   ───────────────────────────────────────────────────────────────────── */
+.quotes { display: grid; gap: var(--gap); grid-template-columns: minmax(0, 1fr); margin-top: var(--s6); }
+@media (min-width: 760px)  { .quotes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1080px) { .quotes { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.quote {
+  margin: 0; background: var(--tile); border: 1px solid var(--line);
+  border-radius: var(--r); padding: 20px;
+}
+.quote blockquote { margin: 0; }
+.quote p { font-size: 14.5px; }
+.quote footer,
+.quote figcaption {
+  margin-top: var(--s4);
+  font-family: var(--f-mono); font-size: 11.5px; color: var(--ink-3);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   08 · Giá — hai cột
+
+   Bản cũ dồn tất cả vào một cột 560px căn giữa, cao ~900px, phải cuộn hai
+   màn mới tới nút mua. Giờ: trái là cái nhận được, phải là nút + bảo đảm,
+   và cột phải dính nên nút mua không bao giờ rời khỏi tầm mắt.
+   ───────────────────────────────────────────────────────────────────── */
+.price-grid { display: grid; gap: var(--gap); align-items: start; margin-top: var(--s6); }
+@media (min-width: 900px) { .price-grid { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); } }
+
+.price-card {
+  background: var(--tile);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: clamp(22px, 3vw, 30px);
+}
+.price-buy {
+  background: linear-gradient(158deg, var(--chg-dim), var(--tile) 55%);
+  border: 1px solid var(--chg-line);
+  border-radius: var(--r-lg);
+  padding: clamp(22px, 3vw, 30px);
+}
+@media (min-width: 900px) { .price-buy { position: sticky; top: 86px; } }
+
+.price-amt {
+  display: flex; align-items: baseline; gap: var(--s1);
+  font-family: var(--f-mono); font-weight: 700; letter-spacing: -0.05em; line-height: 1;
+}
+.price-amt .cur { font-size: 28px; color: var(--ink-2); }
+.price-amt .num { font-size: clamp(50px, 6vw, 66px); }
+/* Tách khỏi con số bằng margin chứ không dựa vào khoảng trắng — ở 66px
+   mono, "Lifetime licence" đặt inline sẽ đè lên chân số. */
+.price-amt .per {
+  margin-left: 10px;
+  font-family: var(--f-sans); font-size: 13px; font-weight: 400;
+  letter-spacing: 0; color: var(--ink-3);
+}
+.price-sub { margin-top: var(--s3); font-size: 14px; color: var(--ink-2); }
+
+.price-list { display: grid; gap: 9px; margin-top: var(--s5); }
+.price-li { display: flex; gap: 10px; align-items: flex-start; font-size: 14.3px; color: var(--ink-2); }
 .price-li.is-off { color: var(--ink-3); }
 
-.price-div { margin-block: var(--s6); height: 1px; background: var(--line); }
+.price-div { height: 1px; background: var(--line); margin-block: var(--s5); }
 .price-guarantee { font-size: 14px; color: var(--ink-2); }
 .price-guarantee b { color: var(--ink); }
 
 /* ─────────────────────────────────────────────────────────────────────
-   FAQ — <details> thuần, không JS. Bàn phím chạy được sẵn.
+   09 · FAQ — hai cột
+
+   Tám câu xếp dọc một cột là tám lần cuộn; hai cột thì hết một màn.
+   `<details>` thuần: bàn phím, screen reader, trạng thái mở/đóng đều do
+   trình duyệt lo. Mọi accordion tự viết là một cơ hội làm hỏng ba thứ đó.
    ───────────────────────────────────────────────────────────────────── */
-.faq { margin-top: var(--s7); border-top: 1px solid var(--line); }
-.faq details { border-bottom: 1px solid var(--line); }
+.faq { display: grid; gap: 10px; align-content: start; margin-top: var(--s6); }
+@media (min-width: 900px) { .faq { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.faq details {
+  height: fit-content;
+  background: var(--tile);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding-inline: 18px;
+}
+.faq details[open] { background: var(--tile-2); border-color: var(--line-2); }
 .faq summary {
-  display: flex; align-items: center; justify-content: space-between; gap: var(--s4);
-  padding-block: var(--s5);
-  font-size: 16.5px; font-weight: 500;
+  display: flex; align-items: center; gap: var(--s3);
+  min-height: 48px; padding-block: var(--s2);
+  font-size: 14.8px; font-weight: 500;
   cursor: pointer; list-style: none;
 }
 .faq summary::-webkit-details-marker { display: none; }
 .faq summary::after {
   content: '+';
-  font-family: var(--f-mono); font-size: 20px; color: var(--chg);
-  flex: none; transition: transform 0.2s ease;
+  margin-left: auto;
+  font-family: var(--f-mono); font-size: 18px; line-height: 1;
+  color: var(--chg); flex: none;
 }
 .faq details[open] summary::after { content: '−'; }
-.faq .a { padding-bottom: var(--s5); font-size: 15px; color: var(--ink-2); max-width: 78ch; }
+.faq .a { padding-bottom: var(--s4); font-size: 14px; color: var(--ink-2); }
 
 /* ─────────────────────────────────────────────────────────────────────
    CTA cuối
    ───────────────────────────────────────────────────────────────────── */
-.endcta { text-align: center; }
-.endcta h2 { font-size: clamp(30px, 4.6vw, 48px); }
-.endcta p { margin: var(--s5) auto 0; max-width: 58ch; color: var(--ink-2); font-size: 17px; }
-.endcta-row { display: flex; flex-wrap: wrap; gap: var(--s3); justify-content: center; margin-top: var(--s7); }
+.endcta {
+  text-align: center;
+  background: var(--bg-2);
+  border-top: 1px solid var(--line);
+}
+.endcta h2 { font-size: clamp(26px, 3.4vw, 40px); max-width: 20ch; margin-inline: auto; }
+.endcta p  { margin: var(--s5) auto 0; max-width: 60ch; color: var(--ink-2); font-size: 16px; }
+.endcta-row { display: flex; flex-wrap: wrap; gap: var(--s3); justify-content: center; margin-top: var(--s6); }
 
 /* ─────────────────────────────────────────────────────────────────────
    Footer
    ───────────────────────────────────────────────────────────────────── */
-.ftr { border-top: 1px solid var(--line); background: var(--well); padding-block: var(--s8) var(--s7); }
+.ftr { border-top: 1px solid var(--line); background: var(--bg); padding-block: var(--s7) var(--s7); }
 .ftr-grid { display: grid; gap: var(--s6); grid-template-columns: minmax(0, 1fr); }
-@media (min-width: 780px) { .ftr-grid { grid-template-columns: 1.6fr 1fr 1fr; } }
-.ftr h4 { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: var(--s4); }
+@media (min-width: 780px) { .ftr-grid { grid-template-columns: 1.8fr 1fr 1fr; } }
+.ftr h4 {
+  font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--ink-3); font-weight: 500;
+  margin-bottom: var(--s3);
+}
 .ftr li { font-size: 14px; }
-.ftr a { color: var(--ink-2); }
-.ftr a:hover { color: var(--ink); }
-/* Vùng chạm nằm ở thẻ <a>, không phải ở <li>. Cho <li> padding thì chỗ trống
-   rộng ra nhưng ngón tay bấm vào đó vẫn trượt. WCAG 2.2 AA (2.5.8) đòi tối
-   thiểu 24px và danh sách link KHÔNG được miễn như link nằm giữa câu văn. */
-.ftr li a { display: inline-flex; align-items: center; min-height: 36px; }
+.ftr a { color: var(--ink-2); transition: color 0.15s ease; }
+.ftr a:hover { color: var(--chg); }
+/* Vùng chạm nằm ở thẻ <a>, không phải ở <li>. Cho <li> padding thì chỗ
+   trống rộng ra nhưng ngón tay bấm vào đó vẫn trượt. WCAG 2.2 AA (2.5.8)
+   đòi tối thiểu 24px, và danh sách link KHÔNG được miễn như link nằm giữa
+   câu văn. */
+.ftr li a { display: inline-flex; align-items: center; min-height: 32px; }
 
 .disclaimer {
-  margin-top: var(--s7); padding-top: var(--s6); border-top: 1px solid var(--line);
-  font-size: 12.5px; line-height: 1.7; color: var(--ink-3); max-width: 92ch;
+  margin-top: var(--s6); padding-top: var(--s5); border-top: 1px solid var(--line);
+  font-size: 12.5px; line-height: 1.7; color: var(--ink-3); max-width: 94ch;
 }
+.disclaimer strong { color: var(--ink-2); font-weight: 600; }
 .disclaimer p + p { margin-top: var(--s3); }
 
+/* Chỉ hiện khi lib/site.ts còn REPLACE_ME. Cố ý đặt TRÊN TRANG chứ không
+   phải trong console — console thì không ai mở. */
 .devwarn {
-  margin-bottom: var(--s6); padding: var(--s4) var(--s5);
-  border: 1px solid var(--bear); border-radius: var(--r);
+  margin-bottom: var(--s6); padding: var(--s3) var(--s4);
+  border: 1px solid var(--bear); border-radius: var(--r-sm);
   background: var(--bear-dim);
-  font-family: var(--f-mono); font-size: 13px; color: var(--ink);
+  font-family: var(--f-mono); font-size: 12.5px; color: #FFC4CB;
 }
 
 /* ─────────────────────────────────────────────────────────────────────
-   Sticky CTA cho mobile
+   Sticky CTA cho màn hẹp
 
    Trendline để sticky bar đè lên chart trong hero ngay màn đầu. Ở đây nó
-   chỉ hiện trên màn hẹp, nằm dưới cùng, và body được chừa padding nên nó
+   chỉ hiện dưới 880px, nằm dưới cùng, và body được chừa padding nên nó
    không bao giờ che nội dung cuối trang.
    ───────────────────────────────────────────────────────────────────── */
 .sticky {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 45;
   display: none; gap: var(--s2);
-  padding: var(--s3) var(--s4);
-  padding-bottom: calc(var(--s3) + env(safe-area-inset-bottom, 0px));
-  background: rgba(5, 7, 13, 0.94);
+  padding: 10px var(--s4);
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  background: rgba(7, 7, 10, 0.94);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border-top: 1px solid var(--line-2);
+  border-top: 1px solid var(--line);
 }
-.sticky .btn { flex: 1; min-height: 46px; padding-inline: var(--s4); font-size: 14px; }
+.sticky .btn { flex: 1; min-height: 44px; padding-inline: var(--s3); font-size: 14px; }
 @media (max-width: 880px) {
   .sticky { display: flex; }
-  body { padding-bottom: 78px; }
+  body { padding-bottom: 76px; }
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -606,7 +919,11 @@ section { padding-block: var(--pad); position: relative; }
   }
 }
 
-/* Windows High Contrast / forced-colors: viền phải còn nhìn thấy. */
+/* Windows High Contrast bỏ sạch background. Không có viền thật thì mọi ô
+   biến mất và cả trang thành một khối chữ liền. */
 @media (forced-colors: active) {
-  .btn, .tier, .preset, .conf, .price-card { border: 1px solid CanvasText; }
+  .btn, .tile, .spec, .pillar, .preset, .conf-wrap, .tier,
+  .honest, .quote, .changelog, .price-card, .price-buy, .faq details {
+    border: 1px solid CanvasText;
+  }
 }

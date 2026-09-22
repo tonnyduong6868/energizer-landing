@@ -1,10 +1,11 @@
 import { links, pricing, proof, site, specs } from '@/lib/site'
+import { ChartPanel } from './ChartPanel'
 import { Telegram } from './Icon'
 
 /**
  * Hero.
  *
- * Ba quyết định, mỗi cái sửa một lỗi cụ thể của hai funnel cũ:
+ * Bốn quyết định, mỗi cái sửa một lỗi cụ thể:
  *
  * 1. CTA kép. Trendline và Scalper chỉ có một cửa — mua hoặc biến mất — nên
  *    100% người chưa sẵn sàng trả tiền bị mất trắng. Ở đây nút chính là vào
@@ -14,21 +15,23 @@ import { Telegram } from './Icon'
  *    được từ source code và ai cũng kiểm lại được. Không neo giá, không đếm
  *    ngược, không toast "ai đó vừa mua".
  *
- * 3. Ảnh chart có width/height cứng. Trendline có 58 ảnh không khai kích
- *    thước, đó là nguyên nhân trực tiếp gây CLS. Khi chưa có ảnh thật thì
- *    hiện ô rỗng ghi rõ cần chụp gì — thà để trống còn hơn mượn ảnh của
- *    người khác.
+ * 3. Một cột căn giữa, không phải hai cột. Bản trước chia 1.05fr/1fr và nhét
+ *    một ô gạch đứt cao 320px vào cột phải — tức nửa màn hình đầu tiên của
+ *    trang bán hàng là một cái hộp rỗng.
+ *
+ * 4. Có hình. <ChartPanel> vẽ lại đúng cấu trúc mà indicator in ra chart.
+ *    Nó là HÌNH MINH HOẠ và caption nói rõ thế; nó nhường chỗ ngay khi có
+ *    ảnh chụp thật trong `proof.shots`. Thà vẽ sơ đồ của chính mình còn hơn
+ *    mượn ảnh của người khác, và hơn hẳn để trống.
  */
 export function Hero() {
   const shot = proof.shots[0]
 
   return (
-    <section className="hero" id="top">
-      <div className="wrap hero-grid">
-        <div>
-          <p className="eyebrow">
-            TradingView · Pine v6 · {site.version}
-          </p>
+    <>
+      <section className="hero" id="top">
+        <div className="wrap hero-grid">
+          <p className="eyebrow">TradingView · Pine v6 · {site.version}</p>
 
           <h1>
             One score.
@@ -61,8 +64,7 @@ export function Hero() {
 
           {/* Không có dấu `·` ngăn giữa ba mệnh đề. Đã thử: dấu ngăn phải là
               flex item riêng, nên khi hàng xuống dòng nó bị bỏ lại lủng lẳng ở
-              cuối dòng — đo được ở mọi bề ngang ≥1024px và 561–700px, tức là
-              gần hết các khổ màn thật. Ba mệnh đề xếp dọc thì tự tách ý rồi. */}
+              cuối dòng. Ba mệnh đề cách nhau 32px thì tự tách ý rồi. */}
           <p className="hero-sub">
             <span>
               <b>No card</b> for the channel
@@ -74,38 +76,49 @@ export function Hero() {
               <b>{pricing.guarantee.days}-day</b> refund, no questions
             </span>
           </p>
-
-          <ul className="specs">
-            {specs.map((s) => (
-              <li className="spec" key={s.label}>
-                <div className="spec-v">{s.value}</div>
-                <div className="spec-l">{s.label}</div>
-              </li>
-            ))}
-          </ul>
         </div>
+      </section>
 
-        <div>
-          {shot ? (
-            <figure className="shot">
-              {/* width/height bắt buộc — thiếu là layout nhảy khi ảnh tải xong. */}
-              <img src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} />
-              <figcaption className="shot-cap">{shot.caption}</figcaption>
-            </figure>
-          ) : (
-            <div className="shot-empty">
-              <p>
-                <b>Chart screenshot goes here</b>
-                Bỏ ảnh vào public/assets/shots/ rồi khai trong proof.shots
-                <br />
-                Nên chụp: dashboard HUD + một lệnh đang sống
-                <br />
-                có SL / TP1 / TP2 / TP3 và điểm số hiện rõ
-              </p>
+      <div className="wrap bento">
+        {shot ? (
+          <figure className="tile bento-wide shot">
+            {/* width/height bắt buộc — thiếu là layout nhảy khi ảnh tải xong. */}
+            <img src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} />
+            <figcaption className="shot-cap">{shot.caption}</figcaption>
+          </figure>
+        ) : (
+          <div className="tile bento-wide">
+            <div className="panel-bar">
+              <span className="panel-live">● LIVE</span>
+              <span>XAUUSD · 15M</span>
+              <span>NY KILLZONE</span>
+              <span className="panel-score">SCORE 87 / 100 · LONG</span>
             </div>
-          )}
-        </div>
+            <ChartPanel />
+            <p className="panel-cap">
+              Illustration of the on-chart panel — not a backtest, not a track record.
+            </p>
+          </div>
+        )}
+
+        <ul className="specs">
+          {specs.map((s) => (
+            <li className="spec" key={s.label}>
+              <div className="spec-v">{s.value}</div>
+              <div className="spec-l">{s.label}</div>
+            </li>
+          ))}
+        </ul>
+
+        {!shot && (
+          <div className="shot-empty">
+            <b>Còn nợ: ảnh chụp chart thật</b>
+            Bỏ ảnh vào public/assets/shots/ rồi khai trong proof.shots — nên chụp
+            dashboard HUD + một lệnh đang sống, có SL / TP1 / TP2 / TP3 và điểm số
+            hiện rõ. Có ảnh thật thì sơ đồ minh hoạ ở trên tự nhường chỗ.
+          </div>
+        )}
       </div>
-    </section>
+    </>
   )
 }

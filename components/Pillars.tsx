@@ -15,13 +15,13 @@ export function Pillars() {
   return (
     <section>
       <div className="wrap">
-        <SectionHead no="02" tag="What it does" meta="four jobs, one script" />
-
-        <h2 className="h2">A single-chart Smart Money terminal.</h2>
-        <p className="lede" style={{ marginTop: 'var(--s5)' }}>
-          Not a signal service, not a bot. One script that sees the structure, scores
-          the setup, weighs the context, and draws the trade.
-        </p>
+        <SectionHead
+          no="02"
+          tag="What it does"
+          meta="four jobs, one script"
+          title="A single-chart Smart Money terminal."
+          lede="Not a signal service, not a bot. One script that sees the structure, scores the setup, weighs the context, and draws the trade."
+        />
 
         <ul className="pillars">
           {pillars.map((p, i) => (
@@ -35,7 +35,7 @@ export function Pillars() {
           ))}
         </ul>
 
-        <div style={{ marginTop: 'var(--s7)' }}>
+        <div style={{ marginTop: 'var(--gap)' }}>
           {shot ? (
             <figure className="shot">
               <img src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} />

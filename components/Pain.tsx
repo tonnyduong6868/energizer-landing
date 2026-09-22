@@ -28,17 +28,24 @@ export function Pain() {
   return (
     <section className="sec-alt" id="engine">
       <div className="wrap">
-        <SectionHead no="01" tag="The problem" meta="why confluence usually fails" />
-
-        <h2 className="h2">
-          Adding indicators does not add confluence.
-          <br />
-          It adds arguments.
-        </h2>
-        <p className="lede" style={{ marginTop: 'var(--s5)' }}>
-          Every one of them is right sometimes. That is the trap &mdash; you can always
-          find the two that agree with what you already want to do.
-        </p>
+        <SectionHead
+          no="01"
+          tag="The problem"
+          meta="why confluence usually fails"
+          title={
+            <>
+              Adding indicators does not add confluence.
+              <br />
+              It adds arguments.
+            </>
+          }
+          lede={
+            <>
+              Every one of them is right sometimes. That is the trap &mdash; you can
+              always find the two that agree with what you already want to do.
+            </>
+          }
+        />
 
         <div className="pain-grid">
           <div className="pain-col is-bad">
