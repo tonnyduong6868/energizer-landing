@@ -100,6 +100,7 @@ export type CtaPlace =
   | 'endcta'
   | 'sticky'
   | 'promo'
+  | 'footer'
 
 /**
  * Bật lên khi `telegramFree` trỏ vào MỘT BOT chứ không phải một channel.
