@@ -43,7 +43,7 @@ export function SiteHeader() {
             <Telegram size={16} />
             Free channel
           </a>
-          <a className="btn btn-primary" href="#pricing">
+          <a className="btn btn-primary" href="#pricing" data-cta="header">
             Get the licence
           </a>
         </div>

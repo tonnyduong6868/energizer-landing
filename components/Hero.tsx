@@ -60,7 +60,7 @@ export function Hero() {
               <Telegram size={18} />
               Watch it work — free channel
             </a>
-            <a className="btn btn-ghost btn-lg" href="#pricing">
+            <a className="btn btn-ghost btn-lg" href="#pricing" data-cta="hero">
               Get the licence · {pricing.symbol}
               {pricing.amount}
             </a>

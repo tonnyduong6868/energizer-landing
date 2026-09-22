@@ -24,7 +24,7 @@ export function StickyCta() {
         <Telegram size={16} />
         Free channel
       </a>
-      <a className="btn btn-primary" href="#pricing">
+      <a className="btn btn-primary" href="#pricing" data-cta="sticky">
         Get it · {pricing.symbol}
         {pricing.amount}
         {/* Giá cũ thì không có, nhưng giá SAU thì có thật — gạch ngang con số

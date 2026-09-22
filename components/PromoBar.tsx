@@ -24,7 +24,7 @@ export function PromoBar() {
 
   return (
     <div className="promo">
-      <a className="wrap promo-in" href="#pricing">
+      <a className="wrap promo-in" href="#pricing" data-cta="promo">
         <span className="promo-badge">
           &minus;{promoSaving.percent}%
         </span>

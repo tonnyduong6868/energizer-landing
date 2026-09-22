@@ -72,7 +72,7 @@ export function TelegramTiers() {
                     {t.cta}
                   </a>
                 ) : (
-                  <a className="btn btn-ghost btn-block" href="#pricing">
+                  <a className="btn btn-ghost btn-block" href="#pricing" data-cta="telegram">
                     {t.cta}
                   </a>
                 )}

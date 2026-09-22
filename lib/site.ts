@@ -54,9 +54,9 @@ export const site = {
 /* ══════════════════════════════════════════════════════════════════════
    LINK — PHẢI SỬA TRƯỚC KHI CHẠY QUẢNG CÁO
 
-   Bốn giá trị dưới đây đang là placeholder. Khách bấm vào sẽ rơi vào trang
-   404 và mất luôn. Component <SiteFooter> in cảnh báo đỏ ngay trên trang khi
-   `telegramFree` vẫn còn chứa chữ "REPLACE", nên không thể quên lặng lẽ.
+   `checkout` đã trỏ vào Whop thật (22/09/2026). Hai link Telegram vẫn là
+   placeholder: khách bấm vào rơi vào 404 và mất luôn. Component <SiteFooter>
+   in cảnh báo đỏ ngay trên trang khi còn chữ "REPLACE", nên không quên lặng lẽ.
    ══════════════════════════════════════════════════════════════════════ */
 export const links = {
   /** Channel công khai — CTA chính của cả trang. */
@@ -64,13 +64,16 @@ export const links = {
   /** Nhóm VIP — chỉ người đã mua. Link này gửi trong email sau thanh toán. */
   telegramVip: 'https://t.me/REPLACE_ME_vip_group',
   /**
-   * Trang thanh toán — checkout của Whop (xem `docs/whop-setup.md`).
+   * Trang thanh toán — Whop `prod_VHwQkeR9slUqI` (xem `docs/whop-setup.md`).
    *
-   * Dạng thật: `https://whop.com/<slug>/` hoặc link plan trực tiếp. Plan PHẢI
-   * bật custom checkout field `tradingview_username` (required), nếu không mỗi
-   * đơn lại phải email hỏi lại username — đó là chỗ rơi khách nhiều nhất.
+   * Plan đã bật checkout field bắt buộc "Your TradingView username"; thiếu nó
+   * thì mỗi đơn phải email hỏi lại — chỗ rơi khách nhiều nhất trong cả luồng.
+   *
+   * Whop giữ nguyên query string (kiểm 22/09/2026: không redirect, không cắt),
+   * nên UTM do `cta()` gắn vào đọc được ở phía Whop. `tonny-f2cd` là store slug
+   * auto sinh — đổi slug ở Settings là link này chết, sửa cả hai cùng lúc.
    */
-  checkout: 'https://whop.com/REPLACE_ME_energizer/',
+  checkout: 'https://whop.com/tonny-f2cd/smart-money-energizer/',
   /** Hỏi trước khi mua. */
   support: 'mailto:support@zynalgo.com',
 } as const
@@ -80,7 +83,13 @@ export const hasPlaceholderLinks = Object.values(links).some((v) =>
   v.includes('REPLACE_ME'),
 )
 
-/** Mọi chỗ đặt nút trên trang. Thêm nút mới thì thêm tên vào đây. */
+/**
+ * Mọi chỗ đặt nút trên trang. Thêm nút mới thì thêm tên vào đây.
+ *
+ * Đây cũng là từ vựng dùng cho `data-cta` trên các nút nội bộ trỏ
+ * `#pricing` — giữ chung một bộ tên để báo cáo UTM (nút ra ngoài) và báo
+ * cáo sự kiện (nút nội bộ) đọc được cạnh nhau, không phải dịch tên.
+ */
 export type CtaPlace =
   | 'header'
   | 'hero'
@@ -90,6 +99,7 @@ export type CtaPlace =
   | 'faq'
   | 'endcta'
   | 'sticky'
+  | 'promo'
 
 /**
  * Bật lên khi `telegramFree` trỏ vào MỘT BOT chứ không phải một channel.
@@ -115,6 +125,73 @@ export function cta(href: string, place: CtaPlace): string {
   const sep = href.includes('?') ? '&' : '?'
   return `${href}${sep}utm_source=landing&utm_medium=${place}&utm_campaign=energizer-${site.version}`
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   ĐO LƯỜNG
+
+   Không đo thì mọi chỉnh sửa sau này đều là đoán. Trang này vừa được thêm
+   bốn chỗ đặt banner giảm giá và một đồng hồ đếm ngược — câu hỏi "chúng nó
+   có tác dụng gì không" hiện tại KHÔNG có cách nào trả lời.
+
+   Vì sao không dùng Google Analytics: GA4 đặt cookie, nên trang phải có
+   banner xin phép cookie để hợp GDPR/ePrivacy. Banner đó che nội dung ngay
+   lần tải đầu và tự nó là một chỗ rơi khách. Ba lựa chọn dưới đây đều không
+   cookie, không dấu vân tay thiết bị, nên không cần banner.
+
+   Mặc định là `'none'` và khi ở `'none'` thì component <Analytics /> in ra
+   ĐÚNG KHÔNG GÌ CẢ — không thẻ script, không request, trang vẫn zero-JS như
+   trước. Bật lên là sửa đúng hai dòng ở đây, không phải sửa code.
+   ══════════════════════════════════════════════════════════════════════ */
+
+type AnalyticsProvider = 'none' | 'plausible' | 'umami' | 'cloudflare'
+
+export const analytics: {
+  provider: AnalyticsProvider
+  plausibleDomain: string
+  plausibleHost: string
+  umamiWebsiteId: string
+  umamiSrc: string
+  cloudflareToken: string
+} = {
+  /**
+   * · 'plausible'  — ~1KB, $9/tháng, hoặc tự host miễn phí. Dễ đọc nhất.
+   * · 'umami'      — ~2KB, bản cloud có gói free, tự host cũng được.
+   * · 'cloudflare' — miễn phí hoàn toàn, nhưng KHÔNG đo được sự kiện bấm nút,
+   *                  chỉ đếm lượt xem. Với trang này thì hơi phí.
+   */
+  provider: 'none',
+
+  /** Plausible: đúng domain đã khai trong dashboard, không có https://. */
+  plausibleDomain: 'tonnyduong6868.github.io',
+  /** Đổi khi tự host. Để nguyên nếu dùng plausible.io. */
+  plausibleHost: 'https://plausible.io',
+
+  /** Umami: lấy cả hai ở tab Settings → Websites → Edit → Tracking code. */
+  umamiWebsiteId: '',
+  umamiSrc: '',
+
+  /** Cloudflare Web Analytics: token trong đoạn snippet nó đưa. */
+  cloudflareToken: '',
+}
+
+/**
+ * True khi provider đã được chọn VÀ đã điền đủ thông tin nó cần.
+ *
+ * Tách riêng khỏi `provider !== 'none'` là có lý do: chọn 'plausible' mà
+ * quên điền domain thì script vẫn tải nhưng mọi lượt xem rơi vào hư không,
+ * và đó là kiểu hỏng tệ nhất — trông như đang đo.
+ */
+export const analyticsReady =
+  (analytics.provider === 'plausible' && analytics.plausibleDomain !== '') ||
+  (analytics.provider === 'umami' &&
+    analytics.umamiWebsiteId !== '' &&
+    analytics.umamiSrc !== '') ||
+  (analytics.provider === 'cloudflare' && analytics.cloudflareToken !== '')
+
+/**
+ * True khi chưa gắn gì. Footer in một dòng nhắc màu vàng — nhắc, không chặn.
+ */
+export const analyticsMissing = analytics.provider === 'none' || !analyticsReady
 
 /* ══════════════════════════════════════════════════════════════════════
    GIÁ
@@ -576,6 +653,30 @@ export const faq = [
   {
     q: 'Can I see it before I pay?',
     a: 'Join the free Telegram channel. Sample signals get posted there live, along with the reasoning behind the score. Watch it for a week before you spend anything.',
+  },
+  {
+    /**
+     * Câu này BẮT BUỘC phải có.
+     *
+     * Trang nói "trả một lần", "không gia hạn", "không có gì để huỷ" — ba
+     * câu đó đọc rời nhau thì nghe như vô thời hạn. Người đọc kỹ sẽ tự hỏi
+     * "vậy hết 3 năm thì sao", và nếu trang không trả lời thì họ tự điền một
+     * câu trả lời, thường là câu xấu nhất. Whop cũng bắt phải công bố rõ
+     * access period tại thời điểm mua (xem chú thích ở `pricing.planName`).
+     *
+     * Câu cuối cố tình KHÔNG hứa giá gia hạn. Chưa ai quyết giá đó, nên viết
+     * ra bất cứ con số nào cũng là bịa — và nói thẳng "chúng tôi chưa biết"
+     * đáng tin hơn một lời hứa không ai đứng ra bảo đảm.
+     *
+     * Đứng ở ĐÂY chứ không phải đầu mảng. Hai câu trong `priceBlockers` bị
+     * đẩy xuống cuối, nên câu nào đứng đầu mảng sẽ thành câu FAQ đầu tiên và
+     * mở sẵn — mở khối FAQ bằng "hết hạn thì sao" là tự dắt người đọc vào
+     * viễn cảnh mất quyền dùng trước cả khi họ mua. Ở vị trí này nó nằm ngay
+     * cạnh câu hoàn tiền và câu "có phải thuê bao không", đúng cụm điều
+     * khoản, và ai đọc tới đó là đang cân nhắc thật.
+     */
+    q: `What happens when the ${TERM_YEARS} years are up?`,
+    a: `Access to the invite-only script and to the VIP group ends, and that is the whole of it. Nothing charges you: there is no card on file and no auto-renew, so the licence just stops on its own. If you still want the tool at that point you buy it again at whatever it costs then. We are not quoting you a renewal price today, because nobody has decided one yet and a made-up number is worth nothing to you.`,
   },
   {
     q: 'What if it is not for me?',

@@ -1,4 +1,14 @@
-import { hasPlaceholderLinks, hasUnconfirmedPromo, links, nav, promo, site } from '@/lib/site'
+import {
+  analyticsMissing,
+  cta,
+  hasPlaceholderLinks,
+  hasUnconfirmedPromo,
+  links,
+  nav,
+  promo,
+  proof,
+  site,
+} from '@/lib/site'
 
 /**
  * Footer + disclaimer.
@@ -8,32 +18,81 @@ import { hasPlaceholderLinks, hasUnconfirmedPromo, links, nav, promo, site } fro
  * học lại — với sản phẩm tài chính thì disclaimer không phải thủ tục, nó là
  * thứ đứng giữa anh và một khiếu nại.
  *
- * Khối cảnh báo đỏ chỉ hiện khi link vẫn còn placeholder. Cố ý để nó hiện
- * TRÊN TRANG chứ không phải warning trong console — console thì không ai mở,
- * còn cái này thì không thể ship mà không thấy.
+ * Trên cùng là một danh sách "chưa xong", chỉ hiện những dòng còn thiếu và
+ * biến mất hẳn khi hết. Cố ý để nó nằm TRÊN TRANG chứ không phải warning
+ * trong console — console thì không ai mở, còn cái này thì không thể ship
+ * mà không thấy.
+ *
+ * Hai mức, và phân biệt hai mức là quan trọng:
+ *
+ * · ĐỎ  — chặn. Ship ra là mất tiền hoặc dính pháp lý ngay.
+ * · VÀNG — nhắc. Trang vẫn bán được, nhưng anh đang bán mù.
+ *
+ * Trước đây mỗi cảnh báo là một hộp đỏ riêng xếp chồng lên nhau. Ba hộp đỏ
+ * cạnh nhau thì mắt ngừng đọc từ hộp thứ hai, và cái chặn thật lẫn với cái
+ * chỉ nhắc. Gom thành một danh sách có phân cấp thì mỗi dòng còn giữ được
+ * trọng lượng của nó.
  */
 export function SiteFooter() {
   const year = 2026
 
+  const blockers = [
+    hasPlaceholderLinks && (
+      <li key="links">
+        <code>lib/site.ts</code> còn link placeholder (<code>REPLACE_ME</code>).
+        Sửa <code>links</code> trước khi chạy quảng cáo — khách bấm vào rơi
+        thẳng vào trang 404 và mất luôn.
+      </li>
+    ),
+    hasUnconfirmedPromo && (
+      <li key="promo">
+        Banner giảm giá {promo.countdown && 'kèm đồng hồ đếm ngược '}đang chạy
+        mà chưa ai xác nhận. Đặt <code>promo.launch.confirmed</code> = true khi
+        đã CHỐT là ngày {promo.launch.untilLabel} giá lên thật{' '}
+        {promo.launch.nextAmount}$, và <code>promo.crypto.confirmed</code> = true
+        khi checkout thật sự nhận crypto. Treo lời hứa rồi không làm là rơi
+        đúng FTC Act §5 và UCPD Annex I §7 — nặng hơn hẳn việc không có banner.
+      </li>
+    ),
+  ].filter(Boolean)
+
+  const notes = [
+    analyticsMissing && (
+      <li key="analytics">
+        Chưa gắn đo lường. Bốn chỗ đặt banner và cái đồng hồ đếm ngược hiện
+        không có cách nào biết là có tác dụng hay không — mọi chỉnh sửa sau
+        đây đều là đoán. Chọn <code>analytics.provider</code> trong{' '}
+        <code>lib/site.ts</code> là xong, không phải sửa code.
+      </li>
+    ),
+    proof.shots.length === 0 && (
+      <li key="shots">
+        <code>proof.shots</code> rỗng nên khối ảnh chart tự ẩn. Trang đang mô
+        tả một công cụ trực quan mà không cho xem nó trông thế nào.
+      </li>
+    ),
+    proof.quotes.length === 0 && (
+      <li key="quotes">
+        <code>proof.quotes</code> rỗng nên khối nhận xét tự ẩn. Để rỗng còn
+        hơn bịa — nhưng đây là chỗ trống thật, không phải chỗ đã xong.
+      </li>
+    ),
+  ].filter(Boolean)
+
   return (
     <footer className="ftr">
       <div className="wrap">
-        {hasPlaceholderLinks && (
+        {blockers.length > 0 && (
           <div className="devwarn" role="alert">
-            ⚠ lib/site.ts còn link placeholder (REPLACE_ME). Sửa `links` trước khi
-            chạy quảng cáo — khách bấm vào sẽ rơi vào trang 404.
+            <b>⚠ Chặn — sửa trước khi đẩy traffic vào</b>
+            <ul>{blockers}</ul>
           </div>
         )}
 
-        {hasUnconfirmedPromo && (
-          <div className="devwarn" role="alert">
-            ⚠ Banner giảm giá {promo.countdown && 'kèm đồng hồ đếm ngược '}đang
-            chạy mà chưa ai xác nhận. Đặt
-            {' '}<code>promo.launch.confirmed</code> = true khi đã CHỐT là ngày{' '}
-            {promo.launch.untilLabel} giá lên thật {promo.launch.nextAmount}$, và
-            {' '}<code>promo.crypto.confirmed</code> = true khi checkout của Energizer
-            thật sự nhận crypto. Treo lời hứa rồi không làm là rơi đúng FTC Act §5
-            và UCPD Annex I §7 — nặng hơn hẳn việc không có banner.
+        {notes.length > 0 && (
+          <div className="devwarn is-soft">
+            <b>Còn thiếu — không chặn, nhưng đang bán mù</b>
+            <ul>{notes}</ul>
           </div>
         )}
 
@@ -70,7 +129,7 @@ export function SiteFooter() {
                 <a href={links.support}>Email support</a>
               </li>
               <li>
-                <a href={links.checkout}>Checkout</a>
+                <a href={cta(links.checkout, 'footer')}>Checkout</a>
               </li>
             </ul>
           </div>

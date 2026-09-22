@@ -353,10 +353,14 @@ section { padding-block: var(--pad); position: relative; }
    dưới — đẹp với hàng nav, nhưng chữ 12px mono của dải này thì bị nội dung
    trang xuyên lên đọc lẫn. Lớp đen 0.7 ở dưới cùng dập việc đó, vẫn giữ
    blur của header. */
+/* Nền ĐỤC, không bán trong suốt như phần còn lại của header.
+   .hdr để 0.84 + blur là đủ cho nav 13.5px, nhưng dải này là mono 12px và
+   khi khối màu sáng ở thân trang trôi qua dưới nó thì vẫn đọc xuyên lên
+   thành một vệt nhạt. Chữ nhỏ nhất trang thì không đi vay độ tương phản. */
 .promo {
   background:
     linear-gradient(92deg, var(--chg-dim), rgba(255, 176, 32, 0.05) 62%),
-    rgba(7, 7, 10, 0.7);
+    #0A0A0E;
   border-bottom: 1px solid var(--chg-line);
 }
 .promo-in {
@@ -930,7 +934,7 @@ section { padding-block: var(--pad); position: relative; }
 .price-amt .cur { font-size: 28px; color: var(--ink-2); }
 .price-amt .num { font-size: clamp(50px, 6vw, 66px); }
 /* Tách khỏi con số bằng margin chứ không dựa vào khoảng trắng — ở 66px
-   mono, "One-time licence" đặt inline sẽ đè lên chân số. */
+   mono, `pricing.planName` ("3-year licence") đặt inline sẽ đè lên chân số. */
 .price-amt .per {
   margin-left: 10px;
   font-family: var(--f-sans); font-size: 13px; font-weight: 400;
@@ -1095,10 +1099,30 @@ section { padding-block: var(--pad); position: relative; }
 /* Chỉ hiện khi lib/site.ts còn REPLACE_ME. Cố ý đặt TRÊN TRANG chứ không
    phải trong console — console thì không ai mở. */
 .devwarn {
-  margin-bottom: var(--s6); padding: var(--s3) var(--s4);
+  margin-bottom: var(--s4); padding: var(--s3) var(--s4);
   border: 1px solid var(--bear); border-radius: var(--r-sm);
   background: var(--bear-dim);
   font-family: var(--f-mono); font-size: 12.5px; color: #FFC4CB;
+}
+.devwarn:last-of-type { margin-bottom: var(--s6); }
+.devwarn > b {
+  display: block; margin-bottom: var(--s3);
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+}
+.devwarn ul { display: grid; gap: var(--s3); padding-left: var(--s4); }
+/* Dấu đầu dòng để ngoài lề chữ: mỗi mục thường dài 2-3 dòng, thụt vào thì
+   khối chữ mới thẳng hàng và đếm được có mấy việc còn lại. */
+.devwarn li { list-style: square; line-height: 1.55; }
+.devwarn li::marker { color: currentColor; opacity: 0.55; }
+.devwarn code {
+  padding: 1px 4px; border-radius: 3px;
+  background: rgb(255 255 255 / 0.09); font-size: 0.95em;
+}
+
+/* Mức nhắc: cùng bố cục, khác màu. Vàng ở đây là màu nhấn của cả trang nên
+   nó vẫn đọc như "để ý" chứ không đọc như "hỏng". */
+.devwarn.is-soft {
+  border-color: var(--chg-line); background: var(--chg-dim); color: var(--chg-hi);
 }
 
 /* ─────────────────────────────────────────────────────────────────────

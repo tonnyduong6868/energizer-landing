@@ -42,3 +42,6 @@ next-env.d.ts
 
 # thư mục tạm của scripts/deploy.mjs
 /.gh-pages/
+
+# junction trỏ vào out/ để soi bản production ở đúng basePath khi QA
+/.preview/

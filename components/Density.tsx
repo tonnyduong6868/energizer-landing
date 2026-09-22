@@ -114,7 +114,7 @@ export function Density() {
               <Telegram size={17} />
               Watch it work — free channel
             </a>
-            <a className="btn btn-ghost" href="#pricing">
+            <a className="btn btn-ghost" href="#pricing" data-cta="density">
               Get the licence · {pricing.symbol}
               {pricing.amount}
             </a>
