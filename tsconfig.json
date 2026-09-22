@@ -24,6 +24,9 @@
          file không kèm đuôi để TS lấy đúng topDockController.d.ts. */
       "@threeui/top-dock-controller": [
         "./node_modules/@designcodeio/threeui/lib-dist/shaders/animated-top-dock/topDockController"
+      ],
+      "@threeui/stream-convergence": [
+        "./node_modules/@designcodeio/threeui/lib-dist/shaders/stream-convergence/StreamConvergenceBackground"
       ]
     }
   },

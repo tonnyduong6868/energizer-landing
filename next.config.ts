@@ -44,6 +44,16 @@ const nextConfig: NextConfig = {
     resolveAlias: {
       '@threeui/top-dock-controller':
         './node_modules/@designcodeio/threeui/lib-dist/shaders/animated-top-dock/topDockController.js',
+      /**
+       * Nền động của trang. Cái này KHÁC controller ở trên: package mở export root
+       * cho `StreamConvergenceBackground`, nên về lý là import thẳng
+       * `@designcodeio/threeui` được. Không làm vậy vì root là barrel
+       * re-export cho hơn 40 hiệu ứng; tree-shaking mà hụt một nhánh là
+       * trang bán hàng gánh cả thư viện. Trỏ đúng một file thì không có gì
+       * để hụt — nó chỉ kéo theo streamConvergenceShaders.js.
+       */
+      '@threeui/stream-convergence':
+        './node_modules/@designcodeio/threeui/lib-dist/shaders/stream-convergence/StreamConvergenceBackground.js',
     },
   },
 }

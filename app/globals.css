@@ -491,6 +491,20 @@ section { padding-block: var(--pad); position: relative; }
   text-align: center;
   overflow: hidden;
   position: relative;
+
+  /* Nền đục để che `.page-field` — lớp phủ cả trang nằm sau mọi thứ, còn
+     hero có lớp riêng với mask hẹp hơn (xem AmbientField.tsx). Không che
+     thì hai lớp cộng screen chồng nhau và khúc hero sáng hơn hẳn phần
+     dưới. 200px cuối nhạt dần chứ không cắt phẳng: hero cuộn còn field thì
+     đứng yên, cắt phẳng là để lại một đường ngang chạy dọc màn hình. Khúc
+     nhạt đó an toàn vì mask của `.page-field` đã chừa ±590px mà nội dung
+     hero thì không vượt ±340px. */
+  background: linear-gradient(
+    to bottom,
+    var(--bg) 0,
+    var(--bg) calc(100% - 200px),
+    transparent 100%
+  );
 }
 /* Vầng sáng sau tiêu đề. Đây là thứ duy nhất phá được cảm giác "đen bệt"
    mà không phải thêm nội dung — nó cho nền một chiều sâu. */
@@ -501,8 +515,128 @@ section { padding-block: var(--pad); position: relative; }
   background: radial-gradient(58% 58% at 50% 44%, rgba(255, 176, 32, 0.16), transparent 70%);
   filter: blur(28px);
   pointer-events: none;
+  /* Vầng sáng phải nằm TRÊN canvas, dưới chữ. Không có z-index thì
+     pseudo-element ::before được vẽ như con đầu tiên, tức là canvas đè lên
+     nó và vầng sáng biến mất. */
+  z-index: 1;
 }
-.hero > * { position: relative; }
+.hero > * { position: relative; z-index: 2; }
+/* ── Nền động Hero = Portal Field / stream-convergence ────────────────
+   Chỉ là cái khung. Canvas, shader, vòng lặp rAF, resize, teardown đều nằm
+   trong StreamConvergenceBackground.js của thư viện; xem components/
+   HeroField.tsx. Đặt SAU `.hero > *` vì hai rule cùng độ đặc hiệu — cần
+   `position: absolute` ở đây thắng `position: relative` ở trên.
+
+   `mix-blend-mode: screen`: shader xuất `vec4(color, 1.0)`, tức nền đen
+   ĐỤC chứ không trong suốt. Đặt nguyên vào là hero mọc ra một hình chữ
+   nhật đen cạnh sắc, lệch tông với --bg #07070A ở hai đầu. Blend screen thì
+   đen thành vô hình theo đúng nghĩa toán học (1-(1-a)(1-0) = a), chỉ còn
+   ba dải sáng cộng vào nền — đúng cái shader vốn định vẽ, vì nó cũng cộng
+   dồn trên nền đen.
+
+   `filter` — đổi tông về hổ phách. Bảng màu gốc của shader là violet-indigo
+   (r×1.2, g×0.5, b×1.8), chọi thẳng với #ffb020 của trang. Không sửa GLSL.
+   `hue-rotate` một mình không cứu được: ba dải đỏ / lục / lam nằm ở ba vị
+   trí KHÁC NHAU trên màn hình và xoay cùng chiều, nên xoay kiểu gì cũng còn
+   một dải lạc tông. Cách chạy được là bẹp về độ sáng rồi nhuộm lại: canvas
+   `saturation: 0` (prop của component, xem HeroField.tsx), wrapper
+   `sepia → saturate` dựng lại sắc cam. Toàn bộ nằm ở ranh giới host.
+
+   `mask-image` — chặn dải sáng bò vào cột chữ. Mốc lấy theo PX tính từ tâm,
+   không theo %: cột chữ hero có bề ngang tối đa cố định, còn % thì nở theo
+   khung nhìn nên ở màn hẹp hai dải sáng tụt thẳng xuống dưới chữ.
+
+   340px là con số đo được, không ước lượng. Quét từng text node trong
+   `.hero` bằng `document.createRange().getClientRects()` — dòng chữ thật,
+   không phải bounding box của block, vì h1 / .hero-sub căn giữa nên box của
+   chúng rộng gần hết khung trong khi glyph chỉ chiếm khúc giữa. Nửa bề ngang
+   lớn nhất là 319px và nó ĐÓNG TRẦN ở đó: h1 cap 68px, .hero-lede cap
+   640px, nên 1920 đo ra đúng bằng 1440. 340 là 319 cộng 21px dư.
+
+   Vì sao alpha dưới chữ phải bằng 0 chứ không phải "nhỏ thôi": `.hero-for`
+   và `.hero-sub` hiện đã ở 4.27:1 trên nền gốc, tức đã dưới ngưỡng WCAG AA
+   4.5:1 từ trước khi có nền động. Cộng thêm bất kỳ ánh sáng nào vào đó là
+   đào sâu một lỗi sẵn có. Sửa cái 4.27:1 là việc khác, không gộp vào đây.
+
+   Dưới ~840px khung nhìn thì hai mốc chồng lên nhau và mask nuốt sạch —
+   nhưng đừng dựa vào đó để tắt: mask ẩn chứ không dừng rAF. HeroField.tsx
+   mới là chỗ chặn mount, ở 900px. */
+.hero-field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  filter: grayscale(1) sepia(1) saturate(2.6) hue-rotate(-8deg) brightness(0.95);
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 0,
+    #000 calc(50% - 420px),
+    transparent calc(50% - 340px),
+    transparent calc(50% + 340px),
+    #000 calc(50% + 420px),
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    #000 0,
+    #000 calc(50% - 420px),
+    transparent calc(50% - 340px),
+    transparent calc(50% + 340px),
+    #000 calc(50% + 420px),
+    #000 100%
+  );
+}
+
+/* ── Cùng nền động đó, phủ cả trang ───────────────────────────────────
+   Khác `.hero-field` đúng hai điểm: bám khung nhìn thay vì bám hero, và
+   cột phải chừa rộng hơn.
+
+   `position: fixed` + `z-index: -1`. Âm là bắt buộc, không phải cho vui:
+   thứ tự vẽ của CSS xếp phần tử ĐÃ ĐỊNH VỊ có `z-index: 0` lên TRÊN chữ
+   của phần tử chưa định vị. Để 0 thì canvas phủ kín nội dung trang. Âm thì
+   nó tụt xuống dưới nền của mọi khối — nên tile đục, footer, và nền hero
+   tự che nó, còn `main` trong suốt thì để nó lọt qua. Đúng cái cần.
+
+   ±590px không đo từ chữ mà lấy thẳng từ hằng số layout: `.wrap` khoá
+   `max-width: 1180px`, nửa của nó là 590. Neo vào layout thì sửa chữ sau
+   này không âm thầm làm hỏng tương phản. Đối chiếu: dòng chữ phơi ra rộng
+   nhất hiện đo được ±558px, tức còn dư 32px.
+
+   Vì sao phải chừa tuyệt đối chứ không hạ opacity cho nhẹ: quét 365 dòng
+   chữ toàn trang thì 302 dòng nằm trên tile đục (field không chạm tới),
+   63 dòng phơi trực tiếp. Trong 63 dòng đó có 8 dòng màu rgb(113,115,127)
+   đang ở 4.27:1 — ĐÃ dưới ngưỡng WCAG AA 4.5:1 trước khi có nền động —
+   nên alpha chịu được của chúng bằng 0. Dòng chặt nhì rgb(133,133,128)
+   ở 4.96:1 chỉ chịu được 0.042. Phủ đều cả trang thì trần là 0.04, tức
+   không nhìn thấy gì. Chặn theo hình học mới có nền mà vẫn không động vào
+   một dòng chữ nào. */
+.page-field {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  filter: grayscale(1) sepia(1) saturate(2.6) hue-rotate(-8deg) brightness(0.95);
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 0,
+    #000 calc(50% - 670px),
+    transparent calc(50% - 590px),
+    transparent calc(50% + 590px),
+    #000 calc(50% + 670px),
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    #000 0,
+    #000 calc(50% - 670px),
+    transparent calc(50% - 590px),
+    transparent calc(50% + 590px),
+    #000 calc(50% + 670px),
+    #000 100%
+  );
+}
 .hero-grid { display: block; }
 
 .eyebrow {

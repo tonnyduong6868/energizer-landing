@@ -10,6 +10,7 @@ import {
   specs,
 } from '@/lib/site'
 import { ChartPanel } from './ChartPanel'
+import { HeroField } from './AmbientField'
 import { Telegram } from './Icon'
 
 /**
@@ -40,6 +41,14 @@ export function Hero() {
   return (
     <>
       <section className="hero" id="top">
+        {/* Lớp dưới cùng CỦA HERO — không phải của trang; lớp phủ cả trang
+            là <PageField/> trong app/layout.tsx, và `.hero` có nền đục nên
+            nó che lớp kia ở khúc này. Chỉ xuất hiện sau hydrate và chỉ khi
+            người dùng không tắt chuyển động — HTML tĩnh không có thẻ canvas
+            nào, xem AmbientField.tsx. Vầng sáng hổ phách `.hero::before`
+            nằm ĐÈ LÊN nó, chữ nằm trên cùng. */}
+        <HeroField />
+
         <div className="wrap hero-grid">
           <p className="eyebrow">TradingView · Pine v6 · {site.version}</p>
 

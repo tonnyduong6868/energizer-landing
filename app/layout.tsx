@@ -3,6 +3,7 @@ import { fontClassNames } from './fonts'
 import { asset, site, pricing } from '@/lib/site'
 import { CountdownScript } from '@/components/CountdownScript'
 import { Analytics } from '@/components/Analytics'
+import { PageField } from '@/components/AmbientField'
 /* Nav header chạy hiệu ứng của Animated Top Dock nên cần stylesheet gốc của
    thư viện. Nhập nguyên bản, không cắt tỉa: đã kiểm 479 selector và KHÔNG
    có selector toàn cục nào (`html`, `body`, `*`, `:root`, thẻ trần) nên nó
@@ -69,6 +70,14 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         <a className="skip" href="#main">
           Skip to content
         </a>
+
+        {/* Nền động phủ cả trang. `position: fixed` + `z-index: -1` nên nó
+            nằm dưới mọi thứ không định vị, tức chữ và tile đều đè lên; đặt
+            ở đây chứ không trong <main> vì nó bám khung nhìn, không bám
+            luồng. Một canvas duy nhất cho toàn trang — xem AmbientField.tsx
+            về việc vì sao Hero lại có lớp riêng. */}
+        <PageField />
+
         {children}
 
         {/* Cuối <body>: markup đã có sẵn khi script chạy nên không cần
