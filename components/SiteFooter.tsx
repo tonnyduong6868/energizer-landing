@@ -7,8 +7,10 @@ import {
   nav,
   promo,
   proof,
+  showDevWarnings,
   site,
 } from '@/lib/site'
+import { DockNav } from './DockNav'
 
 /**
  * Footer + disclaimer.
@@ -32,11 +34,26 @@ import {
  * cạnh nhau thì mắt ngừng đọc từ hộp thứ hai, và cái chặn thật lẫn với cái
  * chỉ nhắc. Gom thành một danh sách có phân cấp thì mỗi dòng còn giữ được
  * trọng lượng của nó.
+ *
+ * ⚠ CHÚNG NÓ TỪNG LỌT RA PRODUCTION. Khối này trước đây render vô điều kiện,
+ * nên `next build` nhét thẳng vào `out/` và nó sống trên GitHub Pages từ
+ * 22/09/2026 cho tới khi bị phát hiện: hai hộp tiếng Việt trên một trang bán
+ * hàng tiếng Anh, nói cho khách nghe rằng trang có link hỏng, đồng hồ đếm
+ * ngược chưa ai xác nhận, và `proof.quotes` thì "để rỗng còn hơn bịa". Cảnh
+ * báo dành cho người dựng trang mà rơi vào mắt người mua thì nó thôi là lưới
+ * an toàn, nó thành vũ khí chĩa vào chính mình.
+ *
+ * Công tắc `showDevWarnings` nằm ở `lib/site.ts` — đọc ghi chú ở đó để biết
+ * vì sao không chặn bằng mỗi `NODE_ENV`, và vì sao mọi khối kiểu này phải
+ * mang `data-devwarn`. Đừng khai một bản cờ riêng ở đây: đúng cái kiểu "mỗi
+ * component tự quyết" đó là thứ đã để khối `shot-empty` ở `<Hero>` lọt ra
+ * production sau khi footer đã được vá.
  */
+
 export function SiteFooter() {
   const year = 2026
 
-  const blockers = [
+  const blockers = !showDevWarnings ? [] : [
     hasPlaceholderLinks && (
       <li key="links">
         <code>lib/site.ts</code> còn link placeholder (<code>REPLACE_ME</code>).
@@ -56,7 +73,7 @@ export function SiteFooter() {
     ),
   ].filter(Boolean)
 
-  const notes = [
+  const notes = !showDevWarnings ? [] : [
     analyticsMissing && (
       <li key="analytics">
         Chưa gắn đo lường. Bốn chỗ đặt banner và cái đồng hồ đếm ngược hiện
@@ -83,14 +100,14 @@ export function SiteFooter() {
     <footer className="ftr">
       <div className="wrap">
         {blockers.length > 0 && (
-          <div className="devwarn" role="alert">
+          <div className="devwarn" data-devwarn role="alert">
             <b>⚠ Chặn — sửa trước khi đẩy traffic vào</b>
             <ul>{blockers}</ul>
           </div>
         )}
 
         {notes.length > 0 && (
-          <div className="devwarn is-soft">
+          <div className="devwarn is-soft" data-devwarn>
             <b>Còn thiếu — không chặn, nhưng đang bán mù</b>
             <ul>{notes}</ul>
           </div>
@@ -106,29 +123,29 @@ export function SiteFooter() {
             </p>
           </div>
 
+          {/* Hai cột này dùng chung hiệu ứng proximity với nav header, ở trục
+              dọc. `<ul><li>` đổi thành `<nav>` + `<a>`: controller đo từng
+              `[data-dock-item]` rồi ghi thẳng width/height/transform lên nó,
+              nên item phải LÀ thẻ neo chứ không nằm lồng trong `<li>`. Đổi
+              đi thì mất ngữ nghĩa danh sách, nhưng `<nav>` có tên vùng là
+              landmark điều hướng — với một cột link footer thì đó là ngữ
+              nghĩa đúng hơn, và cũng là thứ header đang dùng. */}
           <div>
             <h4>On this page</h4>
-            <ul>
-              {nav.map((n) => (
-                <li key={n.href}>
-                  <a href={n.href}>{n.label}</a>
-                </li>
-              ))}
-            </ul>
+            <DockNav items={nav} label="On this page" axis="y" className="ftr-dock" />
           </div>
 
           <div>
             <h4>Contact</h4>
-            <ul>
-              <li>
-                <a href={links.telegramFree} target="_blank" rel="noopener noreferrer">
-                  Free Telegram channel
-                </a>
-              </li>
-              <li>
-                <a href={cta(links.checkout, 'footer')}>Checkout</a>
-              </li>
-            </ul>
+            <DockNav
+              items={[
+                { href: links.telegramFree, label: 'Free Telegram channel', external: true },
+                { href: cta(links.checkout, 'footer'), label: 'Checkout' },
+              ]}
+              label="Contact"
+              axis="y"
+              className="ftr-dock"
+            />
           </div>
         </div>
 

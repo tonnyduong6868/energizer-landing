@@ -30,6 +30,19 @@ const WORK = path.join(ROOT, '.gh-pages')
 const BRANCH = 'gh-pages'
 const EXPECTED_BASE = '/energizer-landing'
 
+/**
+ * Route chỉ để nghịch, không đẩy lên Pages.
+ *
+ * `app/dock/` là trang thử Animated Top Dock: chú thích toàn tiếng Việt,
+ * dựng để soi hiệu ứng chứ không phải để bán. `output: 'export'` thì mọi
+ * route trong `app/` đều thành file tĩnh, không có cách nào loại lúc build —
+ * nên loại ở đây, ngay trước khi đẩy. Không xoá gì trong `out/`, chỉ không
+ * chép sang bản phát hành.
+ *
+ * Xoá tên khỏi danh sách này là tự nhận trang đó đã sẵn sàng cho khách đọc.
+ */
+const DEV_ONLY_ROUTES = ['dock']
+
 const git = (args, cwd = ROOT) =>
   execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim()
 
@@ -48,7 +61,72 @@ if (!html.includes(`${EXPECTED_BASE}/_next/`)) {
   process.exit(1)
 }
 
-/* ---------- 2. Source phải sạch ----------
+/* ---------- 2. Không được còn ghi chú nội bộ trong bản build ----------
+   Đã xảy ra thật, HAI LẦN. Lần đầu: hai hộp cảnh báo ở <SiteFooter> render vô
+   điều kiện, lọt vào `out/` và sống trên Pages, nói cho khách nghe rằng trang
+   có link hỏng và đồng hồ đếm ngược chưa ai xác nhận. Vá xong thì hôm sau lộ
+   tiếp khối `shot-empty` ở <Hero> — cùng lỗi, khác component, và nằm ngay
+   dưới hero nên còn dễ đọc hơn.
+
+   Nên ở đây có hai lưới, và lưới thứ hai mới là lưới thật:
+
+   a) `devwarn` — dấu quy ước (`data-devwarn`) trên mọi khối ghi chú. Bắt
+      nhanh, nhưng chỉ bắt được khối mà người viết NHỚ gắn dấu. Chính chỗ đó
+      đã thủng một lần.
+
+   b) Chữ tiếng Việt. Trang này bán cho khách quốc tế, toàn bộ nội dung hiển
+      thị là tiếng Anh — nên một ký tự có dấu trong HTML gần như chắc chắn là
+      ghi chú nội bộ rò ra, bất kể nó nằm trong component nào và có gắn dấu
+      hay không. Lưới này không cần ai nhớ gì cả.
+
+   Quét MỌI file .html sắp đẩy, không riêng index. Lần thủng thứ hai nằm ở
+   một component giữa trang; lần sau có thể nằm ở một route khác. */
+
+/* Ký tự chỉ có trong tiếng Việt (ă â đ ê ô ơ ư + nguyên âm mang thanh). Cố ý
+   KHÔNG bắt é/à/ü… vì tiếng Anh có thể mượn từ nước ngoài; những chữ dưới đây
+   thì không. */
+const VN = /[ăâđêôơưĂÂĐÊÔƠƯáàảãạắằẳẵặấầẩẫậéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/
+
+/** Mọi .html trong out/, trừ các route dev sẽ không được đẩy. */
+const htmlFiles = []
+const walk = (dir, rel = '') => {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const relPath = rel ? `${rel}/${entry.name}` : entry.name
+    if (entry.isDirectory()) {
+      if (rel === '' && DEV_ONLY_ROUTES.includes(entry.name)) continue
+      walk(path.join(dir, entry.name), relPath)
+    } else if (entry.name.endsWith('.html')) {
+      htmlFiles.push(relPath)
+    }
+  }
+}
+walk(OUT)
+
+let leaked = false
+for (const rel of htmlFiles) {
+  const body = fs.readFileSync(path.join(OUT, rel), 'utf8')
+  const chunks = body.split(/(?=<)/).filter((c) => VN.test(c))
+  const tagged = body.includes('devwarn')
+  if (!chunks.length && !tagged) continue
+
+  leaked = true
+  const what = [tagged && 'khối mang dấu `devwarn`', chunks.length && 'chữ tiếng Việt']
+    .filter(Boolean)
+    .join(' và ')
+  console.error(`out/${rel} còn ${what}:`)
+  for (const chunk of chunks.slice(0, 5)) {
+    console.error('    ' + chunk.replace(/\s+/g, ' ').trim().slice(0, 130))
+  }
+}
+
+if (leaked) {
+  console.error('\nĐó là ghi chú nội bộ — ship ra là khách quốc tế đọc được.')
+  console.error('Bọc khối đó bằng `showDevWarnings` (lib/site.ts) và gắn `data-devwarn`,')
+  console.error('rồi build lại KHÔNG kèm NEXT_PUBLIC_DEV_WARNINGS=1: `npm run build`.')
+  process.exit(1)
+}
+
+/* ---------- 3. Source phải sạch ----------
    Commit gh-pages ghi lại SHA của source sinh ra nó. Nếu cây làm việc còn thay
    đổi chưa commit thì cái SHA đó nói dối: nó trỏ về commit CŨ HƠN thứ vừa lên
    sóng, và sau này truy "bản đang chạy dựng từ đâu" sẽ ra sai chỗ. */
@@ -59,7 +137,7 @@ if (git(['status', '--porcelain'])) {
   process.exit(1)
 }
 
-/* ---------- 3. Lấy remote của repo nguồn ---------- */
+/* ---------- 4. Lấy remote của repo nguồn ---------- */
 let remote
 try {
   remote = git(['remote', 'get-url', 'origin'])
@@ -68,7 +146,7 @@ try {
   process.exit(1)
 }
 
-/* ---------- 4. Dựng thư mục làm việc riêng cho nhánh gh-pages ----------
+/* ---------- 5. Dựng thư mục làm việc riêng cho nhánh gh-pages ----------
    Không dùng `git checkout gh-pages` trong repo chính: nhánh đó chứa bản build
    với cấu trúc thư mục hoàn toàn khác source, đổi qua lại rất dễ để sót file
    lạ và commit nhầm vào main. Một clone riêng thì không có cửa nhầm. */
@@ -88,7 +166,7 @@ try {
   git(['remote', 'add', 'origin', remote], WORK)
 }
 
-/* ---------- 5. Thay toàn bộ nội dung bằng out/ ----------
+/* ---------- 6. Thay toàn bộ nội dung bằng out/ ----------
    Xoá sạch rồi chép lại, không merge. File đã gỡ khỏi trang phải biến mất khỏi
    Pages chứ không nằm lại làm URL mồ côi. `.git` giữ nguyên. */
 for (const entry of fs.readdirSync(WORK)) {
@@ -96,9 +174,19 @@ for (const entry of fs.readdirSync(WORK)) {
   fs.rmSync(path.join(WORK, entry), { recursive: true, force: true })
 }
 fs.cpSync(OUT, WORK, { recursive: true })
+
+/* Gỡ route chỉ-để-nghịch. In ra tên từng cái: cắt im lặng thì lần sau đọc log
+   sẽ tưởng đã đẩy đủ, mà thật ra thiếu. */
+for (const route of DEV_ONLY_ROUTES) {
+  const dir = path.join(WORK, route)
+  if (!fs.existsSync(dir)) continue
+  fs.rmSync(dir, { recursive: true, force: true })
+  console.log(`Bỏ route dev khỏi bản đẩy: /${route}/ (xem DEV_ONLY_ROUTES trong deploy.mjs).`)
+}
+
 fs.writeFileSync(path.join(WORK, '.nojekyll'), '')
 
-/* ---------- 6. Commit + push ---------- */
+/* ---------- 7. Commit + push ---------- */
 git(['add', '-A'], WORK)
 
 const dirty = git(['status', '--porcelain'], WORK)

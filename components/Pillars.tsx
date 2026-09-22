@@ -1,4 +1,4 @@
-import { pillars, proof } from '@/lib/site'
+import { pillars, proof, showDevWarnings } from '@/lib/site'
 import { SectionHead } from './SectionHead'
 
 /**
@@ -35,23 +35,29 @@ export function Pillars() {
           ))}
         </ul>
 
-        <div style={{ marginTop: 'var(--gap)' }}>
-          {shot ? (
-            <figure className="shot">
-              <img src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} />
-              <figcaption className="shot-cap">{shot.caption}</figcaption>
-            </figure>
-          ) : (
-            <div className="shot-empty">
-              <p>
-                <b>Wide chart screenshot</b>
-                Nên chụp: Chart Density = Balanced, có HTF projection
-                <br />
-                + killzone box + một FVG được tô, trên khung H1
-              </p>
-            </div>
-          )}
-        </div>
+        {/* Chưa có ảnh thì chỗ này là ghi chú nội bộ, nên nó phải theo
+            `showDevWarnings` — xem lib/site.ts. Gộp điều kiện vào tận thẻ
+            bọc ngoài chứ không chỉ khối bên trong, nếu không bản production
+            còn lại một cái div rỗng đội thêm `marginTop`. */}
+        {(shot || showDevWarnings) && (
+          <div style={{ marginTop: 'var(--gap)' }}>
+            {shot ? (
+              <figure className="shot">
+                <img src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} />
+                <figcaption className="shot-cap">{shot.caption}</figcaption>
+              </figure>
+            ) : (
+              <div className="shot-empty" data-devwarn>
+                <p>
+                  <b>Wide chart screenshot</b>
+                  Nên chụp: Chart Density = Balanced, có HTF projection
+                  <br />
+                  + killzone box + một FVG được tô, trên khung H1
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </section>
   )

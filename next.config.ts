@@ -26,6 +26,26 @@ const nextConfig: NextConfig = {
 
   // Sinh out/index.html thay vì out.html.
   trailingSlash: true,
+
+  /**
+   * Nav header dùng `createTopDockController` của @designcodeio/threeui —
+   * vật lý proximity gốc, không viết lại (xem components/DockNav.tsx).
+   *
+   * Package chỉ mở export map cho `.`, `./style.css`, `./components/*` và
+   * `./assets/*`; module controller nằm trong `./shaders/*` nên import
+   * thẳng bị chặn. Alias ở đây là cách lấy đúng file tác giả build ra mà
+   * không phải copy nó vào repo — copy là mở đường cho bản copy trôi lệch
+   * khỏi package lúc nâng phiên bản mà không ai biết.
+   *
+   * Nâng @designcodeio/threeui mà build gãy ở dòng này thì nghĩa là upstream
+   * đã dời file — đi tìm đường mới, đừng gỡ alias.
+   */
+  turbopack: {
+    resolveAlias: {
+      '@threeui/top-dock-controller':
+        './node_modules/@designcodeio/threeui/lib-dist/shaders/animated-top-dock/topDockController.js',
+    },
+  },
 }
 
 export default nextConfig

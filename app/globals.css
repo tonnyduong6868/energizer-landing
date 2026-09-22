@@ -319,20 +319,37 @@ section { padding-block: var(--pad); position: relative; }
   font-family: var(--f-mono); font-size: 10px; color: var(--chg);
   background: var(--chg-dim); border-radius: 5px; padding: 2px 6px;
 }
-.hdr-nav { display: flex; gap: 22px; margin-left: auto; font-size: 13.5px; }
-/* Chiều cao tự nhiên của dòng 13.5px chỉ ra 21px — thiếu so với ngưỡng
-   24×24 của WCAG 2.2 AA (2.5.8). Khoảng cách 22px giữa các link đủ để viện
-   dẫn ngoại lệ "spacing", nhưng đi vay ngoại lệ cho thứ sửa được bằng một
-   dòng thì không đáng. Cùng cách đã làm cho link ở footer. */
-.hdr-nav a {
-  display: inline-flex; align-items: center; min-height: 24px;
-  color: var(--ink-2); transition: color 0.15s ease;
+/* ── Nav header = Animated Top Dock ───────────────────────────────────
+   Chỉ chỉnh phần vỏ host. Vật lý proximity nằm trong topDockController.js
+   của thư viện, không đụng tới; xem components/DockNav.tsx.
+
+   Thư viện đặt thanh nav lơ lửng giữa một khung demo
+   (`position:absolute; top:clamp(24px,5cqw,46px); left:50%;
+   transform:translate(-50%)`). Ở đây nó là một ô trong hàng flex của
+   header nên phải gỡ hết phần định vị đó ra. */
+.hdr-dock {
+  position: static;
+  top: auto; left: auto;
+  transform: none;
+  margin-left: auto;
 }
-.hdr-nav a:hover { color: var(--ink); }
+/* Thư viện khoá `width:94px` vì năm nhãn của nó dài bằng nhau. Bảy nhãn ở
+   đây từ "FAQ" tới "STRAIGHT ANSWERS" nên phải để tự co theo chữ —
+   controller đo lại bằng getBoundingClientRect() sau khi xoá width inline,
+   nên `auto` chạy đúng, phần phình vẫn là min(widthGrowth, base × 0.24). */
+.hdr-dock .animated-top-dock__link {
+  width: auto;
+  text-transform: uppercase;
+}
+/* 28px của thư viện đã vượt ngưỡng 24×24 của WCAG 2.2 AA (2.5.8) — thoải
+   mái hơn hẳn 21px của nav chữ 13.5px trước đây. */
 .hdr-cta { display: flex; gap: var(--s2); }
 .hdr .btn { min-height: 36px; padding-inline: var(--s4); font-size: 13.5px; }
 @media (max-width: 1080px) {
-  .hdr-nav { display: none; }
+  /* Dưới ngưỡng này nav ẩn hẳn, không thay bằng hamburger — lý do giữ
+     nguyên như cũ, xem ghi chú đầu SiteHeader.tsx. Controller cũng tự
+     ngắt dưới 600px và khi con trỏ không mịn. */
+  .hdr-dock { display: none; }
   .hdr-cta { margin-left: auto; }
   /* 36px hợp lý khi có con trỏ chuột chính xác tới từng pixel. Từ đây
      xuống là ngón tay, và đây vẫn là nút mua — áp đúng 44px. */
@@ -1089,6 +1106,74 @@ section { padding-block: var(--pad); position: relative; }
    đòi tối thiểu 24px, và danh sách link KHÔNG được miễn như link nằm giữa
    câu văn. */
 .ftr li a { display: inline-flex; align-items: center; min-height: 32px; }
+
+/* ── Hai cột link footer = Animated Top Dock, trục dọc ────────────────
+   Cùng controller với nav header (components/DockNav.tsx), chỉ khác
+   `axis: 'y'`. Ở đây cũng chỉ chỉnh vỏ host.
+
+   Thư viện dựng thanh nav thành một viên thuốc nổi: nền #0e0e0edb, viền
+   #292929, đổ bóng, backdrop-blur, định vị absolute giữa khung demo. Đặt
+   nguyên viên đó vào footer là mọc ra một hộp đen lửng lơ cạnh disclaimer.
+   Gỡ hết phần trang trí, giữ lại đúng thứ đáng giữ: layout của item và
+   trạng thái `data-dock-near` mà controller bật/tắt. */
+.ftr-dock {
+  position: static; top: auto; left: auto; transform: none;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  /* Item có padding ngang 9px. Kéo lùi đúng chừng đó để mép chữ thẳng
+     hàng với tiêu đề <h4> phía trên, không thụt vào một quãng vô cớ. */
+  margin-left: -9px;
+}
+/* Cao 32px = đúng vùng chạm mà footer vốn đã có (`.ftr li a`), và vẫn trên
+   ngưỡng 24px của WCAG 2.2 AA (2.5.8). Chốt cứng height chứ không để
+   min-height: `heightGrowth: 0` khiến controller ghi inline
+   `height = baseHeight`, hai giá trị phải khớp nhau thì mới không giật.
+   Màu giữ nguyên --ink-2 như link footer cũ nên tương phản không đổi. */
+.ftr-dock .animated-top-dock__link {
+  width: auto;
+  height: 32px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  border-color: transparent;
+  background: transparent;
+}
+/* Thư viện tô `data-dock-near` bằng #1b1b1af0 + bóng đen — tông của nó,
+   không phải tông trang này. Thay bằng cặp màu --chg/--chg-dim mà footer
+   đang dùng cho :hover, để cái sáng lên khi rê chuột vẫn là cùng một
+   ngôn ngữ màu với phần còn lại của trang. */
+.ftr-dock .animated-top-dock__item[data-dock-near='true'],
+.ftr-dock .animated-top-dock__item:focus-visible {
+  color: var(--chg);
+  border-color: transparent;
+  background: var(--chg-dim);
+  box-shadow: none;
+}
+/* Dưới 600px thư viện tự hạ item xuống `height: 26px !important` và chữ
+   còn 8px. Hợp lý với thanh nav nổi của nó — một viên thuốc nhỏ lại cho vừa
+   màn hẹp, và controller cũng đã tự tắt ở đây nên không ai bấm trúng.
+   Không hợp lý với cột link footer: đây đúng là lúc thao tác bằng ngón tay,
+   mà 26px thì sát ngưỡng 24px của WCAG 2.2 AA, còn 8px chữ hoa mono thì
+   đọc không ra. Chọi lại `!important` bằng `!important` — đây là ranh giới
+   host, không phải sửa hành vi renderer. */
+@media (max-width: 600px) {
+  .ftr-dock .animated-top-dock__link {
+    height: 32px !important;
+    padding: 0 9px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+}
 
 .disclaimer {
   margin-top: var(--s6); padding-top: var(--s5); border-top: 1px solid var(--line);

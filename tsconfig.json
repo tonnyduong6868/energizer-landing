@@ -19,7 +19,12 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      /* Xem ghi chú `turbopack.resolveAlias` trong next.config.ts. Trỏ vào
+         file không kèm đuôi để TS lấy đúng topDockController.d.ts. */
+      "@threeui/top-dock-controller": [
+        "./node_modules/@designcodeio/threeui/lib-dist/shaders/animated-top-dock/topDockController"
+      ]
     }
   },
   "include": [

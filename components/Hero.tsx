@@ -1,4 +1,14 @@
-import { cta, links, pricing, promo, promoSaving, proof, site, specs } from '@/lib/site'
+import {
+  cta,
+  links,
+  pricing,
+  promo,
+  promoSaving,
+  proof,
+  showDevWarnings,
+  site,
+  specs,
+} from '@/lib/site'
 import { ChartPanel } from './ChartPanel'
 import { Telegram } from './Icon'
 
@@ -138,8 +148,13 @@ export function Hero() {
           ))}
         </ul>
 
-        {!shot && (
-          <div className="shot-empty">
+        {/* Ghi chú nội bộ — chỉ hiện khi `showDevWarnings`, xem lib/site.ts.
+            Trước đây khối này render bất kể môi trường và đã lọt ra bản
+            production: một hộp tiếng Việt ngay dưới hero, trên trang bán
+            hàng tiếng Anh. `data-devwarn` là dấu để scripts/deploy.mjs chặn
+            bản build nào còn sót. */}
+        {!shot && showDevWarnings && (
+          <div className="shot-empty" data-devwarn>
             <b>Còn nợ: ảnh chụp chart thật</b>
             Bỏ ảnh vào public/assets/shots/ rồi khai trong proof.shots — nên chụp
             dashboard HUD + một lệnh đang sống, có SL / TP1 / TP2 / TP3 và điểm số

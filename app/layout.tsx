@@ -3,6 +3,12 @@ import { fontClassNames } from './fonts'
 import { asset, site, pricing } from '@/lib/site'
 import { CountdownScript } from '@/components/CountdownScript'
 import { Analytics } from '@/components/Analytics'
+/* Nav header chạy hiệu ứng của Animated Top Dock nên cần stylesheet gốc của
+   thư viện. Nhập nguyên bản, không cắt tỉa: đã kiểm 479 selector và KHÔNG
+   có selector toàn cục nào (`html`, `body`, `*`, `:root`, thẻ trần) nên nó
+   không đụng tới globals.css. Giá phải trả: ~27 KB gzip, trong đó phần lớn
+   là font ThreeUI Fragment Mono nhúng base64 mà thanh nav dùng. */
+import '@designcodeio/threeui/style.css'
 import './globals.css'
 
 /**

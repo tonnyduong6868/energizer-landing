@@ -113,6 +113,35 @@ export const hasPlaceholderLinks = Object.values(links).some((v) =>
 )
 
 /**
+ * Công tắc chung cho mọi khối ghi chú nội bộ trên trang.
+ *
+ * Trang này cố ý in phần "chưa xong" ra GIỮA TRANG chứ không vào console —
+ * console thì không ai mở. Đổi lại, nó chỉ an toàn khi có đúng một công tắc,
+ * và công tắc đó phải nằm ở đây.
+ *
+ * ⚠ Đã mất bò hai lần. Ngày 22/09/2026 phát hiện hai hộp cảnh báo ở
+ * `<SiteFooter>` render vô điều kiện, sống trên GitHub Pages, nói với khách
+ * quốc tế bằng tiếng Việt rằng trang có link hỏng và đồng hồ đếm ngược chưa
+ * ai xác nhận. Vá xong thì hôm sau lộ tiếp khối `shot-empty` ở `<Hero>` —
+ * cùng một loại lỗi, khác component, và nó nằm NGAY DƯỚI hero nên còn dễ
+ * đọc hơn cái ở footer. Bài học: đừng để mỗi component tự quyết.
+ *
+ * Vì sao không chặn bằng mỗi `NODE_ENV`: quy trình QA của dự án soi bản
+ * PRODUCTION chứ không soi `next dev` (dev overlay đè lên sticky CTA). Chặn
+ * cứng theo NODE_ENV là đúng lúc QA thì lại không còn cảnh báo nào để đọc.
+ * Nên có thêm cửa mở tay:
+ *
+ *   NEXT_PUBLIC_DEV_WARNINGS=1 npm run build
+ *
+ * Quy ước bắt buộc cho khối mới: gắn `data-devwarn` lên phần tử ngoài cùng.
+ * `scripts/deploy.mjs` từ chối đẩy bản build nào còn chữ `devwarn`, nên dù
+ * ai bật nhầm cờ thì nó cũng không lên sóng được. Attribute chứ không phải
+ * class, để lưới bắt được cả khối có class riêng như `shot-empty`.
+ */
+export const showDevWarnings =
+  process.env.NEXT_PUBLIC_DEV_WARNINGS === '1' || process.env.NODE_ENV !== 'production'
+
+/**
  * Mọi chỗ đặt nút trên trang. Thêm nút mới thì thêm tên vào đây.
  *
  * Đây cũng là từ vựng dùng cho `data-cta` trên các nút nội bộ trỏ

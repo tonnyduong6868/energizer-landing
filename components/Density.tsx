@@ -1,4 +1,4 @@
-import { cta, density, links, pricing, styles, proof } from '@/lib/site'
+import { cta, density, links, pricing, showDevWarnings, styles, proof } from '@/lib/site'
 import { SectionHead } from './SectionHead'
 import { Telegram } from './Icon'
 
@@ -75,25 +75,29 @@ export function Density() {
           never guessing what a switch is for.
         </p>
 
-        <div style={{ marginTop: 'var(--s5)' }}>
-          {shot ? (
-            <figure className="shot">
-              <img src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} />
-              <figcaption className="shot-cap">{shot.caption}</figcaption>
-            </figure>
-          ) : (
-            <div className="shot-empty">
-              <p>
-                <b>Ảnh so sánh Clean vs Full</b>
-                Cùng một chart, cùng khung giờ, chỉ đổi Chart Density.
-                <br />
-                Đây là ảnh thuyết phục nhất của cả trang — nó cho thấy
-                <br />
-                thứ mà chữ nghĩa không nói được.
-              </p>
-            </div>
-          )}
-        </div>
+        {/* Như ở Pillars: chưa có ảnh thì đây là ghi chú nội bộ, phải theo
+            `showDevWarnings` và thẻ bọc cũng phải tắt theo. */}
+        {(shot || showDevWarnings) && (
+          <div style={{ marginTop: 'var(--s5)' }}>
+            {shot ? (
+              <figure className="shot">
+                <img src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} />
+                <figcaption className="shot-cap">{shot.caption}</figcaption>
+              </figure>
+            ) : (
+              <div className="shot-empty" data-devwarn>
+                <p>
+                  <b>Ảnh so sánh Clean vs Full</b>
+                  Cùng một chart, cùng khung giờ, chỉ đổi Chart Density.
+                  <br />
+                  Đây là ảnh thuyết phục nhất của cả trang — nó cho thấy
+                  <br />
+                  thứ mà chữ nghĩa không nói được.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Nút giữa trang, đặt ở ĐÂY chứ không phải chỗ khác.
             Đây là điểm người đọc vừa hiểu ra thứ phân biệt sản phẩm này với

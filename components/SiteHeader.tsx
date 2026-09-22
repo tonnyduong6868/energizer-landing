@@ -1,5 +1,6 @@
 import { cta, links, nav, site } from '@/lib/site'
 import { PromoBar } from './PromoBar'
+import { DockNav } from './DockNav'
 import { Telegram } from './Icon'
 
 /**
@@ -25,13 +26,9 @@ export function SiteHeader() {
           <span className="hdr-ver">{site.version}</span>
         </a>
 
-        <nav className="hdr-nav" aria-label="Sections">
-          {nav.map((n) => (
-            <a key={n.href} href={n.href}>
-              {n.label}
-            </a>
-          ))}
-        </nav>
+        {/* Bảy cái neo cũ, giờ chạy proximity của Animated Top Dock. Vẫn là
+            thẻ <a> thật nằm sẵn trong HTML tĩnh — xem DockNav.tsx. */}
+        <DockNav items={nav} label="Sections" className="hdr-dock" />
 
         <div className="hdr-cta">
           <a
