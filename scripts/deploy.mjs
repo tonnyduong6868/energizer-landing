@@ -48,7 +48,18 @@ if (!html.includes(`${EXPECTED_BASE}/_next/`)) {
   process.exit(1)
 }
 
-/* ---------- 2. Lấy remote của repo nguồn ---------- */
+/* ---------- 2. Source phải sạch ----------
+   Commit gh-pages ghi lại SHA của source sinh ra nó. Nếu cây làm việc còn thay
+   đổi chưa commit thì cái SHA đó nói dối: nó trỏ về commit CŨ HƠN thứ vừa lên
+   sóng, và sau này truy "bản đang chạy dựng từ đâu" sẽ ra sai chỗ. */
+if (git(['status', '--porcelain'])) {
+  console.error('Cây làm việc còn thay đổi chưa commit.')
+  console.error('Commit vào `main` trước rồi hãy deploy — nếu không, SHA ghi trong')
+  console.error('commit gh-pages sẽ trỏ về bản source cũ hơn thứ vừa lên sóng.')
+  process.exit(1)
+}
+
+/* ---------- 3. Lấy remote của repo nguồn ---------- */
 let remote
 try {
   remote = git(['remote', 'get-url', 'origin'])
@@ -57,7 +68,7 @@ try {
   process.exit(1)
 }
 
-/* ---------- 3. Dựng thư mục làm việc riêng cho nhánh gh-pages ----------
+/* ---------- 4. Dựng thư mục làm việc riêng cho nhánh gh-pages ----------
    Không dùng `git checkout gh-pages` trong repo chính: nhánh đó chứa bản build
    với cấu trúc thư mục hoàn toàn khác source, đổi qua lại rất dễ để sót file
    lạ và commit nhầm vào main. Một clone riêng thì không có cửa nhầm. */
@@ -77,7 +88,7 @@ try {
   git(['remote', 'add', 'origin', remote], WORK)
 }
 
-/* ---------- 4. Thay toàn bộ nội dung bằng out/ ----------
+/* ---------- 5. Thay toàn bộ nội dung bằng out/ ----------
    Xoá sạch rồi chép lại, không merge. File đã gỡ khỏi trang phải biến mất khỏi
    Pages chứ không nằm lại làm URL mồ côi. `.git` giữ nguyên. */
 for (const entry of fs.readdirSync(WORK)) {
@@ -87,7 +98,7 @@ for (const entry of fs.readdirSync(WORK)) {
 fs.cpSync(OUT, WORK, { recursive: true })
 fs.writeFileSync(path.join(WORK, '.nojekyll'), '')
 
-/* ---------- 5. Commit + push ---------- */
+/* ---------- 6. Commit + push ---------- */
 git(['add', '-A'], WORK)
 
 const dirty = git(['status', '--porcelain'], WORK)

@@ -240,7 +240,11 @@ section { padding-block: var(--pad); position: relative; }
 .hdr-brand { display: flex; align-items: baseline; gap: var(--s2); font-weight: 700; letter-spacing: -0.02em; }
 .hdr-ver { font-family: var(--f-mono); font-size: 11px; color: var(--chg); }
 .hdr-nav { display: flex; gap: var(--s5); margin-left: auto; font-size: 14px; }
-.hdr-nav a { color: var(--ink-2); transition: color 0.15s ease; }
+/* Chiều cao tự nhiên của dòng 14px chỉ ra 22px — thiếu 2px so với ngưỡng
+   24×24 của WCAG 2.2 AA (2.5.8). Đúng là khoảng cách 24px giữa các link đã đủ
+   để viện dẫn ngoại lệ "spacing", nhưng đi vay ngoại lệ cho một thứ sửa bằng
+   một dòng thì không đáng. Cùng cách đã làm cho link ở footer. */
+.hdr-nav a { display: inline-flex; align-items: center; min-height: 24px; color: var(--ink-2); transition: color 0.15s ease; }
 .hdr-nav a:hover { color: var(--ink); }
 .hdr-cta { display: flex; gap: var(--s2); }
 .hdr .btn { min-height: 38px; padding-inline: var(--s4); font-size: 13.5px; }
