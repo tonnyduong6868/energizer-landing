@@ -109,6 +109,8 @@ Mô tả phải khớp với những gì trang landing nói — họ có đọc.
 > The script can emit JSON webhook alerts. Those alerts are data — the buyer
 > chooses where to route them. Nothing in the product executes a trade.
 >
+> Access period: 3 years from activation, one-time payment, no renewal.
+>
 > Delivery: the buyer supplies their TradingView username at checkout, and we
 > grant access to the invite-only script on that account, plus access to a
 > private Telegram group.
@@ -157,3 +159,14 @@ Trang hứa 14 ngày, không điều kiện (`pricing.guarantee`). Giữ đúng 
 trên Whop sẽ tự thu quyền Telegram, nhưng **quyền TradingView phải tự gỡ tay** —
 thêm bước đó vào quy trình, nếu không sẽ tồn một đống người đã hoàn tiền mà vẫn
 dùng được script.
+
+Seller Terms: refund hợp lệ được hoàn **nguyên giá, kể cả phần phí Whop đã thu** —
+tức mỗi đơn bị hoàn là anh mất luôn ~$6 phí của đơn đó. Và chargeback thì anh chịu
+toàn bộ chi phí. Dispute rate cao dẫn tới reserve và siết tài khoản, nên thà hoàn
+tiền sớm và gọn còn hơn để khách đi khiếu nại ngân hàng.
+
+## Còn treo
+
+- `links.checkout`, `links.telegramFree`, `links.telegramVip` vẫn là `REPLACE_ME`.
+- Phải bấm **Accept and continue** trên modal terms mới vào được dashboard Whop.
+- Chưa quyết có bật Tax and remittance (+2%) hay không — phụ thuộc tệp khách thật.
