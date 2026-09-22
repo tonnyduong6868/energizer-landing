@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react'
+
 import { confluences } from '@/lib/site'
 
 /**
@@ -18,6 +20,11 @@ import { confluences } from '@/lib/site'
  * diff khác nhau trên nhánh gh-pages mà chẳng ai đổi gì.
  *
  * Server Component thuần: SVG nằm sẵn trong HTML tĩnh, không JS, không CLS.
+ *
+ * Các `className` bắt đầu bằng `ch-` và `cdl` là móc cho animation trong
+ * globals.css — panel tự vẽ ra từng lớp theo đúng thứ tự engine đọc chart:
+ * lưới → nến → killzone → sweep → FVG → mức giá. Mỗi cây nến mang `--i` là
+ * chỉ số của nó để CSS dàn độ trễ thành làn sóng trái-sang-phải.
  */
 
 /* ── kích thước khung ─────────────────────────────────────────────────── */
@@ -43,7 +50,7 @@ type Bar = { o: number; h: number; l: number; c: number }
 
 function buildBars(): Bar[] {
   let seed = 20260922
-  const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff)
+  const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff
 
   const bars: Bar[] = []
   let p = 100
@@ -110,7 +117,12 @@ const MONO = 'var(--f-mono)'
 const LABEL = { fontFamily: MONO } as const
 
 export function ChartPanel() {
-  const levels: Array<{ v: number; label: string; color: string; dash?: string }> = [
+  const levels: Array<{
+    v: number
+    label: string
+    color: string
+    dash?: string
+  }> = [
     { v: entry, label: 'ENTRY', color: 'var(--ink)' },
     { v: sl, label: 'SL', color: 'var(--bear)', dash: '3 3' },
     ...tps.map((v, i) => ({
@@ -136,63 +148,67 @@ export function ChartPanel() {
       </title>
 
       {/* lưới */}
-      {[0, 1, 2, 3, 4].map((g) => {
-        const yy = T + ((H - T - B) / 4) * g
-        return (
-          <line
-            key={g}
-            x1={L}
-            y1={yy}
-            x2={W - R}
-            y2={yy}
-            style={{ stroke: 'var(--c-grid)' }}
-            strokeWidth={1}
-          />
-        )
-      })}
+      <g className="ch-grid">
+        {[0, 1, 2, 3, 4].map((g) => {
+          const yy = T + ((H - T - B) / 4) * g
+          return (
+            <line
+              key={g}
+              x1={L}
+              y1={yy}
+              x2={W - R}
+              y2={yy}
+              style={{ stroke: 'var(--c-grid)' }}
+              strokeWidth={1}
+            />
+          )
+        })}
+      </g>
 
       {/* hộp killzone — dải đứng, lấp đúng khoảng trống trên-trái của khung */}
-      <rect
-        x={x(KZ_A) - step / 2}
-        y={T}
-        width={x(KZ_B) - x(KZ_A) + step}
-        height={H - T - B}
-        style={{ fill: 'var(--chg)' }}
-        opacity={0.055}
-      />
-      <line
-        x1={x(KZ_A) - step / 2}
-        y1={T}
-        x2={x(KZ_A) - step / 2}
-        y2={H - B}
-        style={{ stroke: 'var(--chg)' }}
-        strokeWidth={1}
-        strokeDasharray="3 4"
-        opacity={0.55}
-      />
-      <line
-        x1={x(KZ_B) + step / 2}
-        y1={T}
-        x2={x(KZ_B) + step / 2}
-        y2={H - B}
-        style={{ stroke: 'var(--chg)' }}
-        strokeWidth={1}
-        strokeDasharray="3 4"
-        opacity={0.55}
-      />
-      <text
-        x={x(KZ_A) - step / 2 + 8}
-        y={T + 18}
-        style={{ ...LABEL, fill: 'var(--chg)' }}
-        fontSize={11}
-        letterSpacing="0.08em"
-      >
-        NY KILLZONE +{bonus('Killzone')}
-      </text>
+      <g className="ch-kz">
+        <rect
+          x={x(KZ_A) - step / 2}
+          y={T}
+          width={x(KZ_B) - x(KZ_A) + step}
+          height={H - T - B}
+          style={{ fill: 'var(--chg)' }}
+          opacity={0.055}
+        />
+        <line
+          x1={x(KZ_A) - step / 2}
+          y1={T}
+          x2={x(KZ_A) - step / 2}
+          y2={H - B}
+          style={{ stroke: 'var(--chg)' }}
+          strokeWidth={1}
+          strokeDasharray="3 4"
+          opacity={0.55}
+        />
+        <line
+          x1={x(KZ_B) + step / 2}
+          y1={T}
+          x2={x(KZ_B) + step / 2}
+          y2={H - B}
+          style={{ stroke: 'var(--chg)' }}
+          strokeWidth={1}
+          strokeDasharray="3 4"
+          opacity={0.55}
+        />
+        <text
+          x={x(KZ_A) - step / 2 + 8}
+          y={T + 18}
+          style={{ ...LABEL, fill: 'var(--chg)' }}
+          fontSize={11}
+          letterSpacing="0.08em"
+        >
+          NY KILLZONE +{bonus('Killzone')}
+        </text>
+      </g>
 
       {/* FVG khung lớn — khoảng trống do chính nến displacement để lại */}
       {hasGap && (
-        <>
+        <g className="ch-fvg">
           <rect
             x={x(FVG_A) - cw}
             y={y(gapBot)}
@@ -211,14 +227,14 @@ export function ChartPanel() {
           >
             HTF FVG +{bonus('HTF FVG Mitigation')}
           </text>
-        </>
+        </g>
       )}
 
       {/* nến */}
       {bars.map((b, i) => {
         const color = b.c >= b.o ? 'var(--bull)' : 'var(--bear)'
         return (
-          <g key={i}>
+          <g key={i} className="cdl" style={{ '--i': i } as CSSProperties}>
             <line
               x1={x(i)}
               y1={y(b.h)}
@@ -239,67 +255,70 @@ export function ChartPanel() {
       })}
 
       {/* quét thanh khoản — cái đáy giả ở nến SWEEP */}
-      <line
-        x1={L}
-        y1={y(swLow)}
-        x2={W - R}
-        y2={y(swLow)}
-        style={{ stroke: 'var(--bear)' }}
-        strokeWidth={1}
-        strokeDasharray="4 3"
-        opacity={0.85}
-      />
-      <text
-        x={L + 5}
-        y={y(swLow) + 14}
-        style={{ ...LABEL, fill: 'var(--bear)' }}
-        fontSize={11}
-        letterSpacing="0.06em"
-      >
-        SWEEP +{bonus('Liquidity Sweep')}
-      </text>
+      <g className="ch-sweep">
+        <line
+          x1={L}
+          y1={y(swLow)}
+          x2={W - R}
+          y2={y(swLow)}
+          style={{ stroke: 'var(--bear)' }}
+          strokeWidth={1}
+          strokeDasharray="4 3"
+          opacity={0.85}
+        />
+        <text
+          x={L + 5}
+          y={y(swLow) + 14}
+          style={{ ...LABEL, fill: 'var(--bear)' }}
+          fontSize={11}
+          letterSpacing="0.06em"
+        >
+          SWEEP +{bonus('Liquidity Sweep')}
+        </text>
+      </g>
 
-      {/* vùng lãi / vùng lỗ */}
-      <rect
-        x={xFrom}
-        y={y(tps[2])}
-        width={xTo - xFrom}
-        height={y(entry) - y(tps[2])}
-        style={{ fill: 'var(--bull)' }}
-        opacity={0.07}
-      />
-      <rect
-        x={xFrom}
-        y={y(entry)}
-        width={xTo - xFrom}
-        height={y(sl) - y(entry)}
-        style={{ fill: 'var(--bear)' }}
-        opacity={0.07}
-      />
+      {/* vùng lãi / vùng lỗ + các mức — quét ra cùng một lượt từ trái */}
+      <g className="ch-lvl">
+        <rect
+          x={xFrom}
+          y={y(tps[2])}
+          width={xTo - xFrom}
+          height={y(entry) - y(tps[2])}
+          style={{ fill: 'var(--bull)' }}
+          opacity={0.07}
+        />
+        <rect
+          x={xFrom}
+          y={y(entry)}
+          width={xTo - xFrom}
+          height={y(sl) - y(entry)}
+          style={{ fill: 'var(--bear)' }}
+          opacity={0.07}
+        />
 
-      {/* các mức */}
-      {levels.map((lv) => (
-        <g key={lv.label}>
-          <line
-            x1={xFrom}
-            y1={y(lv.v)}
-            x2={xTo}
-            y2={y(lv.v)}
-            style={{ stroke: lv.color }}
-            strokeWidth={1}
-            strokeDasharray={lv.dash}
-            opacity={0.9}
-          />
-          <text
-            x={xTo + 6}
-            y={y(lv.v) + 4}
-            style={{ ...LABEL, fill: lv.color }}
-            fontSize={11}
-          >
-            {lv.label}
-          </text>
-        </g>
-      ))}
+        {levels.map((lv) => (
+          <g key={lv.label}>
+            <line
+              x1={xFrom}
+              y1={y(lv.v)}
+              x2={xTo}
+              y2={y(lv.v)}
+              style={{ stroke: lv.color }}
+              strokeWidth={1}
+              strokeDasharray={lv.dash}
+              opacity={0.9}
+            />
+            <text
+              x={xTo + 6}
+              y={y(lv.v) + 4}
+              style={{ ...LABEL, fill: lv.color }}
+              fontSize={11}
+            >
+              {lv.label}
+            </text>
+          </g>
+        ))}
+      </g>
     </svg>
   )
 }

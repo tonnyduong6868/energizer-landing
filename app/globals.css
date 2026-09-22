@@ -907,15 +907,238 @@ section { padding-block: var(--pad); position: relative; }
   body { padding-bottom: 76px; }
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   CHUYỂN ĐỘNG
+
+   Không một dòng JS. Cả trang là Server Component xuất tĩnh, nên thêm một
+   thư viện scroll-reveal là thêm một bundle, thêm một lần hydrate, và thêm
+   một khoảng trang trắng trước khi bundle đó chạy. Thay vào đó dùng
+   scroll-driven animation của CSS: trình duyệt chạy nó trên compositor,
+   không đụng main thread, và không có gì để tải.
+
+   ─── HAI LUẬT BẮT BUỘC, ĐỪNG PHÁ ───
+
+   1. KHÔNG BAO GIỜ đặt `opacity: 0` ở trạng thái gốc của phần tử.
+      Trạng thái ẩn chỉ nằm trong keyframe `from`. Nghĩa là tắt animation đi
+      (reduced-motion, trình duyệt cũ, CSS lỗi) thì nội dung VẪN HIỆN. Đây là
+      cách hỏng phổ biến nhất của scroll-reveal: người bật "giảm chuyển động"
+      mở trang ra thấy một trang trắng.
+
+   2. `animation-fill-mode: backwards`, KHÔNG phải `both`.
+      `both` giữ luôn keyframe cuối sau khi chạy xong, mà khai báo từ
+      animation thắng mọi khai báo thường — nên `:hover { transform }` sẽ bị
+      nuốt sạch. `backwards` chỉ giữ keyframe đầu khi CHƯA chạy; chạy xong là
+      trả phần tử về style bình thường và hover hoạt động lại.
+
+   Cả khối scroll-reveal nằm trong @supports: trình duyệt không có
+   `animation-timeline` thì không nhận animation nào, tức không có gì để ẩn.
+   ══════════════════════════════════════════════════════════════════════ */
+
+@keyframes rise    { from { opacity: 0; transform: translateY(16px); } }
+@keyframes rise-sm { from { opacity: 0; transform: translateY(9px); } }
+@keyframes fade    { from { opacity: 0; } }
+@keyframes wipe-x  { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes grow-x  { from { transform: scaleX(0); } }
+@keyframes bar-x   { to   { transform: scaleX(1); } }
+@keyframes candle  { from { opacity: 0; transform: scaleY(0.12); } }
+@keyframes glow    { 50%  { opacity: 0.74; transform: scale(1.06); } }
+
+/* Vòng confluence chạy từ 0 lên trọng số thật. Phải đăng ký @property thì
+   trình duyệt mới biết đây là <percentage> và nội suy được — không đăng ký
+   thì custom property nhảy cóc ở mốc 50%, trông như lỗi chứ không như animation.
+   Giá trị đích nằm ở inline style do Confluence.tsx tính từ lib/site.ts;
+   keyframe cố ý KHÔNG có `to` để nó lấy đúng giá trị đó. */
+@property --conf-a { syntax: '<percentage>'; inherits: true; initial-value: 0%; }
+@property --conf-b { syntax: '<percentage>'; inherits: true; initial-value: 0%; }
+@keyframes ring { from { --conf-a: 0%; --conf-b: 0%; } }
+
+/* ── Nhịp chung ───────────────────────────────────────────────────────── */
+:root {
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --t-in: 0.62s;
+}
+
+/* ── Hero: vào theo bậc thang, chạy ngay lúc tải ──────────────────────── */
+.hero .eyebrow,
+.hero h1,
+.hero-lede,
+.hero-cta,
+.hero-sub { animation: rise var(--t-in) var(--ease) backwards; }
+.hero h1     { animation-delay: 0.06s; }
+.hero-lede   { animation-delay: 0.13s; }
+.hero-cta    { animation-delay: 0.20s; }
+.hero-sub    { animation-delay: 0.27s; }
+
+/* Vầng sáng thở rất chậm. 9s/chu kỳ và biên độ nhỏ — đủ để nền không chết
+   cứng, không đủ để mắt bám theo trong lúc đọc. */
+.hero::before { animation: glow 9s ease-in-out infinite; }
+
+/* Lưới bento dưới hero cũng nằm trên màn đầu nên vào cùng mạch, không chờ
+   cuộn. Chờ cuộn ở đây là sai: nó đã ở trong tầm mắt rồi. */
+.bento-wide        { animation: rise 0.72s var(--ease) backwards 0.3s; }
+.specs .spec       { animation: rise-sm 0.56s var(--ease) backwards; }
+.specs .spec:nth-child(1) { animation-delay: 0.40s; }
+.specs .spec:nth-child(2) { animation-delay: 0.47s; }
+.specs .spec:nth-child(3) { animation-delay: 0.54s; }
+.specs .spec:nth-child(4) { animation-delay: 0.61s; }
+.bento .shot-empty { animation: fade 0.6s ease backwards 0.72s; }
+
+/* ── Hover: nhấc nhẹ. Chỉ cho thiết bị có con trỏ thật ────────────────── */
+.spec, .pillar, .preset, .honest, .quote, .tier, .style-chip, .faq details {
+  transition: transform 0.22s var(--ease), border-color 0.22s ease,
+              background 0.22s ease;
+}
+@media (hover: hover) {
+  .spec:hover, .pillar:hover, .preset:hover, .honest:hover,
+  .quote:hover, .style-chip:hover {
+    transform: translateY(-3px);
+    border-color: var(--line-2);
+  }
+  /* Ô được nhấn giữ viền amber của nó, sáng thêm chứ không đổi sang xám. */
+  .spec:last-child:hover, .pillar:first-child:hover,
+  .preset.is-default:hover { border-color: var(--chg); }
+}
+
+.btn { transition: background 0.16s ease, border-color 0.16s ease,
+                   color 0.16s ease, box-shadow 0.18s ease, transform 0.1s ease; }
+.btn:active { transform: translateY(1px); }
+.btn-primary:hover { box-shadow: 0 10px 26px -12px rgba(255, 176, 32, 0.75); }
+
+/* ── FAQ: mở ra có chiều cao chạy mượt ────────────────────────────────── */
+.faq summary::after { transition: transform 0.25s var(--ease); }
+.faq details[open] summary::after { transform: rotate(180deg); }
+/* `interpolate-size` là thứ duy nhất cho phép animate height:auto mà không
+   phải đo bằng JS. Trình duyệt chưa có thì details vẫn đóng/mở bình thường,
+   chỉ là bật tắt tức thì. */
+@supports (interpolate-size: allow-keywords) {
+  :root { interpolate-size: allow-keywords; }
+  .faq details::details-content {
+    block-size: 0;
+    overflow: hidden;
+    content-visibility: hidden;
+    transition: block-size 0.3s var(--ease), content-visibility 0.3s allow-discrete;
+  }
+  .faq details[open]::details-content { block-size: auto; content-visibility: visible; }
+}
+
+/* ══ Scroll-driven ════════════════════════════════════════════════════ */
+@supports (animation-timeline: view()) {
+  /* Thanh tiến độ đọc, dính dưới mép header. Nó là thứ duy nhất trên trang
+     nói cho người đọc biết còn bao xa nữa — trang cao 9.400px. */
+  .hdr::after {
+    content: '';
+    position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+    background: linear-gradient(90deg, var(--chg), #FFD98A);
+    transform: scaleX(0); transform-origin: left;
+    animation: bar-x linear both;
+    animation-timeline: scroll(root block);
+  }
+
+  /* Khối vào khi cuộn tới. `entry 6% → cover 24%` nghĩa là bắt đầu ngay khi
+     mép trên chạm đáy màn và xong trước khi nó lên tới giữa màn — đọc tới
+     nơi thì nó đã đứng yên rồi, không bao giờ phải chờ chữ hiện ra. */
+  .sh-block,
+  .pain-col, .pillar, .preset, .tier, .honest, .quote, .style-chip,
+  .changelog, .price-card, .faq details, .conf-wrap, .member-line,
+  .endcta h2, .endcta p, .endcta-row, .shot, .honest-grid + *,
+  section > .wrap > .shot-empty {
+    animation: rise var(--t-in) var(--ease) backwards;
+    animation-timeline: view();
+    animation-range: entry 6% cover 24%;
+  }
+  /* Bậc thang trong lưới: lệch điểm bắt đầu trên timeline, không lệch bằng
+     `animation-delay` — với timeline cuộn thì delay tính bằng giây bị bỏ qua. */
+  :is(.pain-grid, .pillars, .preset-grid, .tiers, .honest-grid, .quotes,
+      .faq, .style-row) > :nth-child(2) { animation-range: entry 11% cover 29%; }
+  :is(.pain-grid, .pillars, .preset-grid, .tiers, .honest-grid, .quotes,
+      .faq, .style-row) > :nth-child(3) { animation-range: entry 16% cover 34%; }
+  :is(.pain-grid, .pillars, .preset-grid, .tiers, .honest-grid, .quotes,
+      .faq, .style-row) > :nth-child(n + 4) { animation-range: entry 21% cover 39%; }
+
+  /* Ruột khối confluence chạy theo MỘT timeline đặt tên trên cả ô, không
+     phải `view()` của từng phần tử.
+
+     Lý do: `.conf-bar i` cao 4px và `.conf-dial` nằm trong cột sticky. Cho
+     chúng tự làm chủ thể thì `view()` đo trên chính cái hộp tí hon / bị ghim
+     đó và tiến độ ra sai bét — đã đo được `grow-x` ở trạng thái `finished`
+     ngay khi scrollY = 0, tức thanh đã chạy xong trước khi ai kịp nhìn. Lấy
+     cả ô làm chủ thể thì bảy dòng, bảy thanh và cái vòng cùng đọc một thước. */
+  .conf-wrap { view-timeline: --confv block; }
+
+  /* Bảy dòng confluence chạy ra như bảy dòng log. */
+  .conf {
+    animation: rise-sm 0.5s var(--ease) backwards;
+    animation-timeline: --confv;
+  }
+  .conf:nth-child(1) { animation-range: cover 8%  cover 24%; }
+  .conf:nth-child(2) { animation-range: cover 12% cover 28%; }
+  .conf:nth-child(3) { animation-range: cover 16% cover 32%; }
+  .conf:nth-child(4) { animation-range: cover 20% cover 36%; }
+  .conf:nth-child(5) { animation-range: cover 24% cover 40%; }
+  .conf:nth-child(6) { animation-range: cover 28% cover 44%; }
+  .conf:nth-child(7) { animation-range: cover 32% cover 48%; }
+
+  /* Thanh trọng số chạy từ trái. Width vẫn do inline style quyết định —
+     đây chỉ là scaleX lên chính chiều rộng đó, nên con số không bị animation
+     nói dối. */
+  .conf-bar i {
+    animation: grow-x 0.66s var(--ease) backwards;
+    animation-timeline: --confv;
+    animation-range: cover 14% cover 42%;
+  }
+  /* Vòng chạy từ 0 lên +30 khi cuộn tới. */
+  .conf-dial {
+    animation: ring 1s var(--ease) backwards;
+    animation-timeline: --confv;
+    animation-range: cover 6% cover 40%;
+  }
+
+  .ftr-grid, .disclaimer {
+    animation: fade 0.7s ease backwards;
+    animation-timeline: view();
+    animation-range: entry 4% cover 20%;
+  }
+}
+.conf-bar i { transform-origin: left; }
+
+/* ── ChartPanel: vẽ ra từng lớp đúng thứ tự engine đọc chart ──────────── */
+.panel-svg .ch-grid { animation: fade 0.7s ease backwards 0.42s; }
+/* Nến mọc lên từ đáy bóng dưới, trái sang phải. `fill-box` để gốc biến hình
+   là bbox của chính cây nến chứ không phải của cả viewBox. */
+.panel-svg .cdl {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: candle 0.46s var(--ease) backwards;
+  animation-delay: calc(0.5s + var(--i) * 13ms);
+}
+.panel-svg .ch-kz    { animation: fade 0.7s ease backwards 0.62s; }
+.panel-svg .ch-sweep { animation: wipe-x 0.7s var(--ease) backwards 1.12s; }
+.panel-svg .ch-fvg   { animation: fade 0.6s ease backwards 1.3s; }
+.panel-svg .ch-lvl   { animation: wipe-x 0.8s var(--ease) backwards 1.44s; }
+
+@media (max-width: 880px) {
+  .sticky { animation: rise 0.5s var(--ease) backwards 0.5s; }
+}
+
 /* ─────────────────────────────────────────────────────────────────────
-   Reduced motion — tắt mọi chuyển động không mang thông tin
+   Reduced motion — tắt sạch.
+
+   `animation: none` là đủ và an toàn ĐÚNG VÌ luật 1 ở trên: không phần tử
+   nào ẩn ở trạng thái gốc, nên bỏ animation đi là mọi thứ hiện nguyên.
+   Không dùng mẹo `animation-duration: 0.001ms` nữa — với timeline cuộn thì
+   duration bị bỏ qua hoàn toàn, mẹo đó không tắt được gì.
    ───────────────────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
+    animation: none !important;
     transition-duration: 0.001ms !important;
+  }
+  /* Thanh tiến độ sống bằng animation; không có animation thì nó là một
+     vạch scaleX(0) vô hình — bỏ hẳn cho sạch DOM. */
+  .hdr::after { display: none; }
+  .faq details::details-content {
+    block-size: auto; content-visibility: visible; overflow: visible;
   }
 }
 
