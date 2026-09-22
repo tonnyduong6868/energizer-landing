@@ -1,4 +1,4 @@
-import { cta, links, pricing } from '@/lib/site'
+import { cta, links, pricing, promo } from '@/lib/site'
 import { Telegram } from './Icon'
 
 /**
@@ -27,6 +27,15 @@ export function StickyCta() {
       <a className="btn btn-primary" href="#pricing">
         Get it · {pricing.symbol}
         {pricing.amount}
+        {/* Giá cũ thì không có, nhưng giá SAU thì có thật — gạch ngang con số
+            sắp tới, không phải con số đã qua. Đọc được trong 44px chiều cao
+            của thanh sticky mà vẫn nói đúng chiều của việc tăng giá. */}
+        {promo.enabled && (
+          <s className="sticky-next">
+            {pricing.symbol}
+            {promo.launch.nextAmount}
+          </s>
+        )}
       </a>
     </div>
   )

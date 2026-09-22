@@ -1,4 +1,5 @@
 import { cta, links, nav, site } from '@/lib/site'
+import { PromoBar } from './PromoBar'
 import { Telegram } from './Icon'
 
 /**
@@ -14,6 +15,10 @@ import { Telegram } from './Icon'
 export function SiteHeader() {
   return (
     <header className="hdr">
+      {/* Dải giảm giá nằm trong cùng khối sticky, không phải một sticky thứ
+          hai — xem ghi chú trong PromoBar.tsx. */}
+      <PromoBar />
+
       <div className="wrap hdr-in">
         <a className="hdr-brand" href="#top">
           {site.short}

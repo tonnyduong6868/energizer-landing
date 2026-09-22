@@ -109,7 +109,9 @@ html {
   color-scheme: dark;
   /* Header dính cao 62px — không có dòng này thì bấm nav xong tiêu đề khối
      bị header che mất. */
-  scroll-padding-top: 80px;
+  /* Header dính = dải giảm giá (~38px) + hàng nav 62px. Neo nào cũng phải
+     dừng DƯỚI cả hai, nếu không tiêu đề khối bị dải che mất. */
+  scroll-padding-top: 116px;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -341,6 +343,55 @@ section { padding-block: var(--pad); position: relative; }
 @media (max-width: 880px) { .hdr-cta { display: none; } }
 
 /* ─────────────────────────────────────────────────────────────────────
+   Dải giảm giá — nằm trong .hdr, phía trên hàng nav
+
+   Tông hổ phách trên nền đục, không phải nền hổ phách đặc. Một dải đặc màu
+   --chg chạy ngang đỉnh trang thì mọi thứ còn lại — kể cả nút mua, vốn
+   dùng đúng màu đó — tụt xuống hàng hai.
+   ───────────────────────────────────────────────────────────────────── */
+/* Hai lớp nền. .hdr để alpha 0.84 cho thấy mờ mờ nội dung chạy qua bên
+   dưới — đẹp với hàng nav, nhưng chữ 12px mono của dải này thì bị nội dung
+   trang xuyên lên đọc lẫn. Lớp đen 0.7 ở dưới cùng dập việc đó, vẫn giữ
+   blur của header. */
+.promo {
+  background:
+    linear-gradient(92deg, var(--chg-dim), rgba(255, 176, 32, 0.05) 62%),
+    rgba(7, 7, 10, 0.7);
+  border-bottom: 1px solid var(--chg-line);
+}
+.promo-in {
+  display: flex; align-items: center; gap: var(--s3);
+  min-height: 38px; padding-block: 7px;
+  font-family: var(--f-mono); font-size: 12px; line-height: 1.45;
+  letter-spacing: 0.01em; color: var(--ink-2);
+}
+.promo-in:hover .promo-go { color: var(--chg-hi); }
+.promo-in b { color: var(--ink); font-weight: 600; }
+
+/* Huy hiệu % dùng chung cho cả ba chỗ đặt. */
+.promo-badge {
+  flex: none;
+  font-family: var(--f-mono); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--on-chg); background: var(--chg);
+  border-radius: 5px; padding: 3px 7px;
+}
+.promo-long  { display: none; }
+.promo-short { min-width: 0; }
+.promo-go {
+  flex: none; margin-left: auto;
+  color: var(--chg); white-space: nowrap;
+  transition: color 0.15s ease;
+}
+@media (min-width: 720px) {
+  .promo-long  { display: inline; }
+  .promo-short { display: none; }
+}
+/* Dưới 460px thì "See pricing →" là thứ đầu tiên bỏ được: cả dải đã là một
+   cái link rồi, mũi tên chỉ nhắc lại điều đó bằng 92px chiều ngang. */
+@media (max-width: 459px) { .promo-go { display: none; } }
+
+/* ─────────────────────────────────────────────────────────────────────
    Hero — một cột căn giữa
 
    Bản cũ chia 1.05fr/1fr với ô placeholder gạch đứt to đùng bên phải, tức
@@ -419,6 +470,22 @@ section { padding-block: var(--pad); position: relative; }
   font-family: var(--f-mono); font-size: 11.5px; color: var(--ink-3);
 }
 .hero-sub b { color: var(--ink-2); font-weight: 500; }
+
+/* Một hàng ngang có viền, không phải một đoạn văn nữa — hero đã có bốn khối
+   chữ căn giữa chồng lên nhau rồi, khối thứ năm cùng hình dạng thì mắt
+   trượt qua. Viền + huy hiệu làm nó đọc như một cái nhãn. */
+.hero-promo {
+  display: flex; align-items: center; gap: var(--s3);
+  width: fit-content; max-width: 62ch;
+  margin: var(--s6) auto 0;
+  padding: 10px var(--s4) 10px 10px;
+  border: 1px solid var(--chg-line);
+  border-radius: var(--r-md);
+  background: var(--chg-dim);
+  font-size: 13.5px; line-height: 1.6; text-align: left;
+  color: var(--ink-2);
+}
+.hero-promo b { color: var(--ink); font-weight: 600; }
 
 /* ─────────────────────────────────────────────────────────────────────
    Lưới bento dưới hero: một ô chart trọn chiều rộng + bốn ô số
@@ -599,7 +666,7 @@ section { padding-block: var(--pad); position: relative; }
   .conf-wrap { grid-template-columns: 296px minmax(0, 1fr); align-items: start; }
   /* Dính lại thì lúc đọc tới factor thứ bảy vẫn còn thấy cái trần +30 mà bảy
      con số kia đang cộng vào. Đó là cả luận điểm của khối này. */
-  .conf-side { position: sticky; top: 96px; }
+  .conf-side { position: sticky; top: 128px; }
 }
 
 .conf-side { display: grid; gap: var(--s5); }
@@ -788,7 +855,7 @@ section { padding-block: var(--pad); position: relative; }
   border-radius: var(--r-lg);
   padding: clamp(22px, 3vw, 30px);
 }
-@media (min-width: 900px) { .price-buy { position: sticky; top: 86px; } }
+@media (min-width: 900px) { .price-buy { position: sticky; top: 118px; } }
 
 .price-amt {
   display: flex; align-items: baseline; gap: var(--s1);
@@ -804,6 +871,46 @@ section { padding-block: var(--pad); position: relative; }
   letter-spacing: 0; color: var(--ink-3);
 }
 .price-sub { margin-top: var(--s3); font-size: 14px; color: var(--ink-2); }
+
+/* Bảng ba dòng trong thẻ giá. Nền ở đây phải ĐỤC hơn thẻ, không phải sáng
+   hơn: .price-buy vốn đã là ô hổ phách nhạt, chồng thêm một lớp hổ phách
+   nữa thì hai cái hoà vào nhau và bảng biến mất. */
+.promo-card {
+  margin-top: var(--s5);
+  padding: var(--s4);
+  border: 1px solid var(--chg-line);
+  border-radius: var(--r-md);
+  background: rgba(7, 7, 10, 0.55);
+}
+.promo-card-h {
+  display: flex; align-items: center; gap: var(--s2);
+  font-family: var(--f-mono); font-size: 11.5px;
+  letter-spacing: 0.03em; color: var(--chg);
+}
+.promo-rows { margin-top: var(--s4); display: grid; gap: 9px; }
+.promo-rows li {
+  display: flex; align-items: baseline; gap: var(--s3);
+  font-size: 13.5px; color: var(--ink-2);
+}
+/* Dấu chấm nối cho mắt bám từ nhãn sang số — cột số bên phải so le nhau vì
+   "$87.30" dài hơn "$97" hai ký tự. */
+.promo-rows li::after {
+  content: ''; order: 1; flex: 1;
+  border-bottom: 1px dotted var(--line-2);
+  transform: translateY(-4px);
+}
+.promo-rows b { order: 2; font-family: var(--f-mono); font-weight: 700; color: var(--ink); }
+.promo-rows .is-best { color: var(--bull); }
+.promo-rows .is-after { color: var(--ink-3); }
+.promo-rows .is-after b { color: var(--ink-3); font-weight: 500; }
+.promo-card-n {
+  margin-top: var(--s4); padding-top: var(--s3);
+  border-top: 1px solid var(--line);
+  font-size: 12.5px; line-height: 1.6; color: var(--ink-3);
+}
+.promo-card-n a {
+  color: var(--chg); text-decoration: underline; text-underline-offset: 3px;
+}
 
 .price-list { display: grid; gap: 9px; margin-top: var(--s5); }
 .price-li { display: flex; gap: 10px; align-items: flex-start; font-size: 14.3px; color: var(--ink-2); }
@@ -946,6 +1053,15 @@ section { padding-block: var(--pad); position: relative; }
   border-top: 1px solid var(--line);
 }
 .sticky .btn { flex: 1; min-height: 44px; padding-inline: var(--s3); font-size: 14px; }
+/* Gạch ngang con số SẮP TỚI, không phải con số đã qua — đây là giá tăng
+   thật, không phải giá neo bịa. Nền nút là hổ phách đặc nên chữ phải là
+   --on-chg mờ đi; dùng --ink-3 ở đây là chìm mất. */
+.sticky-next {
+  margin-left: 5px;
+  font-size: 12px; font-weight: 500;
+  color: color-mix(in srgb, var(--on-chg) 58%, transparent);
+  text-decoration-thickness: 1px;
+}
 @media (max-width: 880px) {
   .sticky { display: flex; }
   body { padding-bottom: 76px; }
@@ -1008,12 +1124,14 @@ section { padding-block: var(--pad); position: relative; }
 .hero-lede,
 .hero-for,
 .hero-cta,
-.hero-sub { animation: rise var(--t-in) var(--ease) backwards; }
+.hero-sub,
+.hero-promo { animation: rise var(--t-in) var(--ease) backwards; }
 .hero h1     { animation-delay: 0.06s; }
 .hero-lede   { animation-delay: 0.13s; }
 .hero-for    { animation-delay: 0.19s; }
 .hero-cta    { animation-delay: 0.26s; }
 .hero-sub    { animation-delay: 0.33s; }
+.hero-promo  { animation-delay: 0.40s; }
 
 /* Vầng sáng thở rất chậm. 9s/chu kỳ và biên độ nhỏ — đủ để nền không chết
    cứng, không đủ để mắt bám theo trong lúc đọc. */

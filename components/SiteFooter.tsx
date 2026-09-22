@@ -1,4 +1,4 @@
-import { hasPlaceholderLinks, links, nav, site } from '@/lib/site'
+import { hasPlaceholderLinks, hasUnconfirmedPromo, links, nav, promo, site } from '@/lib/site'
 
 /**
  * Footer + disclaimer.
@@ -22,6 +22,17 @@ export function SiteFooter() {
           <div className="devwarn" role="alert">
             ⚠ lib/site.ts còn link placeholder (REPLACE_ME). Sửa `links` trước khi
             chạy quảng cáo — khách bấm vào sẽ rơi vào trang 404.
+          </div>
+        )}
+
+        {hasUnconfirmedPromo && (
+          <div className="devwarn" role="alert">
+            ⚠ Banner giảm giá đang chạy mà chưa ai xác nhận. Đặt
+            {' '}<code>promo.launch.confirmed</code> = true khi đã CHỐT là ngày{' '}
+            {promo.launch.untilLabel} giá lên thật {promo.launch.nextAmount}$, và
+            {' '}<code>promo.crypto.confirmed</code> = true khi checkout của Energizer
+            thật sự nhận crypto. Treo lời hứa rồi không làm là rơi đúng FTC Act §5
+            và UCPD Annex I §7 — nặng hơn hẳn việc không có banner.
           </div>
         )}
 

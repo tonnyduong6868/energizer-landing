@@ -1,4 +1,5 @@
 import { cta, faq, links, priceBlockers, pricing } from '@/lib/site'
+import { PromoPrice } from './PromoBar'
 import { SectionHead } from './SectionHead'
 import { Check, Dash } from './Icon'
 
@@ -108,6 +109,8 @@ export function Pricing() {
                 once · {pricing.currency}
               </span>
             </div>
+            <PromoPrice />
+
             <p className="price-sub">
               {pricing.planName} &mdash; no renewal, no upgrade tier, no order bump at
               checkout.

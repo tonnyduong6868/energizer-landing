@@ -1,4 +1,4 @@
-import { cta, links, pricing, proof, site, specs } from '@/lib/site'
+import { cta, links, pricing, promo, promoSaving, proof, site, specs } from '@/lib/site'
 import { ChartPanel } from './ChartPanel'
 import { Telegram } from './Icon'
 
@@ -80,6 +80,30 @@ export function Hero() {
               <b>{pricing.guarantee.days}-day</b> refund, no questions
             </span>
           </p>
+
+          {/* Giảm giá đứng SAU ba mệnh đề trấn an, không đứng trước. Lời đầu
+              tiên của một trang bán hàng mà đã là "giảm giá" thì phần còn lại
+              đọc như quảng cáo; để nó ở đây thì nó là thông tin bổ sung cho
+              người đã bị thuyết phục. */}
+          {promo.enabled && (
+            <p className="hero-promo">
+              <span className="promo-badge">&minus;{promoSaving.percent}%</span>
+              <span>
+                {pricing.symbol}
+                {pricing.amount} is the launch price and it holds until{' '}
+                <b>{promo.launch.untilLabel}</b>. After that it is {pricing.symbol}
+                {promo.launch.nextAmount}
+                {promo.crypto.percent > 0 && (
+                  <>
+                    . Paying in crypto takes another {promo.crypto.percent}% off, so{' '}
+                    {pricing.symbol}
+                    {promoSaving.crypto} today
+                  </>
+                )}
+                .
+              </span>
+            </p>
+          )}
         </div>
       </section>
 

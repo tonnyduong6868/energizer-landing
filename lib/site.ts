@@ -154,6 +154,70 @@ export const pricing = {
 } as const
 
 /* ══════════════════════════════════════════════════════════════════════
+   GIẢM GIÁ
+
+   Hai đòn bẩy, và CHỈ hai. Cả hai đều mô tả một chính sách có thật, không
+   cái nào cần tới một con số gạch ngang bịa ra:
+
+   1. `launch` — giá ra mắt sẽ TĂNG THẬT vào một ngày cụ thể. Hợp pháp vì
+      nó là lời hứa về tương lai, không phải lời khai về quá khứ. Điều kiện
+      duy nhất: ngày đó tới thì giá phải lên thật. Không lên mà vẫn treo
+      banner sang tháng sau là rơi đúng vào FTC Act §5 và UCPD Annex I §7.
+
+   2. `crypto` — trả bằng crypto bớt 10%. Đây là mô tả cách thanh toán, phí
+      xử lý thấp hơn thì chia lại cho khách. Không dính gì tới giá neo.
+
+   VẪN KHÔNG CÓ, và đừng thêm vào:
+   · `pricing.anchor` gạch ngang — Energizer chưa bán ngày nào ở mức khác.
+   · Đồng hồ đếm ngược. Ngày hết hạn là THẬT nhưng đếm từng giây là kỹ
+     thuật gây áp lực, không phải thông tin. Ghi ngày là đủ.
+   ══════════════════════════════════════════════════════════════════════ */
+export const promo = {
+  enabled: true,
+
+  launch: {
+    /** Giá sau khi hết đợt ra mắt. */
+    nextAmount: 147,
+    /** Ngày giá tăng. ISO để máy đọc, `label` để người đọc. */
+    until: '2026-10-15',
+    untilLabel: '15 Oct 2026',
+    /**
+     * Tonny bật `true` khi đã CHỐT là sẽ tăng giá thật vào đúng ngày trên.
+     * Còn `false` thì banner vẫn hiện nhưng footer in cảnh báo đỏ — cùng cơ
+     * chế với link REPLACE_ME, vì cùng một loại rủi ro: một lời hứa chưa ai
+     * xác nhận mà đã nằm trên trang bán hàng.
+     */
+    confirmed: false,
+  },
+
+  crypto: {
+    percent: 10,
+    /**
+     * Phải đúng là checkout của Energizer nhận crypto. Playbook CSKH đang
+     * áp mức này cho sản phẩm khác — không mặc nhiên suy ra cho cái này.
+     */
+    confirmed: false,
+  },
+
+  /** Mã giảm giá riêng do support cấp, cộng dồn với crypto. Không in mã ra trang. */
+  stackableCode: true,
+} as const
+
+/** Giá sau khi hết đợt ra mắt trừ đi giá hiện tại, làm tròn % theo giá SAU. */
+export const promoSaving = {
+  amount: promo.launch.nextAmount - pricing.amount,
+  percent: Math.round(
+    ((promo.launch.nextAmount - pricing.amount) / promo.launch.nextAmount) * 100,
+  ),
+  /** Giá thực trả khi thanh toán bằng crypto, 2 số lẻ. */
+  crypto: ((pricing.amount * (100 - promo.crypto.percent)) / 100).toFixed(2),
+}
+
+/** True khi còn lời hứa giảm giá chưa ai xác nhận là thật. */
+export const hasUnconfirmedPromo =
+  promo.enabled && (!promo.launch.confirmed || !promo.crypto.confirmed)
+
+/* ══════════════════════════════════════════════════════════════════════
    THÔNG SỐ KỸ THUẬT — tất cả đọc từ source, có ghi chỗ lấy
    ══════════════════════════════════════════════════════════════════════ */
 
