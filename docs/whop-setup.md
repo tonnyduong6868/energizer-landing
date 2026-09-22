@@ -221,8 +221,9 @@ volume hiện tại thì làm tay.
 - Đặt post-checkout message trên Whop: **"Access is granted within 12 hours."**
   Đừng để khách tưởng instant rồi đi mở dispute sau 20 phút — dispute rate là
   thứ Whop theo dõi và siết tài khoản.
-- Muốn tự động về sau: dùng driver CDP sẵn có trong `D:\ZynAlgo\.deploy\`
-  (xem `AGENTS.md` mục 4). Là vùng xám ToS của TradingView, cân nhắc trước khi bật.
+- Muốn tự động về sau: dùng lại kiểu driver CDP trong `../../qa-landing/lp-*.mjs`
+  (nối Comet qua `DevToolsActivePort`). Là vùng xám ToS của TradingView, cân nhắc
+  trước khi bật.
 
 ### 5. Thay link vào trang
 

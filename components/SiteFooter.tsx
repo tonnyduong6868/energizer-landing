@@ -126,9 +126,6 @@ export function SiteFooter() {
                 </a>
               </li>
               <li>
-                <a href={links.support}>Email support</a>
-              </li>
-              <li>
                 <a href={cta(links.checkout, 'footer')}>Checkout</a>
               </li>
             </ul>
@@ -161,7 +158,7 @@ export function SiteFooter() {
             ICT toolkit &ldquo;Miaomiao + GBT&rdquo; (c) Khanhss, used under MPL-2.0.
           </p>
           <p style={{ color: 'var(--ink-3)', marginTop: 'var(--s5)' }}>
-            &copy; {year} ZynAlgo. All rights reserved.
+            &copy; {year} Tonny Duong. All rights reserved.
           </p>
         </div>
       </div>

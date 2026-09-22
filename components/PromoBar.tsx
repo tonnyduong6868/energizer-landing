@@ -106,7 +106,8 @@ export function PromoPrice() {
       {promo.stackableCode && (
         <p className="promo-card-n">
           Got a support code? It stacks on top of the crypto discount at checkout.{' '}
-          <a href={cta(links.support, 'pricing')}>Ask for one</a> before you pay.
+          <a href={cta(links.support, 'pricing')}>Ask in the free channel</a> before
+          you pay.
         </p>
       )}
     </div>

@@ -6,9 +6,9 @@ import { Analytics } from '@/components/Analytics'
 import './globals.css'
 
 /**
- * Metadata đầy đủ — đây là chỗ hai funnel zynalgo.net đang hỏng nặng nhất.
+ * Metadata đầy đủ — đây là chỗ hai funnel đem ra đối chiếu hỏng nặng nhất.
  *
- * Cả zynalgo.net/zynalgotrendline lẫn /scalper-pro-v4--m2 đều KHÔNG có
+ * Cả hai (GoHighLevel, soi 09/2026) đều KHÔNG có
  * meta description và KHÔNG có og:image. Dán link lên Facebook, Telegram,
  * Discord hay X đều ra preview trống. Với funnel sống bằng paid social thì
  * đó là tiền chảy ra mỗi ngày vì một thẻ meta thiếu.

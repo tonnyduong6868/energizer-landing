@@ -8,13 +8,13 @@
  * LUẬT CỦA FILE NÀY — đừng phá:
  *
  * 1. Không con số nào được viết ra nếu không truy được về nguồn thật. Mọi
- *    thông số kỹ thuật bên dưới đều đọc từ `D:\ZynAlgo\Smart Money Energizer
- *    v1.1.pine` và `energizer-ea/ZynAlgoEnergizerEA.mq5`, có ghi số dòng.
+ *    thông số kỹ thuật bên dưới đều đọc từ `../indicator/Smart Money Energizer
+ *    v1.1.pine` và `../energizer-ea/EnergizerEA.mq5`, có ghi số dòng.
  * 2. Mảng nào chưa có dữ liệu thật thì để RỖNG. Component tự ẩn khối đó. Trang
  *    vẫn chạy đúng khi chưa điền gì — đây là cách duy nhất để không bao giờ
  *    vô tình ship social proof bịa.
- * 3. Không "còn 3 suất", không toast "ai đó vừa mua". Hai funnel zynalgo.net
- *    hiện tại đang làm cả hai thứ đó và nó là rủi ro pháp lý (FTC Act §5,
+ * 3. Không "còn 3 suất", không toast "ai đó vừa mua". Hai funnel đem ra đối
+ *    chiếu đang làm cả hai thứ đó và nó là rủi ro pháp lý (FTC Act §5,
  *    EU UCPD Annex I) chứ không phải kỹ thuật bán hàng.
  *    Đồng hồ đếm ngược thì CÓ, nhưng chỉ ở đúng một dạng — ba ràng buộc bắt
  *    buộc ghi trong khối GIẢM GIÁ bên dưới. Cái bị phạt là đếm ngược giả
@@ -58,6 +58,12 @@ export const site = {
    placeholder: khách bấm vào rơi vào 404 và mất luôn. Component <SiteFooter>
    in cảnh báo đỏ ngay trên trang khi còn chữ "REPLACE", nên không quên lặng lẽ.
    ══════════════════════════════════════════════════════════════════════ */
+/**
+ * Channel công khai — dùng ở HAI chỗ (`telegramFree` và `support`) nên tách ra
+ * hằng, đổi một lần là đổi cả hai.
+ */
+const TELEGRAM_FREE = 'https://t.me/Energizer_SignalsBot'
+
 export const links = {
   /**
    * CTA chính của cả trang — channel công khai `Energizer Signals`
@@ -69,7 +75,7 @@ export const links = {
    * render được trang đó. Vì vậy `TELEGRAM_IS_BOT` bên dưới phải giữ `false`
    * — đừng thấy chữ "Bot" mà bật lên, `?start=` với channel là vô nghĩa.
    */
-  telegramFree: 'https://t.me/Energizer_SignalsBot',
+  telegramFree: TELEGRAM_FREE,
   /** Nhóm VIP — chỉ người đã mua. Link này gửi trong email sau thanh toán. */
   telegramVip: 'https://t.me/REPLACE_ME_vip_group',
   /**
@@ -83,8 +89,22 @@ export const links = {
    * auto sinh — đổi slug ở Settings là link này chết, sửa cả hai cùng lúc.
    */
   checkout: 'https://whop.com/tonny-f2cd/smart-money-energizer/',
-  /** Hỏi trước khi mua. */
-  support: 'mailto:support@zynalgo.com',
+  /**
+   * Hỏi trước khi mua. **Không còn email.**
+   *
+   * Địa chỉ cũ `support@zynalgo.com` gỡ 22/09/2026 (sản phẩm cá nhân, không
+   * phải của ZynAlgo). Tonny chốt bỏ hẳn email, dồn về Telegram — nên key này
+   * trỏ vào cùng channel với `telegramFree`.
+   *
+   * ⚠ LỖ HỔNG ĐÃ BIẾT: channel Telegram là broadcast MỘT CHIỀU, khách không
+   * nhắn vào được; Whop chỉ mở chat SAU khi mua. Tức hiện tại **không có đường
+   * liên hệ nào trước khi mua**. Cách sửa rẻ nhất: gắn một discussion group
+   * vào channel (Telegram: Manage Channel → Discussion), lúc đó khách bình
+   * luận được và link này thành đường hai chiều thật. Trước khi chạy quảng cáo
+   * phải xử lý, nhất là vì khối GIẢM GIÁ đang mời khách "xin mã" trước khi trả
+   * tiền.
+   */
+  support: TELEGRAM_FREE,
 } as const
 
 /** True khi còn placeholder — dùng để in cảnh báo lúc dev. */

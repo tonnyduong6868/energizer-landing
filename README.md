@@ -59,4 +59,4 @@ npm run deploy
 
 ## QA trước khi đẩy
 
-Bộ script ở `D:\ZynAlgo\.deploy\lp-*.mjs` lái Comet qua CDP để soi trang. Luôn soi **bản production** dựng từ `out/`, không soi `next dev` — overlay của dev đè lên sticky CTA và báo hydration mismatch giả do extension trình duyệt.
+Bộ script ở `D:\Energizer\qa-landing\lp-*.mjs` lái Comet qua CDP để soi trang. Luôn soi **bản production** dựng từ `out/`, không soi `next dev` — overlay của dev đè lên sticky CTA và báo hydration mismatch giả do extension trình duyệt.

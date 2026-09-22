@@ -143,8 +143,9 @@ a { color: inherit; text-decoration: none; }
 /* ─────────────────────────────────────────────────────────────────────
    FOCUS — khối quan trọng nhất của file này.
 
-   Cả hai trang zynalgo.net dùng `outline:none` 9 lần và không có một rule
-   `:focus-visible` nào; người dùng bàn phím mất hoàn toàn dấu vị trí.
+   Hai funnel bán chỉ báo đem ra đối chiếu (GoHighLevel, soi 09/2026) dùng
+   `outline:none` 9 lần và không có một rule `:focus-visible` nào; người dùng
+   bàn phím mất hoàn toàn dấu vị trí.
 
    Một rule toàn cục, đặt sớm, dùng outline chứ không dùng box-shadow —
    outline không bị cắt bởi overflow:hidden của khối cha, box-shadow thì bị.

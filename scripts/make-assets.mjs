@@ -1,8 +1,8 @@
 /**
  * Sinh bộ asset tĩnh cho trang: og.png (1200x630), logo-256.png, favicon.ico.
  *
- * Vì sao phải có: cả zynalgo.net/zynalgotrendline lẫn /scalper-pro-v4--m2 đều
- * thiếu og:image. Funnel sống bằng paid social + Discord mà link dán ra không
+ * Vì sao phải có: hai funnel bán chỉ báo đem ra đối chiếu đều thiếu og:image.
+ * Funnel sống bằng paid social + Discord mà link dán ra không
  * có thẻ ảnh thì mất click mỗi ngày. Trang này không được phép lặp lại lỗi đó.
  *
  * Cách làm: render HTML bằng Comet qua CDP rồi chụp. Không cần thư viện ảnh,
@@ -79,7 +79,7 @@ const ogHtml = `<!doctype html><meta charset="utf-8"><style>${CSS}
 <div class="card">
   <div class="glow"></div><div class="grid"></div>
   <div class="in">
-    <div class="brand"><span class="pip"></span>ZYNALGO &nbsp;·&nbsp; SMART MONEY ENERGIZER &nbsp;·&nbsp; v1.1</div>
+    <div class="brand"><span class="pip"></span>SMART MONEY ENERGIZER &nbsp;·&nbsp; v1.1</div>
     <h1>One score.<br><em>Not twelve opinions.</em></h1>
     <div class="sub">Seven Smart Money confluences, resolved into one number on one chart.</div>
   </div>

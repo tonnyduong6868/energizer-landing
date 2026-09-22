@@ -44,7 +44,7 @@ export default function Page() {
         '@type': 'Product',
         name: `${site.name} ${site.version}`,
         description: site.description,
-        brand: { '@type': 'Brand', name: 'ZynAlgo' },
+        brand: { '@type': 'Brand', name: site.name },
         offers: {
           '@type': 'Offer',
           price: String(pricing.amount),

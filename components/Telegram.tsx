@@ -5,7 +5,7 @@ import { Check, Dash, Telegram as TgIcon } from './Icon'
 /**
  * Hai tầng Telegram — khối chiến lược của cả trang.
  *
- * Hai funnel zynalgo.net hiện tại chỉ có một cửa: mua hoặc biến mất. Nghĩa là
+ * Hai funnel đem ra đối chiếu chỉ có một cửa: mua hoặc biến mất. Nghĩa là
  * mọi người chưa sẵn sàng trả tiền hôm nay đều mất trắng, không để lại gì.
  * Channel free giữ nhóm đó lại và biến họ thành khán giả — rồi bán sau.
  *
@@ -91,9 +91,9 @@ export function TelegramTiers() {
         <p className="lede" style={{ marginTop: 'var(--s5)', fontSize: 14 }}>
           The VIP group is part of the licence. It is not a monthly add-on, and there
           is no tier above it to be sold later. Link arrives by email when your licence
-          goes active &mdash; or reply to{' '}
+          goes active &mdash; or ask in the{' '}
           <a href={links.support} style={{ color: 'var(--chg)' }}>
-            support
+            free channel
           </a>{' '}
           if it does not.
         </p>
