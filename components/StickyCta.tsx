@@ -1,0 +1,33 @@
+import { links, pricing } from '@/lib/site'
+import { Telegram } from './Icon'
+
+/**
+ * Thanh CTA dính, CHỈ trên màn hẹp.
+ *
+ * Trendline để sticky bar đè lên chart trong hero ngay màn đầu trên
+ * desktop — thứ đầu tiên khách thấy là một thanh quảng cáo che mất chính cái
+ * sản phẩm đang bán. Ở đây thanh này nằm dưới đáy, chỉ hiện dưới 880px, và
+ * `body` được chừa `padding-bottom` trong globals.css nên nó không bao giờ
+ * che mất nội dung cuối trang hay footer.
+ *
+ * Không có `position: fixed` nào trên desktop. Header sticky đã đủ.
+ */
+export function StickyCta() {
+  return (
+    <div className="sticky">
+      <a
+        className="btn btn-ghost"
+        href={links.telegramFree}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <Telegram size={16} />
+        Free channel
+      </a>
+      <a className="btn btn-primary" href="#pricing">
+        Get it · {pricing.symbol}
+        {pricing.amount}
+      </a>
+    </div>
+  )
+}
