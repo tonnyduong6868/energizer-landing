@@ -789,12 +789,49 @@ section { padding-block: var(--pad); position: relative; }
 .shot img,
 .shot video { display: block; width: 100%; height: auto; }
 
-/* Ảnh cận cảnh panel. Nguồn chỉ rộng 380px — đó là độ phân giải THẬT của
-   panel trong bản quay 1920, không phải lựa chọn thiết kế. Kéo cho vừa bề
-   ngang khối là đổi chữ sắc lấy chữ mờ mà không được thêm thông tin nào, nên
-   ô này giữ nguyên cỡ gốc và căn giữa. `max-width` theo px chứ không theo %:
-   trên màn rộng thì % vẫn kéo ảnh to ra. */
-.shot.is-narrow { max-width: 420px; margin-inline: auto; }
+/* Ảnh cận cảnh. Nguồn chỉ rộng 380px — đó là độ phân giải THẬT của panel
+   trong bản quay 1920, không phải lựa chọn thiết kế. Kéo giãn là đổi chữ sắc
+   lấy chữ mờ mà không thêm được thông tin nào.
+   ⚠ Bản trước ghi đúng câu đó rồi đặt `max-width: 420px` — tức vẫn phóng
+   1.1×, và 1.1 là tỉ lệ tệ nhất: không nguyên nên mỗi pixel chữ bị trải sang
+   hai pixel màn hình. Chú thích nói một đằng, code làm một nẻo.
+   Hai cột thay vì một: ảnh giữ ĐÚNG cỡ gốc (`max-content` co theo `width:auto`
+   bên dưới, nên đổi ảnh khác cỡ cũng không phải sửa lại số ở đây), caption ăn
+   phần còn lại. Xếp dọc thì một hộp 380px đứng lẻ giữa khối 1180px trông như
+   trang vỡ, còn caption bị ép xuống 7 dòng mono chồng nhau. */
+.shot.is-narrow {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--s6);
+  max-width: 880px;
+  margin-inline: auto;
+  padding: var(--s6);
+}
+/* Ảnh tự có khung. Ảnh chụp panel mang sẵn nền tối HƠN `--tile`, nên dán sát
+   mép ô thì nửa trái trông như một cái lỗ thủng chứ không như một tấm ảnh.
+   Đệm quanh + viền riêng biến nó thành vật thể đặt trên mặt ô. */
+.shot.is-narrow img,
+.shot.is-narrow video {
+  width: auto; max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+}
+/* Caption hết là dải chân ảnh nên bỏ luôn vạch ngăn và đệm riêng của nó —
+   khoảng cách đã do `gap` của lưới lo. Căn giữa trục dọc vì ảnh cao hơn chữ. */
+.shot.is-narrow .shot-cap {
+  border-top: 0; padding: 0;
+  font-size: 12.5px; line-height: 1.85;
+}
+/* Hẹp quá thì xếp dọc. Ảnh VẪN không được phóng — `width:auto` giữ nguyên,
+   `margin-inline:auto` căn giữa cho khỏi lệch trái trong ô rộng hơn nó. Thu
+   nhỏ thì được: bớt pixel không làm chữ nhoè như thêm pixel. */
+@media (max-width: 760px) {
+  .shot.is-narrow { grid-template-columns: minmax(0, 1fr); gap: var(--s5); padding: var(--s5); }
+  .shot.is-narrow img,
+  .shot.is-narrow video { margin-inline: auto; }
+  .shot.is-narrow .shot-cap { font-size: 11.5px; line-height: 1.7; }
+}
 .shot-cap {
   padding: 11px 16px;
   border-top: 1px solid var(--line);

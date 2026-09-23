@@ -91,8 +91,9 @@ export function Confluence() {
 
         {/* Cho tới đây cả khối toàn số do chính trang tự khai. Ảnh cận panel
             là chỗ duy nhất người đọc đối chiếu được mấy trọng số đó với thứ
-            script thật in ra chart. Hẹp và căn giữa: 380px là độ phân giải
-            GỐC của panel, kéo cho vừa bề ngang khối chỉ làm mờ chữ. */}
+            script thật in ra chart. `is-narrow` = ảnh giữ đúng 380px gốc,
+            caption nằm BÊN CẠNH chứ không bên dưới — xem ghi chú ở
+            globals.css, chỗ đó giải thích vì sao phóng 1.1× là tệ nhất. */}
         <Media slot="confluence-panel" gap="var(--s6)" className="shot is-narrow" />
       </div>
     </section>

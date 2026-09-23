@@ -869,8 +869,13 @@ export const media = {
     fill: {
       kind: 'image',
       src: asset('/assets/shots/energizer-panel-confluence.webp'),
+      /* Đo lại bằng `sharp(...).metadata()`, không chép từ lần trước: ảnh
+         này vừa được cắt lại (28,6 KB → 36,0 KB) và thấp đi 20px, nhưng
+         `h` vẫn để 362 nên trình duyệt chừa sẵn một khoảng cao hơn ảnh thật
+         rồi thu lại lúc giải mã xong — đúng cái layout shift mà luật khai
+         w/h sinh ra để chặn. Thay ảnh thì đo lại, đừng đoán. */
       w: 380,
-      h: 362,
+      h: 342,
       alt:
         'Close-up of the Energizer panel on NQ1!: a long armed at 29943.00 with its stop at ' +
         '29921.00 marked −1.0R and its target at 29965.00 marked +1R, charge at 100, and a ' +
