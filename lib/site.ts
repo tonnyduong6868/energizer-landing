@@ -29,7 +29,7 @@ export const asset = (path: string) => `${BASE_PATH}${path}`
 export const site = {
   name: 'Smart Money Energizer',
   short: 'Energizer',
-  version: 'v1.1',
+  version: 'v1.2',
   tagline: 'One score. Not twelve opinions.',
   description:
     'A single-chart Smart Money terminal for TradingView. Trend, momentum and ' +
@@ -289,7 +289,7 @@ export const pricing = {
   anchor: null as number | null,
 
   includes: [
-    'Smart Money Energizer v1.1 — invite-only script on TradingView',
+    'Smart Money Energizer v1.2 — invite-only script on TradingView',
     `Every v1.x update released during the ${TERM_YEARS} years, at no extra cost`,
     'Use it on your own TradingView account, on any chart, any symbol',
     'JSON webhook alerts — pipe signals into Telegram, Discord or your own bot',
@@ -374,8 +374,12 @@ export const promo = {
      * Còn `false` thì banner vẫn hiện nhưng footer in cảnh báo đỏ — cùng cơ
      * chế với link REPLACE_ME, vì cùng một loại rủi ro: một lời hứa chưa ai
      * xác nhận mà đã nằm trên trang bán hàng.
+     *
+     * Tonny chốt 23/09/2026: đúng 15/10/2026 sẽ đổi `pricing.amount` thành
+     * 147 thật. Đây là cam kết, không phải chiêu bán — tới ngày không tăng
+     * thì phải tắt banner TRƯỚC ngày đó, đừng để nó tự trôi qua.
      */
-    confirmed: false,
+    confirmed: true,
   },
 
   crypto: {
@@ -383,8 +387,12 @@ export const promo = {
     /**
      * Phải đúng là checkout của Energizer nhận crypto. Playbook CSKH đang
      * áp mức này cho sản phẩm khác — không mặc nhiên suy ra cho cái này.
+     *
+     * Tonny xác nhận 23/09/2026: checkout Whop của Energizer nhận crypto và
+     * mức 10% đã cấu hình đúng bên đó. Đổi bên Whop thì phải sửa `percent`
+     * ở đây cùng lúc — trang đang in ra con số này thành giá thật ($87.30).
      */
-    confirmed: false,
+    confirmed: true,
   },
 
   /** Mã giảm giá riêng do support cấp, cộng dồn với crypto. Không in mã ra trang. */
@@ -676,7 +684,50 @@ export const proof = {
    * `alt` bắt buộc và phải mô tả cái đang thấy, không phải "chart screenshot".
    * `w`/`h` bắt buộc — thiếu là gây CLS, đúng lỗi Trendline đang mắc với 58 ảnh.
    */
-  shots: [] as { src: string; alt: string; w: number; h: number; caption: string }[],
+  shots: [
+    /**
+     * [0] Hero. Ảnh này phải là HUD + một lệnh đang sống, có đủ SL/TP1/TP2/TP3
+     * và điểm số — Hero.tsx nhường chỗ <ChartPanel> minh hoạ ngay khi có nó.
+     */
+    {
+      src: asset('/assets/shots/energizer-xauusd-3m.webp'),
+      alt:
+        'XAUUSD 3-minute chart with the Energizer panel armed on a short: entry 4358.98, ' +
+        'stop 4367.26 at −1R, and targets at 4350.70, 4342.42 and 4334.14.',
+      w: 1835,
+      h: 936,
+      caption:
+        'XAUUSD · 3M, 22 Sep 2026. The panel arms the short and prints the stop and all ' +
+        'three targets before entry. Profit factor and win rate inside the panel are the ' +
+        "script's rolling count over the bars in view — not an audited track record.",
+    },
+    /** [1] Pillars — cần thấy cả bốn việc: nhìn, đọc, chấm điểm, vẽ lệnh. */
+    {
+      src: asset('/assets/shots/energizer-btcusd-15m.webp'),
+      alt:
+        'BTCUSD 15-minute chart across nine sessions: each setup tagged with a 0–100 score, ' +
+        'NWOG and NDOG opening gaps marked, and a long armed at 86,027.66 with its R:R box drawn.',
+      w: 1835,
+      h: 936,
+      caption:
+        'BTCUSD · 15M, nine sessions. Every setup carries one 0–100 score; the opening gaps ' +
+        'and the R:R box come from the same script. Panel profit factor and win rate count ' +
+        'only the range shown, not a verified record.',
+    },
+    /** [2] Density — chọn ảnh THOÁNG nhất, nó phải tự chứng minh luận điểm mực. */
+    {
+      src: asset('/assets/shots/energizer-nq-1m.webp'),
+      alt:
+        'NQ1! 1-minute chart with the Energizer panel in its waiting state and charge at 0, ' +
+        "while the previous setup's entry at 31,006.25, stop at 31,024.00 and three targets stay drawn.",
+      w: 1835,
+      h: 936,
+      caption:
+        'NQ1! · 1M at the default density. Nothing is armed and the chart still reads clean — ' +
+        'the ink budget is one input at the top of the list. Panel profit factor and win rate ' +
+        'count only the bars in view.',
+    },
+  ] as { src: string; alt: string; w: number; h: number; caption: string }[],
 
   /**
    * Testimonial THẬT. Tối đa 6 — đọc được 6 cái tốt hơn tường 46 ảnh mờ như
