@@ -58,7 +58,20 @@
   /* ── chữ ──────────────────────────────────────────────────────────── */
   --ink:      #F7F7FA;
   --ink-2:    #A7A9B4;
-  --ink-3:    #71737F;
+  /* Chữ mờ nhất. Từng là #71737F và ĐÃ RỚT WCAG AA trên cả năm tầng nền nó
+     đứng lên: 4,27:1 trên --bg, và tệ nhất 3,52:1 trên nền hổ phách mờ của
+     khối giảm giá. Cần 4,5:1.
+
+     Vì sao chỗ này không phải chuyện gu thẩm mỹ: --ink-3 là màu của
+     `.shot-cap`, tức của đúng mấy dòng "bar replay, not live market data"
+     và "not an audited track record". Những câu đó có mặt để trang không
+     nói sai — in chúng ở tầng mờ nhất mà còn dưới ngưỡng đọc được thì tự
+     bôi mờ chính phần cải chính của mình.
+
+     #8A8C98 là bậc thấp nhất qua được cả năm tầng (thắt nhất 4,96:1 trên
+     rgb(39,29,13)). Đổi màu nền tile hay nền promo thì đo lại:
+       node qa-landing/lp-contrast.mjs http://127.0.0.1:4180/energizer-landing/ */
+  --ink-3:    #8A8C98;
 
   /* ── accent ───────────────────────────────────────────────────────── */
   --chg:      #FFB020;
@@ -1418,7 +1431,10 @@ section { padding-block: var(--pad); position: relative; }
 .sticky-next {
   margin-left: 5px;
   font-size: 12px; font-weight: 500;
-  color: color-mix(in srgb, var(--on-chg) 58%, transparent);
+  /* 58% đo được 4,40:1 trên nền hổ phách — hụt AA đúng một chút, và đây là
+     dòng ghi giá sẽ tăng lên bao nhiêu, tức con số không được phép mờ. 66%
+     lên 5,4:1 mà vẫn đọc ra là chữ phụ so với nhãn nút bên cạnh. */
+  color: color-mix(in srgb, var(--on-chg) 66%, transparent);
   text-decoration-thickness: 1px;
 }
 @media (max-width: 880px) {
