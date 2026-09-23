@@ -9,7 +9,12 @@
  *
  * 1. Không con số nào được viết ra nếu không truy được về nguồn thật. Mọi
  *    thông số kỹ thuật bên dưới đều đọc từ `../indicator/Smart Money Energizer
- *    v1.1.pine` và `../energizer-ea/EnergizerEA.mq5`, có ghi số dòng.
+ *    v1.2.pine` và `../energizer-ea/EnergizerEA.mq5`, có ghi số dòng.
+ *
+ *    ⚠ File nguồn phải TRÙNG với `site.version`. Đã lệch một lần: trang bán
+ *    v1.2 trong khi mọi con số còn đọc từ v1.1.pine, và `specs` in ra 3.366
+ *    dòng của một file không ai được mua. Đổi `site.version` là phải quét lại
+ *    toàn bộ chú thích "Nguồn:" bên dưới — số dòng dịch chuyển hết.
  * 2. Mảng nào chưa có dữ liệu thật thì để RỖNG. Component tự ẩn khối đó. Trang
  *    vẫn chạy đúng khi chưa điền gì — đây là cách duy nhất để không bao giờ
  *    vô tình ship social proof bịa.
@@ -292,7 +297,7 @@ export const pricing = {
     'Smart Money Energizer v1.2 — invite-only script on TradingView',
     `Every v1.x update released during the ${TERM_YEARS} years, at no extra cost`,
     'Use it on your own TradingView account, on any chart, any symbol',
-    'JSON webhook alerts — pipe signals into Telegram, Discord or your own bot',
+    'JSON webhook alerts that also report how the trade ended — not just that it started',
     `Access to the VIP Telegram group for the full ${TERM_YEARS} years`,
   ],
 
@@ -431,7 +436,9 @@ export const hasUnconfirmedPromo =
 
 /**
  * Bảy confluence factor và đúng số điểm của chúng.
- * Nguồn: `Smart Money Energizer v1.1.pine` dòng 161 và 166-178.
+ * Nguồn: `Smart Money Energizer v1.2.pine` — `ep_mtf_bonus` dòng 192,
+ * sáu bonus còn lại dòng 199-205, `smc_bonus_cap` dòng 206. Trọng số y hệt
+ * v1.1; chỉ số dòng dịch đi vì header v1.2 dài thêm 31 dòng changelog.
  *
  * Con số quan trọng nhất ở đây không phải các bonus — mà là `cap`. Bảy yếu tố
  * cộng lại tối đa vẫn chỉ +30. Đó là thứ phân biệt một engine chấm điểm thật
@@ -479,7 +486,8 @@ export const confluences = {
 } as const
 
 /**
- * Ba preset Trading Style. Nguồn: dòng 90 của file .pine.
+ * Ba preset Trading Style. Nguồn: dòng 121 của v1.2.pine (`ema_preset`);
+ * ba con số EMA đọc ở dòng 294-296.
  * Đây là input đầu tiên trong QUICK START và là thứ đổi nhiều nhất trong script.
  */
 export const styles = [
@@ -489,7 +497,7 @@ export const styles = [
 ] as const
 
 /**
- * Chart Density — bốn preset. Nguồn: dòng 92.
+ * Chart Density — bốn preset. Nguồn: dòng 123 của v1.2.pine.
  *
  * Đây là điểm bán hàng thật nhất của sản phẩm và gần như không indicator nào
  * khác có. Mọi công cụ SMC đều chết vì cùng một lý do: bật hết tính năng lên
@@ -515,7 +523,7 @@ export const density = [
   },
 ] as const
 
-/** Bốn nhóm năng lực, lấy nguyên từ header của file .pine (dòng 12-25). */
+/** Bốn nhóm năng lực, lấy nguyên từ header của v1.2.pine (dòng 13-26). */
 export const pillars = [
   {
     key: 'see',
@@ -541,10 +549,18 @@ export const pillars = [
 
 /**
  * Con số kỹ thuật kiểm chứng được. Không phải con số marketing.
- * `wc -l` trên file .pine = 3366; `grep -c 'input\.'` = 235.
+ *
+ * Đo trên ĐÚNG file đang bán — `Smart Money Energizer v1.2.pine`:
+ *   wc -l                  → 3478
+ *   grep -c 'input\.'      → 235   (không đổi so với v1.1)
+ *
+ * ⚠ 3.366 là số dòng của v1.1.pine. Nó đứng ở đây tới 23/09/2026, tức trang
+ * bán v1.2 mà khoe số của một file khách không mua được. Khách đếm lại được
+ * ngay sau khi nhận script, nên đây không phải lỗi làm tròn — đó là con số
+ * duy nhất trên trang mà người mua kiểm được trong ba mươi giây và thấy sai.
  */
 export const specs = [
-  { value: '3,366', label: 'lines of Pine v6' },
+  { value: '3,478', label: 'lines of Pine v6' },
   { value: '235', label: 'inputs, every one with a tooltip' },
   { value: '0-100', label: 'score on every setup' },
   { value: '7', label: 'Smart Money confluences' },
@@ -558,9 +574,14 @@ export const specs = [
    ══════════════════════════════════════════════════════════════════════ */
 export const transparency = {
   /**
-   * Bug profit factor của v1.0 — lấy nguyên văn từ changelog trong file .pine
-   * (dòng 31-42). Tự khai một lỗi mình đã tự tìm ra và tự sửa là bằng chứng
-   * mạnh hơn mọi review 5 sao, vì không ai bịa được loại bằng chứng này.
+   * Bug profit factor của v1.0 — lấy nguyên văn từ khối "WHAT CHANGED IN
+   * v1.1" trong `v1.2.pine`, dòng 62-69. Tự khai một lỗi mình đã tự tìm ra
+   * và tự sửa là bằng chứng mạnh hơn mọi review 5 sao, vì không ai bịa được
+   * loại bằng chứng này.
+   *
+   * Khối này cố ý KHÔNG đổi sang v1.2: nó kể chuyện sửa thống kê, mà v1.2
+   * sửa chuyện khác (alert). Người mua vẫn nhận v1.2, và bản vá thống kê
+   * này nằm sẵn trong đó — nên câu chữ vẫn đúng.
    */
   changelog: {
     title: 'We inflated our own stats. Then we fixed it.',
@@ -980,8 +1001,18 @@ export const faq = [
     a: 'No. Two inputs sit at the top under QUICK START and do most of the work: Trading Style and Chart Density. Everything below them is already set to a sensible default, and every single input has a tooltip explaining what it does and what breaks if you change it.',
   },
   {
+    /**
+     * Câu trả lời cũ mô tả payload của v1.1: chỉ có entry, không có kết cục.
+     * v1.2 đổi hẳn hình dạng alert — MỘT `alert()` mỗi bar mang một mảng
+     * `events`, outcome đứng trước entry (v1.2.pine dòng 2431 và 3461). Bảy
+     * loại outcome: tp1 / tp2 / tp3 / be / sl / timeout / flip, dòng
+     * 2468-2567. Để nguyên câu cũ là bán thiếu đúng thứ v1.2 sinh ra để làm.
+     *
+     * Hai chữ phải giữ đúng: "trade id" (dòng 2431 gắn `id` vào mọi event) và
+     * "flip" — đó là tên event thật, không phải cách nói cho dễ hiểu.
+     */
     q: 'Will it place trades for me?',
-    a: 'Not on its own. It fires JSON webhook alerts containing symbol, action, entry, stop, three targets, score, timeframe and ATR — so you can route them into Telegram, Discord, or an execution bot. There is a separate MT5 Expert Advisor that consumes them, sold separately.',
+    a: 'Not on its own — it fires JSON webhook alerts and you decide what listens. The entry event carries symbol, action, entry, stop, three targets with their R multiples, the score, timeframe and ATR. What the alert also carries, and what most indicators never send, is how the trade ended: tp1, tp2, tp3, breakeven, stop, timeout, or flip when an opposite signal closes it — each tagged with the same trade id as the entry it belongs to. So a bot relaying the feed can post the result, not just the setup. Route it into Telegram, Discord, or an execution bot. There is a separate MT5 Expert Advisor that consumes them, sold separately.',
   },
   {
     q: 'Can I see it before I pay?',

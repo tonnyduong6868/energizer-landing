@@ -11,8 +11,9 @@ import { SectionHead } from './SectionHead'
  * lời tự khai rằng thống kê phiên bản trước của chính mình bị thổi phồng —
  * vì để nói được câu đó thì phải thật sự đã tìm ra và đã sửa.
  *
- * Nội dung lấy nguyên văn changelog trong `Smart Money Energizer v1.1.pine`
- * dòng 31-42. Khách mua xong mở source ra đối chiếu được từng chữ.
+ * Nội dung lấy nguyên văn khối "WHAT CHANGED IN v1.1" trong
+ * `Smart Money Energizer v1.2.pine` dòng 62-69 — tức trong đúng file khách
+ * nhận được, không phải trong một bản cũ. Mở source ra đối chiếu được từng chữ.
  */
 export function Honest() {
   const { changelog, honest } = transparency

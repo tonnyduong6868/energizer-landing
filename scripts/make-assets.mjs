@@ -19,13 +19,26 @@ const HERE = path.dirname(fileURLToPath(import.meta.url))
 const OUT = path.join(HERE, '..', 'public', 'assets')
 fs.mkdirSync(OUT, { recursive: true })
 
+/**
+ * Số phiên bản đọc THẲNG từ `lib/site.ts`, không gõ lại.
+ *
+ * Script này là .mjs còn site.ts là TypeScript nên không `import` được —
+ * nhưng chép tay thì đã hỏng đúng một lần: og.png in "v1.1" suốt thời gian
+ * `site.version` đã là 'v1.2', và đó là tấm ảnh DUY NHẤT người ta thấy khi
+ * link được dán vào Telegram hay X. Không ai mở og.png ra soi, nên nó lệch
+ * âm thầm được vô hạn. Regex thì thà nổ còn hơn in sai.
+ */
+const SITE_TS = fs.readFileSync(path.join(HERE, '..', 'lib', 'site.ts'), 'utf8')
+const VERSION = SITE_TS.match(/^\s*version:\s*'([^']+)'/m)?.[1]
+if (!VERSION) throw new Error('Không đọc được `version` trong lib/site.ts')
+
 const PUPPETEER =
   'file:///C:/Users/Tonnyduong/.claude/plugins/cache/claude-plugins-official/chrome-devtools-mcp/1.6.0/node_modules/puppeteer-core/lib/puppeteer/puppeteer-core.js'
 const COMET_USER_DATA =
   'C:/Users/Tonnyduong/AppData/Local/Perplexity/Comet/User Data'
 
-// Bảy yếu tố confluence — số lấy nguyên từ Smart Money Energizer v1.1.pine,
-// dòng 164-178. Không làm tròn, không tô hồng.
+// Bảy yếu tố confluence — số lấy nguyên từ Smart Money Energizer v1.2.pine,
+// dòng 192 và 199-205. Không làm tròn, không tô hồng.
 const FACTORS = [
   ['LIQ SWEEP', 12],
   ['KILLZONE', 10],
@@ -79,7 +92,7 @@ const ogHtml = `<!doctype html><meta charset="utf-8"><style>${CSS}
 <div class="card">
   <div class="glow"></div><div class="grid"></div>
   <div class="in">
-    <div class="brand"><span class="pip"></span>SMART MONEY ENERGIZER &nbsp;·&nbsp; v1.1</div>
+    <div class="brand"><span class="pip"></span>SMART MONEY ENERGIZER &nbsp;·&nbsp; ${VERSION}</div>
     <h1>One score.<br><em>Not twelve opinions.</em></h1>
     <div class="sub">Seven Smart Money confluences, resolved into one number on one chart.</div>
   </div>

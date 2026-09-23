@@ -3,7 +3,7 @@ import { Media } from './Media'
 import { SectionHead } from './SectionHead'
 
 /**
- * Bốn trụ — lấy nguyên văn từ header của file .pine (dòng 12-25).
+ * Bốn trụ — lấy nguyên văn từ header của `v1.2.pine` (dòng 13-26).
  *
  * Cố ý không viết lại thành ngôn ngữ marketing: bản mô tả trong source đã
  * chính xác và cụ thể hơn bất cứ thứ gì tôi nghĩ ra, và giữ nguyên chữ nghĩa
