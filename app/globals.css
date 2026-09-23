@@ -782,7 +782,12 @@ section { padding-block: var(--pad); position: relative; }
   background: var(--tile);
   overflow: hidden;
 }
-.shot img { width: 100%; }
+/* `display:block` để không dính khoảng trắng dòng chữ dưới thẻ inline —
+   nếu không thì giữa video và figcaption hở ra vài pixel nền. `height:auto`
+   ghi đè thuộc tính height trên thẻ: attribute vẫn cần để trình duyệt giữ
+   sẵn đúng tỉ lệ trước khi tải, CSS mới là thứ co giãn nó. */
+.shot img,
+.shot video { display: block; width: 100%; height: auto; }
 .shot-cap {
   padding: 11px 16px;
   border-top: 1px solid var(--line);

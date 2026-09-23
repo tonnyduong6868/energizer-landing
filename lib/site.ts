@@ -680,6 +680,51 @@ export const community = {
    ══════════════════════════════════════════════════════════════════════ */
 export const proof = {
   /**
+   * Video demo ở Hero. `null` thì Hero rơi về `shots[0]`, rồi về sơ đồ
+   * <ChartPanel> — ba tầng, tầng nào cũng hiện được một mình.
+   *
+   * Nguồn là bản quay màn hình 22/09 đã cắt: bỏ dải trình duyệt trên cùng và
+   * mọi thứ dưới trục thời gian, nên không còn taskbar, thanh Replay, tên tài
+   * khoản TradingView. Logo TradingView góc dưới trái giữ nguyên — đó là
+   * attribution, cắt đi là sai điều khoản của họ.
+   *
+   * KHÔNG gắn `autoPlay` vào thẻ. Hero để <DemoPlayScript/> gọi play() và chỉ
+   * gọi khi `prefers-reduced-motion` không bật — cùng cách CountdownScript
+   * làm. Ai tắt chuyển động, hoặc tắt JS, thì thấy đúng khung poster.
+   */
+  demo: {
+    webm: asset('/assets/demo/energizer-run.webm'),
+    mp4: asset('/assets/demo/energizer-run.mp4'),
+    poster: asset('/assets/demo/energizer-run-poster.webp'),
+    w: 1280,
+    h: 606,
+    /**
+     * `label` phải nói đây là bar replay. Quay bằng replay là cách demo bình
+     * thường, ai cũng làm — nhưng để người đọc tưởng là thị trường đang chạy
+     * thật thì thành nói sai, và đó là loại sai không sửa lại được bằng một
+     * dòng đính chính.
+     */
+    alt:
+      'Screen recording of the Energizer panel on NQ1! during a TradingView bar replay. ' +
+      'The panel arms a short at 29907.50 with its stop at 29932.75 and target at 29882.25, ' +
+      'later a long at 29880.25 and another at 29943.00 on a full 100 charge, and in between ' +
+      'a waiting state at zero charge that prints no stop and no target at all.',
+    caption:
+      'NQ1! · 1M, TradingView bar replay — not live market data. Twenty seconds of the panel ' +
+      'doing its job: armed short, armed long, and a waiting state at zero charge where it ' +
+      'gives you no level rather than a weak one. Profit factor and win rate in the panel are ' +
+      'the rolling count over the bars in view, not an audited track record.',
+  } as {
+    webm: string
+    mp4: string
+    poster: string
+    w: number
+    h: number
+    alt: string
+    caption: string
+  } | null,
+
+  /**
    * Ảnh chụp chart. Bỏ file vào `public/assets/shots/` rồi khai ở đây.
    * `alt` bắt buộc và phải mô tả cái đang thấy, không phải "chart screenshot".
    * `w`/`h` bắt buộc — thiếu là gây CLS, đúng lỗi Trendline đang mắc với 58 ảnh.

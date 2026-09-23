@@ -11,6 +11,7 @@ import {
 } from '@/lib/site'
 import { ChartPanel } from './ChartPanel'
 import { HeroField } from './AmbientField'
+import { DemoPlayScript } from './DemoPlayScript'
 import { Telegram } from './Icon'
 
 /**
@@ -36,6 +37,7 @@ import { Telegram } from './Icon'
  *    mượn ảnh của người khác, và hơn hẳn để trống.
  */
 export function Hero() {
+  const demo = proof.demo
   const shot = proof.shots[0]
 
   return (
@@ -127,7 +129,28 @@ export function Hero() {
       </section>
 
       <div className="wrap bento">
-        {shot ? (
+        {demo ? (
+          /* Ba tầng rơi: video → ảnh chụp → sơ đồ minh hoạ. Tầng nào cũng
+             đứng một mình được, nên không có tổ hợp nào ra ô trống.
+             `autoPlay` cố ý VẮNG MẶT — xem DemoPlayScript.tsx. */
+          <figure className="tile bento-wide shot">
+            <video
+              data-demo=""
+              poster={demo.poster}
+              width={demo.w}
+              height={demo.h}
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              aria-label={demo.alt}
+            >
+              <source src={demo.webm} type="video/webm" />
+              <source src={demo.mp4} type="video/mp4" />
+            </video>
+            <figcaption className="shot-cap">{demo.caption}</figcaption>
+          </figure>
+        ) : shot ? (
           <figure className="tile bento-wide shot">
             {/* width/height bắt buộc — thiếu là layout nhảy khi ảnh tải xong. */}
             <img src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} />
@@ -171,6 +194,10 @@ export function Hero() {
           </div>
         )}
       </div>
+
+      {/* Đặt CUỐI, sau khi thẻ <video> đã vào DOM — script chạy ngay lúc
+          parser đọc tới nó, không chờ sự kiện nào. */}
+      <DemoPlayScript />
     </>
   )
 }
