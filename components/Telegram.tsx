@@ -1,4 +1,5 @@
 import { community, cta, links } from '@/lib/site'
+import { Media } from './Media'
 import { SectionHead } from './SectionHead'
 import { Check, Dash, Telegram as TgIcon } from './Icon'
 
@@ -80,6 +81,11 @@ export function TelegramTiers() {
             )
           })}
         </div>
+
+        {/* Khối này bảo người đọc "vào xem một tuần rồi hẵng quyết" mà chưa
+            cho thấy một bài đăng nào trông ra sao. Channel đã live và public
+            nên ô này chụp được ngay, không chờ gate nào. */}
+        <Media slot="telegram-signal" gap="var(--s5)" className="shot is-narrow" />
 
         {showCount && (
           <p className="member-line">

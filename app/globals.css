@@ -788,6 +788,13 @@ section { padding-block: var(--pad); position: relative; }
    sẵn đúng tỉ lệ trước khi tải, CSS mới là thứ co giãn nó. */
 .shot img,
 .shot video { display: block; width: 100%; height: auto; }
+
+/* Ảnh cận cảnh panel. Nguồn chỉ rộng 380px — đó là độ phân giải THẬT của
+   panel trong bản quay 1920, không phải lựa chọn thiết kế. Kéo cho vừa bề
+   ngang khối là đổi chữ sắc lấy chữ mờ mà không được thêm thông tin nào, nên
+   ô này giữ nguyên cỡ gốc và căn giữa. `max-width` theo px chứ không theo %:
+   trên màn rộng thì % vẫn kéo ảnh to ra. */
+.shot.is-narrow { max-width: 420px; margin-inline: auto; }
 .shot-cap {
   padding: 11px 16px;
   border-top: 1px solid var(--line);
@@ -1523,7 +1530,10 @@ section { padding-block: var(--pad); position: relative; }
   /* `.price-obj` KHÔNG có ở đây: nó nằm trong `.price-card` vốn đã tự hiện
      ra rồi. Lồng hai lần reveal thì con nhúc nhích trong lúc cha đang bay. */
   .cta-strip,
-  section > .wrap > .shot-empty {
+  /* Bare class chứ không phải `section > .wrap > .shot-empty`: từ khi <Media/>
+     tự sinh thẻ bọc `marginTop`, phiếu nhắc việc nằm sâu thêm một cấp và luật
+     con-trực-tiếp không còn bắt được cái nào. */
+  .shot-empty {
     animation: rise var(--t-in) var(--ease) backwards;
     animation-timeline: view();
     animation-range: entry 6% cover 24%;

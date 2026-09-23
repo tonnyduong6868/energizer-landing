@@ -1,4 +1,5 @@
-import { pillars, proof, showDevWarnings } from '@/lib/site'
+import { pillars } from '@/lib/site'
+import { Media } from './Media'
 import { SectionHead } from './SectionHead'
 
 /**
@@ -10,8 +11,6 @@ import { SectionHead } from './SectionHead'
  * xong mở indicator lên sẽ thấy đúng những chữ họ vừa đọc.
  */
 export function Pillars() {
-  const shot = proof.shots[1]
-
   return (
     <section>
       <div className="wrap">
@@ -35,29 +34,7 @@ export function Pillars() {
           ))}
         </ul>
 
-        {/* Chưa có ảnh thì chỗ này là ghi chú nội bộ, nên nó phải theo
-            `showDevWarnings` — xem lib/site.ts. Gộp điều kiện vào tận thẻ
-            bọc ngoài chứ không chỉ khối bên trong, nếu không bản production
-            còn lại một cái div rỗng đội thêm `marginTop`. */}
-        {(shot || showDevWarnings) && (
-          <div style={{ marginTop: 'var(--gap)' }}>
-            {shot ? (
-              <figure className="shot">
-                <img src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} />
-                <figcaption className="shot-cap">{shot.caption}</figcaption>
-              </figure>
-            ) : (
-              <div className="shot-empty" data-devwarn>
-                <p>
-                  <b>Wide chart screenshot</b>
-                  Nên chụp: Chart Density = Balanced, có HTF projection
-                  <br />
-                  + killzone box + một FVG được tô, trên khung H1
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+        <Media slot="pillars-wide" gap="var(--gap)" />
       </div>
     </section>
   )

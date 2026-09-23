@@ -4,6 +4,7 @@ import {
   hasPlaceholderLinks,
   hasUnconfirmedPromo,
   links,
+  media,
   nav,
   promo,
   proof,
@@ -53,6 +54,12 @@ import { DockNav } from './DockNav'
 export function SiteFooter() {
   const year = 2026
 
+  /* Tên các ô media chưa có gì. Đếm ở đây thay vì bắt người dựng trang tự
+     nhớ — thêm ô mới trong lib/site.ts là nó tự xuất hiện trong danh sách. */
+  const emptySlots = Object.entries(media)
+    .filter(([, m]) => m.fill === null)
+    .map(([name]) => name)
+
   const blockers = !showDevWarnings ? [] : [
     hasPlaceholderLinks && (
       <li key="links">
@@ -82,10 +89,18 @@ export function SiteFooter() {
         <code>lib/site.ts</code> là xong, không phải sửa code.
       </li>
     ),
-    proof.shots.length === 0 && (
-      <li key="shots">
-        <code>proof.shots</code> rỗng nên khối ảnh chart tự ẩn. Trang đang mô
-        tả một công cụ trực quan mà không cho xem nó trông thế nào.
+    emptySlots.length > 0 && (
+      <li key="media">
+        Còn <b>{emptySlots.length}</b> ô media rỗng trên tổng số{' '}
+        {Object.keys(media).length}:{' '}
+        {emptySlots.map((s, i) => (
+          <span key={s}>
+            {i > 0 && ', '}
+            <code>{s}</code>
+          </span>
+        ))}
+        . Mỗi ô tự in phiếu nhắc việc ngay tại chỗ nó sẽ nằm — cuộn tới đó đọc
+        là biết cần chụp hay quay cái gì.
       </li>
     ),
     proof.quotes.length === 0 && (

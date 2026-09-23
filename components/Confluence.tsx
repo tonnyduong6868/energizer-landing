@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react'
 
 import { confluences } from '@/lib/site'
+import { Media } from './Media'
 import { SectionHead } from './SectionHead'
 
 /**
@@ -87,6 +88,12 @@ export function Confluence() {
             ))}
           </ul>
         </div>
+
+        {/* Cho tới đây cả khối toàn số do chính trang tự khai. Ảnh cận panel
+            là chỗ duy nhất người đọc đối chiếu được mấy trọng số đó với thứ
+            script thật in ra chart. Hẹp và căn giữa: 380px là độ phân giải
+            GỐC của panel, kéo cho vừa bề ngang khối chỉ làm mờ chữ. */}
+        <Media slot="confluence-panel" gap="var(--s6)" className="shot is-narrow" />
       </div>
     </section>
   )

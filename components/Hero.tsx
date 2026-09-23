@@ -1,17 +1,7 @@
-import {
-  cta,
-  links,
-  pricing,
-  promo,
-  promoSaving,
-  proof,
-  showDevWarnings,
-  site,
-  specs,
-} from '@/lib/site'
+import { cta, hasMedia, links, pricing, promo, promoSaving, site, specs } from '@/lib/site'
 import { ChartPanel } from './ChartPanel'
 import { HeroField } from './AmbientField'
-import { DemoPlayScript } from './DemoPlayScript'
+import { Media } from './Media'
 import { Telegram } from './Icon'
 
 /**
@@ -32,13 +22,17 @@ import { Telegram } from './Icon'
  *    trang bán hàng là một cái hộp rỗng.
  *
  * 4. Có hình. <ChartPanel> vẽ lại đúng cấu trúc mà indicator in ra chart.
- *    Nó là HÌNH MINH HOẠ và caption nói rõ thế; nó nhường chỗ ngay khi có
- *    ảnh chụp thật trong `proof.shots`. Thà vẽ sơ đồ của chính mình còn hơn
- *    mượn ảnh của người khác, và hơn hẳn để trống.
+ *    Nó là HÌNH MINH HOẠ và caption nói rõ thế; nó là tầng CUỐI, nhường chỗ
+ *    ngay khi ô `hero` hoặc `hero-still` có thật. Thà vẽ sơ đồ của chính
+ *    mình còn hơn mượn ảnh của người khác, và hơn hẳn để trống.
  */
 export function Hero() {
-  const demo = proof.demo
-  const shot = proof.shots[0]
+  /* Ba tầng rơi, xét theo thứ tự: video → ảnh tĩnh → sơ đồ minh hoạ. Tầng
+     nào cũng đứng một mình được nên không tổ hợp nào ra ô trống. Dùng
+     `hasMedia` chứ không ngó `media[...].fill` trực tiếp, vì ở dev phiếu
+     nhắc việc cũng tính là "ô này có cái để hiện". */
+  const hasVideo = hasMedia('hero')
+  const hasStill = hasMedia('hero-still')
 
   return (
     <>
@@ -129,33 +123,10 @@ export function Hero() {
       </section>
 
       <div className="wrap bento">
-        {demo ? (
-          /* Ba tầng rơi: video → ảnh chụp → sơ đồ minh hoạ. Tầng nào cũng
-             đứng một mình được, nên không có tổ hợp nào ra ô trống.
-             `autoPlay` cố ý VẮNG MẶT — xem DemoPlayScript.tsx. */
-          <figure className="tile bento-wide shot">
-            <video
-              data-demo=""
-              poster={demo.poster}
-              width={demo.w}
-              height={demo.h}
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              aria-label={demo.alt}
-            >
-              <source src={demo.webm} type="video/webm" />
-              <source src={demo.mp4} type="video/mp4" />
-            </video>
-            <figcaption className="shot-cap">{demo.caption}</figcaption>
-          </figure>
-        ) : shot ? (
-          <figure className="tile bento-wide shot">
-            {/* width/height bắt buộc — thiếu là layout nhảy khi ảnh tải xong. */}
-            <img src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} />
-            <figcaption className="shot-cap">{shot.caption}</figcaption>
-          </figure>
+        {hasVideo ? (
+          <Media slot="hero" className="tile bento-wide shot" />
+        ) : hasStill ? (
+          <Media slot="hero-still" className="tile bento-wide shot" priority />
         ) : (
           <div className="tile bento-wide">
             <div className="panel-bar">
@@ -180,24 +151,7 @@ export function Hero() {
           ))}
         </ul>
 
-        {/* Ghi chú nội bộ — chỉ hiện khi `showDevWarnings`, xem lib/site.ts.
-            Trước đây khối này render bất kể môi trường và đã lọt ra bản
-            production: một hộp tiếng Việt ngay dưới hero, trên trang bán
-            hàng tiếng Anh. `data-devwarn` là dấu để scripts/deploy.mjs chặn
-            bản build nào còn sót. */}
-        {!shot && showDevWarnings && (
-          <div className="shot-empty" data-devwarn>
-            <b>Còn nợ: ảnh chụp chart thật</b>
-            Bỏ ảnh vào public/assets/shots/ rồi khai trong proof.shots — nên chụp
-            dashboard HUD + một lệnh đang sống, có SL / TP1 / TP2 / TP3 và điểm số
-            hiện rõ. Có ảnh thật thì sơ đồ minh hoạ ở trên tự nhường chỗ.
-          </div>
-        )}
       </div>
-
-      {/* Đặt CUỐI, sau khi thẻ <video> đã vào DOM — script chạy ngay lúc
-          parser đọc tới nó, không chờ sự kiện nào. */}
-      <DemoPlayScript />
     </>
   )
 }

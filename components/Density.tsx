@@ -1,4 +1,5 @@
-import { cta, density, links, pricing, showDevWarnings, styles, proof } from '@/lib/site'
+import { cta, density, links, pricing, styles } from '@/lib/site'
+import { Media } from './Media'
 import { SectionHead } from './SectionHead'
 import { Telegram } from './Icon'
 
@@ -14,8 +15,6 @@ import { Telegram } from './Icon'
  * input đầu tiên làm gần hết việc.
  */
 export function Density() {
-  const shot = proof.shots[2]
-
   return (
     <section id="density">
       <div className="wrap">
@@ -75,29 +74,14 @@ export function Density() {
           never guessing what a switch is for.
         </p>
 
-        {/* Như ở Pillars: chưa có ảnh thì đây là ghi chú nội bộ, phải theo
-            `showDevWarnings` và thẻ bọc cũng phải tắt theo. */}
-        {(shot || showDevWarnings) && (
-          <div style={{ marginTop: 'var(--s5)' }}>
-            {shot ? (
-              <figure className="shot">
-                <img src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} />
-                <figcaption className="shot-cap">{shot.caption}</figcaption>
-              </figure>
-            ) : (
-              <div className="shot-empty" data-devwarn>
-                <p>
-                  <b>Ảnh so sánh Clean vs Full</b>
-                  Cùng một chart, cùng khung giờ, chỉ đổi Chart Density.
-                  <br />
-                  Đây là ảnh thuyết phục nhất của cả trang — nó cho thấy
-                  <br />
-                  thứ mà chữ nghĩa không nói được.
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+        <Media slot="density-compare" gap="var(--s5)" />
+
+        {/* Video kéo núm density đứng NGAY TRƯỚC cta-strip, vì câu đầu tiên
+            của cta-strip là "Watching it move on a live chart says more than
+            this paragraph does" — nó phải đọc như chú thích cho thứ vừa xem,
+            không phải như một lời hứa suông. Ô còn rỗng: xem `media` trong
+            lib/site.ts. */}
+        <Media slot="density-move" gap="var(--s5)" />
 
         {/* Nút giữa trang, đặt ở ĐÂY chứ không phải chỗ khác.
             Đây là điểm người đọc vừa hiểu ra thứ phân biệt sản phẩm này với

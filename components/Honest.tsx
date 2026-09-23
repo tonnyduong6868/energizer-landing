@@ -1,4 +1,5 @@
 import { transparency } from '@/lib/site'
+import { Media } from './Media'
 import { SectionHead } from './SectionHead'
 
 /**
@@ -40,6 +41,11 @@ export function Honest() {
           <p>{changelog.fix}</p>
           <p className="note">{changelog.note}</p>
         </article>
+
+        {/* Ngay dưới đoạn tự khai. Ảnh Pine Editor đúng mấy dòng đó biến câu
+            "mở source ra đối chiếu được" thành thứ kiểm được ngay tại chỗ,
+            thay vì một lời mời mà chẳng ai đi kiểm. */}
+        <Media slot="honest-source" gap="var(--s5)" />
 
         <div className="honest-grid">
           {honest.map((h) => (

@@ -1,5 +1,6 @@
 import { cta, faq, links, priceBlockers, pricing } from '@/lib/site'
 import { PromoPrice } from './PromoBar'
+import { Media } from './Media'
 import { SectionHead } from './SectionHead'
 import { Check, Dash } from './Icon'
 
@@ -152,6 +153,11 @@ export function Pricing() {
             </p>
           </div>
         </div>
+
+        {/* Câu chưa ai trả lời trên trang: trả tiền xong thì CÁI GÌ đến. Ô
+            này chặn ở Gate 1 — chưa publish script thì chưa có ảnh thật, và
+            dựng ảnh cho đúng mục này thì đúng nghĩa quảng cáo sai. */}
+        <Media slot="pricing-delivery" gap="var(--s6)" className="shot is-narrow" />
       </div>
     </section>
   )

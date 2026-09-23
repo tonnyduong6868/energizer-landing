@@ -1,3 +1,4 @@
+import { Media } from './Media'
 import { SectionHead } from './SectionHead'
 import { Check, Dot } from './Icon'
 
@@ -72,6 +73,11 @@ export function Pain() {
             ))}
           </div>
         </div>
+
+        {/* Trong mười dòng trên, dòng chop ở cuối cột phải là dòng khó tin
+            nhất và là dòng duy nhất không có gì đỡ. Ô này để trả nợ đúng chỗ
+            đó — xem `media['pain-chop']` trong lib/site.ts. */}
+        <Media slot="pain-chop" gap="var(--gap)" />
       </div>
     </section>
   )

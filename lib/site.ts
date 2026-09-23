@@ -678,102 +678,275 @@ export const community = {
 /* ══════════════════════════════════════════════════════════════════════
    BẰNG CHỨNG — tất cả RỖNG cho tới khi có thật
    ══════════════════════════════════════════════════════════════════════ */
-export const proof = {
-  /**
-   * Video demo ở Hero. `null` thì Hero rơi về `shots[0]`, rồi về sơ đồ
-   * <ChartPanel> — ba tầng, tầng nào cũng hiện được một mình.
-   *
-   * Nguồn là bản quay màn hình 22/09 đã cắt: bỏ dải trình duyệt trên cùng và
-   * mọi thứ dưới trục thời gian, nên không còn taskbar, thanh Replay, tên tài
-   * khoản TradingView. Logo TradingView góc dưới trái giữ nguyên — đó là
-   * attribution, cắt đi là sai điều khoản của họ.
-   *
-   * KHÔNG gắn `autoPlay` vào thẻ. Hero để <DemoPlayScript/> gọi play() và chỉ
-   * gọi khi `prefers-reduced-motion` không bật — cùng cách CountdownScript
-   * làm. Ai tắt chuyển động, hoặc tắt JS, thì thấy đúng khung poster.
-   */
-  demo: {
-    webm: asset('/assets/demo/energizer-run.webm'),
-    mp4: asset('/assets/demo/energizer-run.mp4'),
-    poster: asset('/assets/demo/energizer-run-poster.webp'),
-    w: 1280,
-    h: 606,
-    /**
-     * `label` phải nói đây là bar replay. Quay bằng replay là cách demo bình
-     * thường, ai cũng làm — nhưng để người đọc tưởng là thị trường đang chạy
-     * thật thì thành nói sai, và đó là loại sai không sửa lại được bằng một
-     * dòng đính chính.
-     */
-    alt:
-      'Screen recording of the Energizer panel on NQ1! during a TradingView bar replay. ' +
-      'The panel arms a short at 29907.50 with its stop at 29932.75 and target at 29882.25, ' +
-      'later a long at 29880.25 and another at 29943.00 on a full 100 charge, and in between ' +
-      'a waiting state at zero charge that prints no stop and no target at all.',
-    caption:
-      'NQ1! · 1M, TradingView bar replay — not live market data. Twenty seconds of the panel ' +
-      'doing its job: armed short, armed long, and a waiting state at zero charge where it ' +
-      'gives you no level rather than a weak one. Profit factor and win rate in the panel are ' +
-      'the rolling count over the bars in view, not an audited track record.',
-  } as {
-    webm: string
-    mp4: string
-    poster: string
-    w: number
-    h: number
-    alt: string
-    caption: string
-  } | null,
 
+/** Ảnh tĩnh. `w`/`h` bắt buộc — thiếu là layout nhảy lúc ảnh tải xong. */
+export type MediaImage = {
+  kind: 'image'
+  src: string
+  w: number
+  h: number
+  alt: string
+  caption: string
+}
+
+/**
+ * Video. Hai định dạng vì VP9/WebM nhỏ hơn đáng kể nhưng Safari cũ chỉ ăn
+ * H.264. `poster` BẮT BUỘC, không phải tuỳ chọn — nó chính là thứ hiện ra
+ * cho người bật `prefers-reduced-motion` và người tắt JS, nên thiếu nó là
+ * hai nhóm đó nhìn thấy một ô đen.
+ */
+export type MediaVideo = {
+  kind: 'video'
+  webm: string
+  mp4: string
+  poster: string
+  w: number
+  h: number
+  alt: string
+  caption: string
+}
+
+/**
+ * Một Ô MEDIA trên trang.
+ *
+ * Bản trước đánh số theo VỊ TRÍ — `proof.shots[0]` cho Hero, `[1]` cho
+ * Pillars, `[2]` cho Density. Xoá một ảnh thì mọi ô phía sau lặng lẽ trượt
+ * sang nhầm khối, và không có gì báo. Đã dính đúng một lần: Hero chuyển
+ * sang video, ảnh XAUUSD ở `[0]` thành mồ côi mà build vẫn xanh.
+ *
+ * Nên ô có TÊN. Thêm chỗ đặt ảnh/video mới = thêm một khoá ở đây rồi đặt
+ * <Media slot="tên" /> vào component. Không đụng tới ô nào đang có, và
+ * TypeScript chặn ngay nếu gõ sai tên ô.
+ *
+ * `fill: null` là trạng thái mặc định và hợp lệ — luật 2 của file này. Ô
+ * rỗng in `brief` ra làm phiếu nhắc việc và CHỈ ở dev: Media.tsx bọc nó
+ * trong `showDevWarnings` + `data-devwarn`, `scripts/deploy.mjs` chặn bản
+ * build nào để lọt.
+ */
+export type MediaSlot = {
+  /** Tiêu đề phiếu nhắc việc. Tiếng Việt — không bao giờ lên sóng. */
+  title: string
+  /** Chụp/quay CÁI GÌ. Càng cụ thể càng đỡ phải quay lại lần hai. */
+  brief: string
+  fill: MediaImage | MediaVideo | null
+}
+
+export const media = {
   /**
-   * Ảnh chụp chart. Bỏ file vào `public/assets/shots/` rồi khai ở đây.
-   * `alt` bắt buộc và phải mô tả cái đang thấy, không phải "chart screenshot".
-   * `w`/`h` bắt buộc — thiếu là gây CLS, đúng lỗi Trendline đang mắc với 58 ảnh.
+   * Hero, tầng 1. Tầng 2 là `hero-still`, tầng 3 là sơ đồ <ChartPanel> —
+   * xem Hero.tsx. Tầng nào cũng đứng một mình được nên không tổ hợp nào
+   * ra ô trống.
+   *
+   * Nguồn là bản quay màn hình 22/09 đã cắt: bỏ dải trình duyệt trên cùng
+   * và mọi thứ dưới trục thời gian, nên không còn taskbar, thanh Replay,
+   * tên tài khoản TradingView. Logo TradingView góc dưới trái GIỮ NGUYÊN —
+   * đó là attribution, cắt đi là sai điều khoản của họ.
    */
-  shots: [
-    /**
-     * [0] Hero. Ảnh này phải là HUD + một lệnh đang sống, có đủ SL/TP1/TP2/TP3
-     * và điểm số — Hero.tsx nhường chỗ <ChartPanel> minh hoạ ngay khi có nó.
-     */
-    {
+  hero: {
+    title: 'Video demo ở Hero',
+    brief:
+      'Đã có. Muốn thay thì chỉ được lấy trong khoảng 0:00–5:40 của file quay gốc ' +
+      'và phải soi lại từng khung: từ ~5:50 trở đi có Discord, và rải rác trong file ' +
+      'có nội dung ZynAlgo. Quay mới thì tốt hơn.',
+    fill: {
+      kind: 'video',
+      webm: asset('/assets/demo/energizer-run.webm'),
+      mp4: asset('/assets/demo/energizer-run.mp4'),
+      poster: asset('/assets/demo/energizer-run-poster.webp'),
+      w: 1280,
+      h: 606,
+      /**
+       * `caption` phải nói đây là bar replay. Quay bằng replay là cách demo
+       * bình thường, ai cũng làm — nhưng để người đọc tưởng là thị trường
+       * đang chạy thật thì thành nói sai, và đó là loại sai không sửa lại
+       * được bằng một dòng đính chính.
+       */
+      alt:
+        'Screen recording of the Energizer panel on NQ1! during a TradingView bar replay. ' +
+        'The panel arms a short at 29907.50 with its stop at 29932.75 and target at 29882.25, ' +
+        'later a long at 29880.25 and another at 29943.00 on a full 100 charge, and in between ' +
+        'a waiting state at zero charge that prints no stop and no target at all.',
+      caption:
+        'NQ1! · 1M, TradingView bar replay — not live market data. Twenty seconds of the panel ' +
+        'doing its job: armed short, armed long, and a waiting state at zero charge where it ' +
+        'gives you no level rather than a weak one. Profit factor and win rate in the panel are ' +
+        'the rolling count over the bars in view, not an audited track record.',
+    },
+  },
+
+  /** Hero, tầng 2 — chỉ hiện khi ô `hero` rỗng. Đổi market so với hai ảnh
+   *  còn lại là có chủ ý: NQ và BTC đã chiếm hai khối dưới. */
+  'hero-still': {
+    title: 'Ảnh tĩnh dự phòng cho Hero',
+    brief:
+      'Cần HUD + một lệnh đang sống, đủ SL/TP1/TP2/TP3 và điểm số. Chỉ dùng khi ' +
+      'ô `hero` không có video.',
+    fill: {
+      kind: 'image',
       src: asset('/assets/shots/energizer-xauusd-3m.webp'),
+      w: 1835,
+      h: 936,
       alt:
         'XAUUSD 3-minute chart with the Energizer panel armed on a short: entry 4358.98, ' +
         'stop 4367.26 at −1R, and targets at 4350.70, 4342.42 and 4334.14.',
-      w: 1835,
-      h: 936,
       caption:
         'XAUUSD · 3M, 22 Sep 2026. The panel arms the short and prints the stop and all ' +
         'three targets before entry. Profit factor and win rate inside the panel are the ' +
         "script's rolling count over the bars in view — not an audited track record.",
     },
-    /** [1] Pillars — cần thấy cả bốn việc: nhìn, đọc, chấm điểm, vẽ lệnh. */
-    {
+  },
+
+  /**
+   * 01 Pain. Dòng cuối cột phải — "Sideway lockouts and anti-flip logic stop
+   * the engine changing its mind inside chop" — là mệnh đề DUY NHẤT trong
+   * mười dòng của khối đó chưa có gì chứng minh, và nó cũng là mệnh đề khó
+   * tin nhất. Ô này để trả nợ đúng chỗ đó.
+   */
+  'pain-chop': {
+    title: 'Chop: engine KHÔNG đổi ý',
+    brief:
+      'Một vùng đi ngang rõ rệt, bật sideway lockout. Phải thấy giá quét lên quét ' +
+      'xuống mà panel đứng im ở trạng thái chờ — thứ cần chứng minh là cái KHÔNG ' +
+      'xảy ra, nên video 10–15 giây thuyết phục hơn ảnh tĩnh nhiều.',
+    fill: null,
+  },
+
+  /** 02 Pillars — phải thấy cả bốn việc: nhìn, đọc, chấm điểm, vẽ lệnh. */
+  'pillars-wide': {
+    title: 'Ảnh rộng cho bốn trụ',
+    brief:
+      'Chart Density = Balanced, có HTF projection + killzone box + một FVG được tô, ' +
+      'khung H1 trở lên.',
+    fill: {
+      kind: 'image',
       src: asset('/assets/shots/energizer-btcusd-15m.webp'),
+      w: 1835,
+      h: 936,
       alt:
         'BTCUSD 15-minute chart across nine sessions: each setup tagged with a 0–100 score, ' +
         'NWOG and NDOG opening gaps marked, and a long armed at 86,027.66 with its R:R box drawn.',
-      w: 1835,
-      h: 936,
       caption:
         'BTCUSD · 15M, nine sessions. Every setup carries one 0–100 score; the opening gaps ' +
         'and the R:R box come from the same script. Panel profit factor and win rate count ' +
         'only the range shown, not a verified record.',
     },
-    /** [2] Density — chọn ảnh THOÁNG nhất, nó phải tự chứng minh luận điểm mực. */
-    {
+  },
+
+  /**
+   * 03 Confluence. Khối trừu tượng nhất cả trang — một cái vòng tròn và bảy
+   * thanh bar, toàn số do chính trang tự khai. Ảnh cận panel là thứ duy nhất
+   * cho thấy mấy trọng số đó có thật trên chart.
+   *
+   * Ảnh hẹp (380px) vì đó là độ phân giải GỐC của panel trong bản quay 1920.
+   * Phóng to lên cho vừa bề ngang khối là làm mờ chữ để đổi lấy không có gì.
+   */
+  'confluence-panel': {
+    title: 'Cận cảnh hàng confluence',
+    brief:
+      'Cắt từ bản quay gốc, không chụp lại. Cần một khung có nhiều chấm sáng và ' +
+      'bonus cao để đối chiếu được với bảng trọng số bên trên.',
+    fill: {
+      kind: 'image',
+      src: asset('/assets/shots/energizer-panel-confluence.webp'),
+      w: 380,
+      h: 362,
+      alt:
+        'Close-up of the Energizer panel on NQ1!: a long armed at 29943.00 with its stop at ' +
+        '29921.00 marked −1.0R and its target at 29965.00 marked +1R, charge at 100, and a ' +
+        'confluence row where Killzone, Liquidity Sweep and Displacement are lit while ' +
+        'Opening Gap, HTF FVG and Open-Price Sweep stay hollow — three of six, worth +30.',
+      caption:
+        'The weights above, printed on the chart. Killzone (+10), Liquidity Sweep (+12) and ' +
+        'Displacement (+8) are the three that fired here, and the panel shows +30 — both their ' +
+        'sum and the ceiling. The seventh factor, MTF alignment, sits in the header as HTF ↑. ' +
+        'Bar replay, not live data; the faint PF and WR line counts only the bars in view.',
+    },
+  },
+
+  /** 04 Density — chọn ảnh THOÁNG nhất, nó phải tự chứng minh luận điểm mực. */
+  'density-compare': {
+    title: 'Ảnh chart ở mật độ mặc định',
+    brief:
+      'Càng ít mực càng tốt. Ảnh này làm nhiệm vụ "nhìn phát biết ngay là đọc được chart".',
+    fill: {
+      kind: 'image',
       src: asset('/assets/shots/energizer-nq-1m.webp'),
+      w: 1835,
+      h: 936,
       alt:
         'NQ1! 1-minute chart with the Energizer panel in its waiting state and charge at 0, ' +
         "while the previous setup's entry at 31,006.25, stop at 31,024.00 and three targets stay drawn.",
-      w: 1835,
-      h: 936,
       caption:
         'NQ1! · 1M at the default density. Nothing is armed and the chart still reads clean — ' +
         'the ink budget is one input at the top of the list. Panel profit factor and win rate ' +
         'count only the bars in view.',
     },
-  ] as { src: string; alt: string; w: number; h: number; caption: string }[],
+  },
 
+  /**
+   * 04 Density, ô thứ hai. Ngay dưới ô này trang đang VIẾT RA lời hứa
+   * "Watching it move on a live chart says more than this paragraph does".
+   * Chừng nào ô này còn rỗng thì câu đó là một lời hứa trang tự nhận là
+   * mình không giữ được.
+   */
+  'density-move': {
+    title: 'Video kéo Chart Density',
+    brief:
+      'CÙNG một chart, CÙNG một khung giờ, không cuộn, không đổi timeframe — chỉ kéo ' +
+      'Chart Density từ Clean lên Full rồi về lại. Đây là tài sản thuyết phục nhất ' +
+      'còn thiếu của cả trang: nó chứng minh thứ chữ nghĩa không nói được. 8–12 giây là đủ.',
+    fill: null,
+  },
+
+  /**
+   * 05 Telegram. Cả khối đang bảo người đọc "vào xem một tuần rồi hẵng
+   * quyết" mà không cho thấy một bài đăng nào trông ra sao. Channel đã live
+   * và public nên ảnh này chụp được ngay hôm nay, không chờ gate nào.
+   */
+  'telegram-signal': {
+    title: 'Ảnh một tín hiệu thật trong channel free',
+    brief:
+      'Chụp thẳng trong kênh Energizer Signals. Phải lấy một bài CÓ kèm lý do chấm ' +
+      'điểm, và nên lấy luôn một bài tín hiệu KHÔNG ăn — khối này vừa hứa là có đăng ' +
+      'cả cái trượt. Xoá sạch tên người trong ảnh; không để lọt URL webhook.',
+    fill: null,
+  },
+
+  /**
+   * 06 Honest. Khối này khoe "mở source ra đối chiếu được từng chữ". Một
+   * ảnh Pine Editor đúng mấy dòng changelog biến câu khoe đó thành thứ
+   * kiểm được ngay trên trang.
+   */
+  'honest-source': {
+    title: 'Ảnh changelog trong Pine Editor',
+    brief:
+      'Mở Smart Money Energizer v1.2.pine, cuộn tới khối changelog, chụp cả số dòng. ' +
+      'Số dòng là phần quan trọng — nó cho người đọc chỗ để tự kiểm.',
+    fill: null,
+  },
+
+  /**
+   * 08 Pricing. Câu hỏi chưa ai trả lời trên trang: trả tiền xong thì CÁI GÌ
+   * đến. CHẶN Ở GATE 1 — script chưa publish nên chưa thể có ảnh thật, và
+   * dựng ảnh giả cho mục này thì đúng nghĩa là quảng cáo sai.
+   */
+  'pricing-delivery': {
+    title: 'Trả tiền xong thì nhận được gì',
+    brief:
+      'CHẶN Ở GATE 1 — chưa publish thì chưa có ảnh thật, và ô này thà rỗng còn hơn ' +
+      'dựng. Publish xong thì chụp mục Invite-only scripts của TradingView có ' +
+      'Energizer trong đó.',
+    fill: null,
+  },
+} satisfies Record<string, MediaSlot>
+
+export type MediaSlotName = keyof typeof media
+
+/** Ô này có gì để render không — kể cả phiếu nhắc việc ở dev. */
+export const hasMedia = (slot: MediaSlotName) =>
+  media[slot].fill !== null || showDevWarnings
+
+export const proof = {
   /**
    * Testimonial THẬT. Tối đa 6 — đọc được 6 cái tốt hơn tường 46 ảnh mờ như
    * Trendline đang làm. `who` phải là người có thật; nếu chỉ có tên viết tắt

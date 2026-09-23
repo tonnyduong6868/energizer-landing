@@ -12,6 +12,7 @@ import { Faq } from '@/components/Faq'
 import { EndCta } from '@/components/EndCta'
 import { SiteFooter } from '@/components/SiteFooter'
 import { StickyCta } from '@/components/StickyCta'
+import { MediaPlayScript } from '@/components/Media'
 import { faq, pricing, site } from '@/lib/site'
 
 /**
@@ -91,6 +92,12 @@ export default function Page() {
 
       <SiteFooter />
       <StickyCta />
+
+      {/* Sau </main>, và chỉ MỘT bản cho cả trang. Script quét
+          `querySelectorAll` một lần lúc parser đọc tới nó, nên đặt trong Hero
+          thì mọi video nằm dưới hero vẫn chưa vào DOM và sẽ không bao giờ
+          được gắn observer — im lặng, không lỗi. Xem Media.tsx. */}
+      <MediaPlayScript />
     </>
   )
 }
