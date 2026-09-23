@@ -126,7 +126,85 @@ if (leaked) {
   process.exit(1)
 }
 
-/* ---------- 3. Source phải sạch ----------
+/* ---------- 3. Ảnh phải khai ĐÚNG kích thước thật ----------
+   Luật của repo là "ảnh phải khai width/height, thiếu là layout nhảy". Nhưng
+   khai SAI thì còn tệ hơn thiếu, và không ai nhìn ra: trình duyệt chừa chỗ theo
+   con số khai, giải mã xong mới biết ảnh cao khác, rồi thu lại — đúng cái cú
+   giật mà luật kia sinh ra để chặn, chỉ khác là lần này trang tự gây ra.
+
+   Đã xảy ra: `energizer-panel-confluence.webp` được cắt lại còn cao 342px,
+   `lib/site.ts` vẫn để `h: 362`. Ảnh vẫn hiện, vẫn nét, build vẫn xanh, Next
+   không kiểm gì cả — vì với `output: 'export'` thì `<img>` là thẻ thường, hai
+   con số kia chỉ là chuỗi đi thẳng vào HTML. Không có chỗ nào khác bắt được.
+
+   Nên đo ở đây, trên đúng bytes sắp đẩy, bằng cách đọc header ảnh. Không dùng
+   `sharp`: script deploy phải chạy được cả khi node_modules chưa cài lại. */
+
+/** Kích thước thật của một file ảnh, đọc từ header. `null` = không biết đọc. */
+function imageSize(buf) {
+  if (buf.length >= 24 && buf.readUInt32BE(0) === 0x89504e47)
+    return [buf.readUInt32BE(16), buf.readUInt32BE(20)] // PNG: IHDR
+  if (buf.length >= 30 && buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP') {
+    switch (buf.toString('ascii', 12, 16)) {
+      // Cả ba đều lưu kích-thước-trừ-một, trừ VP8 lossy.
+      case 'VP8X':
+        return [buf.readUIntLE(24, 3) + 1, buf.readUIntLE(27, 3) + 1]
+      case 'VP8L': {
+        const bits = buf.readUInt32LE(21)
+        return [(bits & 0x3fff) + 1, ((bits >> 14) & 0x3fff) + 1]
+      }
+      case 'VP8 ':
+        return [buf.readUInt16LE(26) & 0x3fff, buf.readUInt16LE(28) & 0x3fff]
+    }
+  }
+  return null
+}
+
+/* Thẻ <img> lấy src của chính nó; thẻ <video> thì đo poster — poster là thứ
+   lấp chỗ trước khi video tải xong, nên nó mới phải khớp width/height. */
+const TAGS =
+  /<(img|video)\b[^>]*?\b(?:src|poster)="([^"]+)"[^>]*?\bwidth="(\d+)"[^>]*?\bheight="(\d+)"/g
+
+let sized = 0
+let mismatched = false
+const unreadable = new Set()
+
+for (const rel of htmlFiles) {
+  const body = fs.readFileSync(path.join(OUT, rel), 'utf8')
+  for (const [, tag, src, w, h] of body.matchAll(TAGS)) {
+    if (!src.startsWith(`${EXPECTED_BASE}/`)) continue
+    const file = path.join(OUT, src.slice(EXPECTED_BASE.length + 1))
+    if (!fs.existsSync(file)) {
+      console.error(`out/${rel}: <${tag}> trỏ vào ${src} — không có file này trong bản build.`)
+      mismatched = true
+      continue
+    }
+    const real = imageSize(fs.readFileSync(file))
+    if (!real) {
+      unreadable.add(src)
+      continue
+    }
+    sized++
+    if (real[0] === +w && real[1] === +h) continue
+    mismatched = true
+    console.error(
+      `out/${rel}: <${tag}> khai ${w}x${h} nhưng ${path.basename(src)} thật là ${real[0]}x${real[1]}.`
+    )
+  }
+}
+
+for (const src of unreadable) {
+  console.log(`Không đọc được header của ${src} — bỏ qua, KHÔNG phải là đã kiểm.`)
+}
+
+if (mismatched) {
+  console.error('\nSửa `w`/`h` trong lib/site.ts cho khớp ảnh thật rồi `npm run build` lại.')
+  console.error('Đo lại, đừng chép số cũ — ảnh vừa thay là kích thước đã khác.')
+  process.exit(1)
+}
+console.log(`Kích thước ảnh: ${sized} thẻ khai đúng.`)
+
+/* ---------- 4. Source phải sạch ----------
    Commit gh-pages ghi lại SHA của source sinh ra nó. Nếu cây làm việc còn thay
    đổi chưa commit thì cái SHA đó nói dối: nó trỏ về commit CŨ HƠN thứ vừa lên
    sóng, và sau này truy "bản đang chạy dựng từ đâu" sẽ ra sai chỗ. */
@@ -137,7 +215,7 @@ if (git(['status', '--porcelain'])) {
   process.exit(1)
 }
 
-/* ---------- 4. Lấy remote của repo nguồn ---------- */
+/* ---------- 5. Lấy remote của repo nguồn ---------- */
 let remote
 try {
   remote = git(['remote', 'get-url', 'origin'])
@@ -146,7 +224,7 @@ try {
   process.exit(1)
 }
 
-/* ---------- 5. Dựng thư mục làm việc riêng cho nhánh gh-pages ----------
+/* ---------- 6. Dựng thư mục làm việc riêng cho nhánh gh-pages ----------
    Không dùng `git checkout gh-pages` trong repo chính: nhánh đó chứa bản build
    với cấu trúc thư mục hoàn toàn khác source, đổi qua lại rất dễ để sót file
    lạ và commit nhầm vào main. Một clone riêng thì không có cửa nhầm. */
@@ -166,7 +244,7 @@ try {
   git(['remote', 'add', 'origin', remote], WORK)
 }
 
-/* ---------- 6. Thay toàn bộ nội dung bằng out/ ----------
+/* ---------- 7. Thay toàn bộ nội dung bằng out/ ----------
    Xoá sạch rồi chép lại, không merge. File đã gỡ khỏi trang phải biến mất khỏi
    Pages chứ không nằm lại làm URL mồ côi. `.git` giữ nguyên. */
 for (const entry of fs.readdirSync(WORK)) {
@@ -186,7 +264,7 @@ for (const route of DEV_ONLY_ROUTES) {
 
 fs.writeFileSync(path.join(WORK, '.nojekyll'), '')
 
-/* ---------- 7. Commit + push ---------- */
+/* ---------- 8. Commit + push ---------- */
 git(['add', '-A'], WORK)
 
 const dirty = git(['status', '--porcelain'], WORK)
